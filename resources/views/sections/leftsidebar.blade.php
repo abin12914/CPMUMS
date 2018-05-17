@@ -5,100 +5,186 @@
         <!-- Sidebar user panel -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                <img src="/images/users/default_user.jpg" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
-                <p>Alexander Pierce</p>
-                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                <p>{{ $loggedUser->name }}</p>
+                <a href="#"><i class="fa  fa-hand-o-right"></i> View Profile</a>
             </div>
         </div>
-        <!-- search form -->
-        <form action="#" method="get" class="sidebar-form">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Search...">
-                <span class="input-group-btn">
-                    <button type="submit" name="search" id="search-btn" class="btn btn-flat">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </span>
-            </div>
-        </form>
-        <!-- /.search form -->
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">MAIN NAVIGATION</li>
-            <li class="active treeview menu-open">
-                <a href="#">
+            <li class="{{ Request::is('dashboard')? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}">
                     <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li><a href="index.html"><i class="fa fa-circle-o"></i> Dashboard v1</a></li>
-                    <li class="active"><a href="index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a></li>
-                </ul>
-            </li>
-            <li class="treeview">
-                <a href="#">
-                    <i class="fa fa-files-o"></i>
-                    <span>Layout Options</span>
-                    <span class="pull-right-container">
-                        <span class="label label-primary pull-right">4</span>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li><a href="pages/layout/top-nav.html"><i class="fa fa-circle-o"></i> Top Navigation</a></li>
-                    <li><a href="pages/layout/boxed.html"><i class="fa fa-circle-o"></i> Boxed</a></li>
-                    <li><a href="pages/layout/fixed.html"><i class="fa fa-circle-o"></i> Fixed</a></li>
-                    <li><a href="pages/layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> Collapsed Sidebar</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="pages/widgets.html">
-                    <i class="fa fa-th"></i> <span>Widgets</span>
-                    <span class="pull-right-container">
-                        <small class="label pull-right bg-green">new</small>
-                    </span>
                 </a>
             </li>
-            <li class="treeview">
-                <a href="#">
-                    <i class="fa fa-share"></i> <span>Multilevel</span>
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li><a href="#"><i class="fa fa-circle-o"></i> Level One</a></li>
-                    <li class="treeview">
-                        <a href="#"><i class="fa fa-circle-o"></i> Level One
-                            <span class="pull-right-container">
-                                <i class="fa fa-angle-left pull-right"></i>
-                            </span>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li><a href="#"><i class="fa fa-circle-o"></i> Level Two</a></li>
-                            <li class="treeview">
-                                <a href="#"><i class="fa fa-circle-o"></i> Level Two
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
-                                    <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#"><i class="fa fa-circle-o"></i> Level One</a></li>
-                </ul>
-            </li>
-            <li class="header">LABELS</li>
-            <li><a href="#"><i class="fa fa-circle-o text-red"></i> <span>Important</span></a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Warning</span></a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-aqua"></i> <span>Information</span></a></li>
+            @if($loggedUser->isSuperAdmin() || $loggedUser->isAdmin() || $loggedUser->isUser())
+                <li class="treeview {{ Request::is('reports/*')? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-briefcase"></i>
+                        <span>Reports</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('reports/account-statement')? 'active' : '' }}">
+                            <a href="{{ route('report.account-statement') }}">
+                                <i class="fa fa-circle-o text-green"></i> Account Statement
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ ( Request::is('purchase/*') || Request::is('purchase') )? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-line-chart"></i>
+                        <span>Sale</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('purchase/create')? 'active' : '' }}">
+                            <a href="{{ route('purchase.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('purchase')? 'active' : '' }}">
+                            <a href="{{ route('purchase.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ ( Request::is('production/*') || Request::is('production') )? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-gear"></i>
+                        <span>Production</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('production/create')? 'active' : '' }}">
+                            <a href="{{ route('production.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('production')? 'active' : '' }}">
+                            <a href="{{ route('production.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ ( Request::is('sale/*') || Request::is('sale') )? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-cart-arrow-down"></i>
+                        <span>Purchase</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('sale/create')? 'active' : '' }}">
+                            <a href="{{ route('sale.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('sale')? 'active' : '' }}">
+                            <a href="{{ route('sale.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ Request::is('expense/*') || Request::is('expense')? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-wrench"></i>
+                        <span>Services & Expences</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('expense/create')? 'active' : '' }}">
+                            <a href="{{route('expense.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('expense')? 'active' : '' }}">
+                            <a href="{{ route('expense.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ Request::is('voucher/*') || Request::is('voucher')? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-envelope-o"></i>
+                        <span>Vouchers & Reciepts</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('voucher/create')? 'active' : '' }}">
+                            <a href="{{route('voucher.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('voucher')? 'active' : '' }}">
+                            <a href="{{route('voucher.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ Request::is('account/*') || Request::is('account') ? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-book"></i>
+                        <span>Accounts</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('account/create')? 'active' : '' }}">
+                            <a href="{{route('account.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('account')? 'active' : '' }}">
+                            <a href="{{route('account.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ Request::is('employee/*') || Request::is('employee')? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-male"></i>
+                        <span>Employees</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('employee/create')? 'active' : '' }}">
+                            <a href="{{route('employee.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('employee')? 'active' : '' }}">
+                            <a href="{{route('employee.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @endif
         </ul>
     </section>
     <!-- /.sidebar -->

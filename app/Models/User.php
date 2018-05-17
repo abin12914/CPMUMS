@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Auth;
 
 class User extends Authenticatable
 {
@@ -26,4 +27,16 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function isSuperAdmin() {
+        return Auth::user()->role == 0;
+    }
+
+    public function isAdmin() {
+        return Auth::user()->role == 1;
+    }
+
+    public function isUser() {
+        return Auth::user()->role == 2;
+    }
 }

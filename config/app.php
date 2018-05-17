@@ -177,6 +177,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        //custom/new entries
+        //provider for adding current user to all views
+        App\Providers\ComposerServiceProvider::class,
+
     ],
 
     /*
