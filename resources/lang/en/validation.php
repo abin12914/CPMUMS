@@ -116,6 +116,13 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'relation_type'                 => 'primary relation',
+        'supplier_account_id'           => 'supplier',
+        'service_id'                    => 'service',
+        'customer_account_id'           => 'customer',
+        'voucher_reciept_account_id'    => 'account',
+        'reg_number'                    => 'registration code',
+    ],
 
 ];

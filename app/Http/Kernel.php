@@ -60,5 +60,7 @@ class Kernel extends HttpKernel
         //user middlewares
         //Auth check
         'auth.check' => \App\Http\Middleware\AuthCheck::class,
+        //User role check
+        'user.role' => \App\Http\Middleware\CheckUserRole::class,
     ];
 }

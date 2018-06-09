@@ -1,0 +1,22 @@
+/*select2 element fixing*/
+.select2-selection--single {
+    height:34px !important;
+}
+.select2-container--default .select2-selection--single {
+    border-radius:0px !important;
+}
+/*for removing left border from print*/
+.content-wrapper {
+border-left: none ! important;
+}
+.box {
+    border-top: none ! important;
+}
+/*middle aligning table contents*/
+.table > tbody > tr > td {
+     vertical-align: middle;
+}
+/*break long words to multiple lines*/
+.multi-line {
+    overflow-wrap:break-word;
+}

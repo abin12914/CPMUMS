@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth.check'], function () {
     Route::post('/user/profile', 'UserController@profileUpdate')->name('user.profile.action');
 
     //user routes
-    Route::group(['middleware' => ['user.role:1,2']], function () {
+    Route::group(['middleware' => ['user.role:0,1,2']], function () {
         //branch
         Route::resource('branch', 'BranchController');
 
