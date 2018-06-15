@@ -15,7 +15,7 @@ class EmployeeRepository
      */
     public function getEmployees($params=[], $noOfRecords=null)
     {
-        $employees = Employee::with('account')->where('status', 1);
+        $employees = Employee::with('account')->active();
 
         foreach ($params as $key => $value) {
             if(!empty($value)) {
@@ -43,26 +43,22 @@ class EmployeeRepository
      */
     public function saveEmployee($request)
     {
+        $openingBalanceAccountId = config('constants.accountConstants.AccountOpeningBalance.id');
+        $saveFlag = 0;
+
         $destination    = '/images/accounts/'; // image file upload path
-        $saveFlag       = 0;
         $fileName       = "";
         
         $name               = $request->get('name');
-        $phone              = $request->get('phone');
-        $address            = $request->get('address');
-        $wageType           = $request->get('wage_type');
-        $wage               = $request->get('wage');
-        $accountName        = $request->get('account_name');
         $financialStatus    = $request->get('financial_status');
         $openingBalance     = $request->get('opening_balance');
 
-        $openingBalanceAccount = Account::where('account_name','Account Opening Balance')->first();
-        if(!empty($openingBalanceAccount) && !empty($openingBalanceAccount->id)) {
-            $openingBalanceAccountId = $openingBalanceAccount->id;
-        } else {
+        try {
+            $openingBalanceAccount = Account::findOrFail($openingBalanceAccountId);
+        } catch (Exception $e) {
             return [
                 'flag'      => false,
-                'errorCode' => "01"
+                'errorCode' => config('settings.error_method_code.Save')."/01"
             ];
         }
 
@@ -75,77 +71,83 @@ class EmployeeRepository
             $fileName   = $destination.$fileName;//file name for saving to db
         }
 
-        $account = new Account;
-        $account->account_name      = $accountName;
-        $account->description       = "Staff account of ".$name;
-        $account->type              = 3;
-        $account->relation          = 5;
-        $account->financial_status  = $financialStatus;
-        $account->opening_balance   = $openingBalance;
-        $account->name              = $name;
-        $account->phone             = $phone;
-        $account->address           = $address;
-        $account->image             = $fileName;
-        $account->status            = 1;
-        if($account->save()) {
+        $dateTime = Carbon::now()->format('Y-m-d H:i:s');
+
+        //wrappin db transactions
+        DB::beginTransaction();
+
+        try {
+            //account saving
+            $account = new Account;
+            $account->account_name      = $request->get('account_name');
+            $account->description       = "Staff account of ".$name;
+            $account->type              = 3;
+            $account->relation          = 5;
+            $account->financial_status  = $financialStatus;
+            $account->opening_balance   = $openingBalance;
+            $account->name              = $name;
+            $account->phone             = $request->get('phone');
+            $account->address           = $request->get('address');
+            $account->image             = $fileName;
+            $account->status            = 1;
+            //account save
+            $account->save();
+
+            //employee saving
             $employee = new Employee;
-            $employee->wage_type    = $wageType;
-            $employee->wage         = $wage;
+            $employee->wage_type    = $request->get('wage_type');
+            $employee->wage         = $request->get('wage');
             $employee->account_id   = $account->id;
             $employee->status       = 1;
+            //employee save
+            $employee->save();
 
-            if($employee->save()){
-                if($financialStatus == 1) {//incoming [account holder gives cash to company] [Creditor]
-                    $debitAccountId     = $openingBalanceAccountId;//flow into the opening balance account
-                    $creditAccountId    = $account->id;//flow out from new account
-                    $particulars        = "Opening balance of ". $name . " - Debit [Creditor]";
-                } else if($financialStatus == 2){//outgoing [company gives cash to account holder] [Debitor]
-                    $debitAccountId     = $account->id;//flow into new account
-                    $creditAccountId    = $openingBalanceAccountId;//flow out from the opening balance account
-                    $particulars        = "Opening balance of ". $name . " - Credit [Debitor]";
-                } else {
-                    $debitAccountId     = $openingBalanceAccountId;
-                    $creditAccountId    = $account->id;
-                    $particulars        = "Opening balance of ". $name . " - None";
-                    $openingBalance     = 0;
-                }
-
-                $dateTime = Carbon::now()->format('Y-m-d H:i:s');
-                
-                $transaction = new Transaction;
-                $transaction->debit_account_id  = $debitAccountId;
-                $transaction->credit_account_id = $creditAccountId;
-                $transaction->amount            = !empty($openingBalance) ? $openingBalance : '0';
-                $transaction->transaction_date  = $dateTime;
-                $transaction->particulars       = $particulars;
-                $transaction->status            = 1;
-                $transaction->created_user_id   = Auth::user()->id;
-                if($transaction->save()) {
-                    return [
-                        'flag'  => true,
-                        'id'    => $employee->id,
-                    ];
-                } else {
-                    //delete the account, account detail, employee if opening balance transaction saving failed
-                    $account->forceDelete();
-                    $employee->forceDelete();
-
-                    $saveFlag = '01';
-                }
+            //opening balance transaction details
+            if($financialStatus == 1) {//incoming [account holder gives cash to company] [Creditor]
+                $debitAccountId     = $openingBalanceAccountId;//flow into the opening balance account
+                $creditAccountId    = $account->id;//flow out from new account
+                $particulars        = "Opening balance of ". $name . " - Debit [Creditor]";
+            } else if($financialStatus == 2){//outgoing [company gives cash to account holder] [Debitor]
+                $debitAccountId     = $account->id;//flow into new account
+                $creditAccountId    = $openingBalanceAccountId;//flow out from the opening balance account
+                $particulars        = "Opening balance of ". $name . " - Credit [Debitor]";
             } else {
-                //delete the account, account detail if employee saving failed
-                $account->forceDelete();
-
-                $saveFlag = '02';
+                $debitAccountId     = $openingBalanceAccountId;
+                $creditAccountId    = $account->id;
+                $particulars        = "Opening balance of ". $name . " - None";
+                $openingBalance     = 0;
             }
-        } else {
-            $saveFlag = '03';
+
+            //transaction saving
+            $transaction = new Transaction;
+            $transaction->debit_account_id  = $debitAccountId;
+            $transaction->credit_account_id = $creditAccountId;
+            $transaction->amount            = !empty($openingBalance) ? $openingBalance : '0';
+            $transaction->transaction_date  = $dateTime;
+            $transaction->particulars       = $particulars;
+            $transaction->status            = 1;
+            $transaction->created_user_id   = Auth::user()->id;
+            //transaction save
+            $transaction->save();
+
+            DB::commit();
+
+            $saveFlag = true;
+        } catch (Exception $e) {
+             DB::rollback();
         }
         
-        return [
-                'flag'      => false,
-                'errorCode' => $saveFlag,
+        if($saveFlag) {
+            return [
+                'flag'  => true,
+                'id'    => $account->id,
             ];
+        }
+
+        return [
+            'flag'      => false,
+            'errorCode' => config('settings.error_method_code.Save')."/02"
+        ];
     }
 
     /**
@@ -153,7 +155,7 @@ class EmployeeRepository
      */
     public function getEmployee($id)
     {
-        $employee = Employee::with('account')->where('status', 1)->where('id', $id)->first();
+        $employee = Employee::with('account')->active()->findOrFail($id);
 
         if(empty($employee) || empty($employee->id)) {
             $employee = [];
@@ -164,40 +166,36 @@ class EmployeeRepository
 
     public function deleteEmployee($id, $forceFlag=false)
     {
-        $errorCode = 'Unknown';
-        $employee = Employee::with('account')->where('status', 1)->where('id', $id)->first();
+        $errorCode = 0;
+        $employee = $this->getEmployee($id);
 
-        if(!empty($employee) && !empty($employee->id)) {
-            if($forceFlag) {
-                if($employee->account->forceDelete() && $employee->forceDelete()) {
-                    return [
-                        'flag'  => true,
-                        'force' => true,
-                    ];
-                } else {
-                    $errorCode = '04';
-                }
+        if($forceFlag) {
+            if($employee->account->forceDelete() && $employee->forceDelete()) {
+                return [
+                    'flag'  => true,
+                    'force' => true,
+                ];
             } else {
-                if($employee->account->delete()) {
-                    if($employee->delete()) {
-                        return [
-                            'flag'  => true,
-                            'force' => false,
-                        ];
-                    } else {
-                        $errorCode = '05';
-                    }
-                } else {
-                    $errorCode = '06';
-                }
+                $errorCode = '01';
             }
         } else {
-            $errorCode = '07';
+            if($employee->account->delete()) {
+                if($employee->delete()) {
+                    return [
+                        'flag'  => true,
+                        'force' => false,
+                    ];
+                } else {
+                    $errorCode = '02';
+                }
+            } else {
+                $errorCode = '03';
+            }
         }
 
         return [
             'flag'          => false,
-            'error_code'    => $errorCode,
+            'error_code'    => config('settings.error_method_code.Delete')."/". $errorCode,
         ];
     }
 }

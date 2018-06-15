@@ -13,13 +13,10 @@ class BranchRepository
     /**
      * Return branches.
      */
-    public function getBranches($params=[], $noOfRecords=null, $typeFlag=true)
+    public function getBranches($params=[], $noOfRecords=null)
     {
         $branches = Branch::active();
-        if($typeFlag) {
-            $branches = $branches->where('type', 3);
-        }
-
+        
         foreach ($params as $key => $value) {
             if(!empty($value)) {
                 $branches = $branches->where($key, $value);
@@ -52,7 +49,7 @@ class BranchRepository
 
         try {
             $branch = new Branch;
-            $branch->branch_name    = $branchName;
+            $branch->name    = $branchName;
             $branch->place          = $place;
             $branch->address        = $address;
             $branch->status         = 1;

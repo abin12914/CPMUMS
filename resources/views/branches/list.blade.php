@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Account List')
+@section('title', 'Branch List')
 @section('content')
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Account
+            Branch
             <small>List</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Account List</li>
+            <li class="active">Branch List</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -21,84 +21,11 @@
                 </h4>
             </div>
         @endif
-        <!-- Main row -->
-        <div class="row  no-print">
-            <div class="col-md-12">
-                <div class="box">
-                    <div class="box-header">
-                        <h3 class="box-title">Filter List</h3>
-                    </div>
-                    <!-- /.box-header -->
-                    <div class="box-header">
-                        <form action="{{ route('account.index') }}" method="get" class="form-horizontal" autocomplete="off">
-                            <div class="row">
-                                <div class="col-md-1"></div>
-                                <div class="col-md-10">
-                                    <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('relation_type')) ? 'has-error' : '' }}">
-                                            <label for="relation_type" class="control-label">Relation : </label>
-                                            <select class="form-control select2" name="relation_type" id="relation_type" style="width: 100%" tabindex="1">
-                                                <option value="">Select relation type</option>
-                                                @if(!empty($relationTypes) && (count($relationTypes) > 0))
-                                                    @foreach($relationTypes as $key => $relationType)
-                                                        <option value="{{ $key }}" {{ (old('relation_type') == $key || $params['relation'] == $key) ? 'selected' : '' }}>{{ $relationType }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            @if(!empty($errors->first('relation_type')))
-                                                <p style="color: red;" >{{$errors->first('relation_type')}}</p>
-                                            @endif
-                                        </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('account_id')) ? 'has-error' : '' }}">
-                                            <label for="account_id" class="control-label">Account : </label>
-                                            <select class="form-control select2" name="account_id" id="account_id" style="width: 100%" tabindex="2">
-                                                <option value="">Select account</option>
-                                                @if(!empty($accountsCombo) && (count($accountsCombo) > 0))
-                                                    @foreach($accountsCombo as $account)
-                                                        <option value="{{ $account->id }}" {{ (old('account_id') == $account->id || $params['id'] == $account->id) ? 'selected' : '' }}>{{ $account->account_name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            @if(!empty($errors->first('account_id')))
-                                                <p style="color: red;" >{{$errors->first('account_id')}}</p>
-                                            @endif
-                                        </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
-                                            <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
-                                            <input type="text" class="form-control number_only" name="no_of_records" id="no_of_records" value="{{ !empty(old('no_of_records')) ? old('no_of_records') : $noOfRecords }}" tabindex="3">
-                                            @if(!empty($errors->first('no_of_records')))
-                                                <p style="color: red;" >{{$errors->first('no_of_records')}}</p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="clearfix"></div><br>
-                            <div class="row">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-2">
-                                    <button type="reset" class="btn btn-default btn-block btn-flat"  value="reset" tabindex="4">Clear</button>
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="5"><i class="fa fa-search"></i> Search</button>
-                                </div>
-                            </div>
-                        </form>
-                        <!-- /.form end -->
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="box">
                     {{-- page header for printers --}}
                     @include('sections.print-head')
-                    <div class="box-header no-print">
-                        @if(!empty($params['relation']) || !empty($params['id']))
-                            <b>Filters applied!</b>
-                        @endif
-                    </div>
                     <div class="box-body">
                         <div class="row">
                             <div class="col-md-12" style="overflow:scroll;">
@@ -106,50 +33,22 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 20%;">Account Name</th>
-                                            <th style="width: 10%;">Type</th>
-                                            <th style="width: 15%;">Relation</th>
-                                            <th style="width: 20%;">Account Holder/Head</th>
-                                            <th style="width: 10%;">Opening Credit</th>
-                                            <th style="width: 10%;">Opening Debit</th>
+                                            <th style="width: 30%;">Branch Name</th>
+                                            <th style="width: 20%;">Place</th>
+                                            <th style="width: 35%;">Address</th>
                                             <th style="width: 10%;" class="no-print">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if(!empty($accounts))
-                                            @foreach($accounts as $index => $account)
+                                        @if(!empty($branches))
+                                            @foreach($branches as $index => $branch)
                                                 <tr>
-                                                    <td>{{ $index + $accounts->firstItem() }}</td>
-                                                    <td>{{ $account->account_name }}</td>
-                                                    @if(!empty($accountTypes))
-                                                        <td>
-                                                            {{ !empty($accountTypes[$account->type]) ? $accountTypes[$account->type] : "Error!" }}
-                                                        </td>
-                                                    @else
-                                                        <td>Error</td>
-                                                    @endif
-                                                    @if($account->relation == 0)
-                                                        <td>Real/Nominal</td>
-                                                    @elseif(!empty($relationTypes))
-                                                        <td>
-                                                            {{ !empty($relationTypes[$account->relation]) ? $relationTypes[$account->relation] : "Error!" }}
-                                                        </td>
-                                                    @else
-                                                        <td>Error</td>
-                                                    @endif
-                                                    <td>{{ $account->name }}</td>
-                                                    @if($account->financial_status == 1)
-                                                        <td>{{ $account->opening_balance }}</td>
-                                                        <td></td>
-                                                    @elseif($account->financial_status == 2)
-                                                        <td></td>
-                                                        <td>{{ $account->opening_balance }}</td>
-                                                    @else
-                                                        <td>-</td>
-                                                        <td>-</td>
-                                                    @endif
+                                                    <td>{{ $index + $branches->firstItem() }}</td>
+                                                    <td>{{ $branch->name }}</td>
+                                                    <td>{{ $branch->place }}</td>
+                                                    <td>{{ $branch->address }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('account.show', $account->id) }}">
+                                                        <a href="{{ route('branch.show', $branch->id) }}">
                                                             <button type="button" class="btn btn-default">Details</button>
                                                         </a>
                                                     </td>
@@ -162,12 +61,12 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                @if(!empty($accounts))
+                                @if(!empty($branches))
                                     <div>
-                                        Showing {{ $accounts->firstItem(). " - ". $accounts->lastItem(). " of ". $accounts->total() }}
+                                        Showing {{ $branches->firstItem(). " - ". $branches->lastItem(). " of ". $branches->total() }}
                                     </div>
                                     <div class=" no-print pull-right">
-                                        {{ $accounts->appends(Request::all())->links() }}
+                                        {{ $branches->appends(Request::all())->links() }}
                                     </div>
                                 @endif
                             </div>

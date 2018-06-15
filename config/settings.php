@@ -14,6 +14,7 @@ return [
                                     'Save'      => 'S',//saveXXX()
                                     'Delete'    => 'D',//deleteXXX()
                                 ],
+    'model_namespace'       => "App\Models\\",
     'no_of_record_per_page' => 15,
     'company_name'          => "CPMUMS",
     'company_address'       => "ELAVANTHY, ANAPPARA",

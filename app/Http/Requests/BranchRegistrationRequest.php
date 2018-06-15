@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BranchRegistrationRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class BranchRegistrationRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,19 @@ class BranchRegistrationRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'branch_name'          =>  [
+                                            'required',
+                                            'max:100',
+                                            Rule::unique('branches', 'name')->ignore($this->branch),
+                                        ],
+            'place'           =>  [
+                                            'required',
+                                            'max:200',
+                                        ],
+            'address'               =>  [
+                                            'nullable',
+                                            'max:200',
+                                        ],
         ];
     }
 }
