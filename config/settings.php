@@ -2,17 +2,19 @@
 
 return [
 
-    'error_heads'           =>  [
-                                    'Branch'    => '01',
-                                    'Account'   => '02',
-                                    'Employee'  => '03',
-                                    'Expense'   => '04',
+    'controller_code'           =>  [
+                                    'Branch'        => '01',
+                                    'Account'       => '02',
+                                    'Transaction'   => '03',
+                                    'Employee'      => '04',
+                                    'Expense'       => '05',
                                 ],
-    'error_method_code'     =>  [
-                                    'Gets'      => 'A',//getXXXs()
-                                    'Get'       => 'F',//getXXX()
-                                    'Save'      => 'S',//saveXXX()
-                                    'Delete'    => 'D',//deleteXXX()
+    'repository_code'           =>  [
+                                    'BranchRepository'      => 100,
+                                    'AccountRepository'     => 200,
+                                    'TransactionRepository' => 300,
+                                    'EmployeeRepository'    => 400,
+                                    'ExpenseRepository'     => 500,
                                 ],
     'model_namespace'       => "App\Models\\",
     'no_of_record_per_page' => 15,

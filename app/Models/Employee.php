@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\DeletingEmployeeEvent;
 
 class Employee extends Model
 {
@@ -15,6 +16,15 @@ class Employee extends Model
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+     /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'deleting' => DeletingEmployeeEvent::class,
+    ];
     
     /**
      * Scope a query to only include active employees.

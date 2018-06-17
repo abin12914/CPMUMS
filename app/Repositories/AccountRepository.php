@@ -3,39 +3,51 @@
 namespace App\Repositories;
 
 use App\Models\Account;
-use App\Models\Transaction;
 use \Carbon\Carbon;
-use Auth;
 use Exception;
+use DB;
+use App\Exceptions\AppCustomException;
 
 class AccountRepository
 {
+    public $repositoryCode, $errorCode = 0;
+
+    public function __construct()
+    {
+        $this->repositoryCode = config('settings.repository_code.AccountRepository');
+    }
+
     /**
      * Return accounts.
      */
     public function getAccounts($params=[], $noOfRecords=null, $typeFlag=true)
     {
-        $accounts = Account::active();
-        if($typeFlag) {
-            $accounts = $accounts->where('type', 3);
-        }
+        $accounts = [];
 
-        foreach ($params as $key => $value) {
-            if(!empty($value)) {
-                $accounts = $accounts->where($key, $value);
+        try {
+            $accounts = Account::active();
+            if($typeFlag) {
+                $accounts = $accounts->where('type', 3);
             }
-        }
-        if(!empty($noOfRecords)) {
-            if($noOfRecords == 1) {
-                $accounts = $accounts->first();
-            } else {
+
+            foreach ($params as $key => $value) {
+                if(!empty($value)) {
+                    $accounts = $accounts->where($key, $value);
+                }
+            }
+            if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $accounts = $accounts->paginate($noOfRecords);
+            } else {
+                $accounts= $accounts->get();
             }
-        } else {
-            $accounts= $accounts->get();
-        }
-        if(empty($accounts) || $accounts->count() < 1) {
-            $accounts = [];
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 1;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $accounts;
@@ -44,92 +56,36 @@ class AccountRepository
     /**
      * Action for saving accounts.
      */
-    public function saveAccount($request)
+    public function saveAccount($inputArray)
     {
-        $openingBalanceAccountId = config('constants.accountConstants.AccountOpeningBalance.id');
-        $saveFlag = false;
-
-        $destination    = '/images/accounts/'; // image file upload path
-        $fileName       = "";
-        
-        $financialStatus    = $request->get('financial_status');
-        $openingBalance     = $request->get('opening_balance');
-        $name               = $request->get('name');
-
-        try {
-            $openingBalanceAccount = Account::findOrFail($openingBalanceAccountId);
-        } catch (Exception $e) {
-            return [
-                'flag'      => false,
-                'errorCode' => config('settings.error_method_code.Save')."/01"
-            ];
-        }
-
-        //upload image
-        if ($request->hasFile('image_file')) {
-            $file       = $request->file('image_file');
-            $extension  = $file->getClientOriginalExtension(); // getting image extension
-            $fileName   = $name.'_'.time().'.'.$extension; // renameing image
-            $file->move(public_path().$destination, $fileName); // uploading file to given path
-            $fileName   = $destination.$fileName;//file name for saving to db
-        }
-
-        $date = Carbon::now()->format('Y-m-d');
-
-        //wrappin db transactions
-        DB::beginTransaction();
+        $saveFlag   = false;
 
         try {
             //account saving
             $account = new Account;
-            $account->account_name      = $request->get('account_name');
-            $account->description       = $request->get('description');
-            $account->type              = 3;
-            $account->relation          = $request->get('relation_type');
-            $account->financial_status  = $financialStatus;
-            $account->opening_balance   = $openingBalance;
-            $account->name              = $name;
-            $account->phone             = $request->get('phone');
-            $account->address           = $request->get('address');
-            $account->image             = $fileName;
+            $account->account_name      = $inputArray['account_name'];
+            $account->description       = $inputArray['description'];
+            $account->type              = 3; //type = personal account
+            $account->relation          = $inputArray['relation'];
+            $account->financial_status  = $inputArray['financial_status'];
+            $account->opening_balance   = $inputArray['opening_balance'];
+            $account->name              = $inputArray['name'];
+            $account->phone             = $inputArray['phone'];
+            $account->address           = $inputArray['address'];
+            $account->image             = $inputArray['image'];
             $account->status            = 1;
             //account save
             $account->save();
 
-            //opening balance transaction details
-            if($financialStatus == 1) { //incoming [account holder gives cash to company] [Creditor]
-                $debitAccountId     = $openingBalanceAccountId; //cash flow into the opening balance account
-                $creditAccountId    = $account->id; //flow out from new account
-                $particulars        = "Opening balance of ". $name . " - Debit [Creditor]";
-            } else if($financialStatus == 2){ //outgoing [company gives cash to account holder] [Debitor]
-                $debitAccountId     = $account->id; //flow into new account
-                $creditAccountId    = $openingBalanceAccountId; //flow out from the opening balance account
-                $particulars        = "Opening balance of ". $name . " - Credit [Debitor]";
-            } else {
-                $debitAccountId     = $openingBalanceAccountId;
-                $creditAccountId    = $account->id;
-                $particulars        = "Opening balance of ". $name . " - None";
-                $openingBalance     = 0;
-            }
-
-            //transaction saving
-            $transaction = new Transaction;
-            $transaction->debit_account_id  = $debitAccountId;
-            $transaction->credit_account_id = $creditAccountId;
-            $transaction->amount            = $openingBalance;
-            $transaction->transaction_date  = $date;
-            $transaction->particulars       = $particulars;
-            $transaction->status            = 1;
-            $transaction->created_user_id   = Auth::user()->id;
-            
-            //transaction save
-            $transaction->save();
-
-            DB::commit();
-
             $saveFlag = true;
         } catch (Exception $e) {
-            DB::rollback();
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 2;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         if($saveFlag) {
@@ -140,7 +96,7 @@ class AccountRepository
         }
         return [
             'flag'      => false,
-            'errorCode' => config('settings.error_method_code.Save')."/02"
+            'errorCode' => $this->repositoryCode + 3,
         ];
     }
 
@@ -149,10 +105,18 @@ class AccountRepository
      */
     public function getAccount($id)
     {
-        $account = Account::active()->findOrFail($id);
+        $account = [];
 
-        if(empty($account) || empty($account->id)) {
-            $account = [];
+        try {
+            $account = Account::active()->findOrFail($id);
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 4;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $account;
@@ -160,32 +124,41 @@ class AccountRepository
 
     public function deleteAccount($id, $forceFlag=false)
     {
-        $errorCode = 0;
-        $account = $this->getAccount($id);
+        $deleteFlag = false;
 
-        if($forceFlag) {
-            if($account->forceDelete()) {
-                return [
-                    'flag'  => true,
-                    'force' => true,
-                ];
+        try {
+            //get account
+            $account = $this->getAccount($id);
+
+            //force delete or soft delete
+            if($forceFlag) {
+                //related models will be deleted by deleting event handlers
+                $account->delete();
             } else {
-                $errorCode = '01';
+                $account->forceDelete();
             }
-        } else {
-            if($account->delete()) {
-                return [
-                    'flag'  => true,
-                    'force' => false,
-                ];
+            
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
             } else {
-                $errorCode = '02';
+                $this->errorCode = $this->repositoryCode + 5;
             }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
+        }
+
+        if($deleteFlag) {
+            return [
+                'flag'  => true,
+                'force' => $forceFlag,
+            ];
         }
 
         return [
             'flag'          => false,
-            'error_code'    => config('settings.error_method_code.Delete')."/". $errorCode,
+            'errorCode'    => $this->repositoryCode + 6,
         ];
     }
 }

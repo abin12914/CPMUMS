@@ -54,7 +54,7 @@ class EmployeeRegistrationRequest extends FormRequest
                                         'required',
                                         'numeric',
                                         'min:0',
-                                        'max:9999999',
+                                        'max:99999',
                                     ],
             'account_name'      =>  [
                                         'required',

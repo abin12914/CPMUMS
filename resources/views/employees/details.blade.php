@@ -8,7 +8,7 @@
             <small>Details</small>
         </h1>
         <ol class="breadcrumb">
-            <li><a href="{{ route('user.dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="active">Employee Details</li>
         </ol>
     </section>
@@ -138,14 +138,14 @@
                                     <div class="row">
                                         <div class="col-md-4"></div>
                                         <div class="col-md-4">
-                                            <div class="col-md-{{ (!$currentUser->isSuperAdmin()) ? "12" : "6" }}">
-                                                <form action="{{ route('employees.edit', $employee->id) }}" method="get" class="form-horizontal">
+                                            <div class="col-md-{{ (!$loggedUser->isSuperAdmin()) ? "12" : "6" }}">
+                                                <form action="{{ route('employee.edit', $employee->id) }}" method="get" class="form-horizontal">
                                                     <button type="submit" class="btn btn-primary btn-block btn-flat">Edit</button>
                                                 </form>
                                             </div>
-                                            @if($currentUser->isSuperAdmin())
+                                            @if($loggedUser->isSuperAdmin())
                                                 <div class="col-md-6">
-                                                    <form action="{{ route('employees.destroy', $employee->id) }}" method="post" class="form-horizontal">
+                                                    <form action="{{ route('employee.destroy', $employee->id) }}" method="post" class="form-horizontal">
                                                         {{ method_field('DELETE') }}
                                                         {{ csrf_field() }}
                                                         <button type="button" class="btn btn-danger btn-block btn-flat delete_button">Delete</button>

@@ -163,7 +163,7 @@
                                                 @endif
                                             @else
                                                 <div class="col-md-6">
-                                                    <a href="{{ route('employees.show', $account->employee->id) }}">
+                                                    <a href="{{ route('employee.show', $account->employee->id) }}">
                                                         <button type="button" class="btn btn-info btn-block btn-flat">Employee Details</button>
                                                     </a>
                                                 </div>

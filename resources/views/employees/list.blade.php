@@ -133,7 +133,7 @@
                                                     @endif
                                                     <td>{{ $employee->account->account_name }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('employees.show', ['id' => $employee->id]) }}">
+                                                        <a href="{{ route('employee.show', ['id' => $employee->id]) }}">
                                                             <button type="button" class="btn btn-default">Details</button>
                                                         </a>
                                                     </td>

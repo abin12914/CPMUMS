@@ -119,9 +119,9 @@ class EmployeeController extends Controller
         $deleteFlag = $this->employeeRepo->deleteEmployee($id);
 
         if($deleteFlag['flag']) {
-            return redirect(route('employees.index'))->with("message", "Employee details deleted successfully.")->with("alert-class", "alert-success");
+            return redirect(route('employee.index'))->with("message", "Employee details deleted successfully.")->with("alert-class", "alert-success");
         }
 
-        return redirect(route('employees.index'))->with("message", "Deletion failed. Error Code : ". $deleteFlag['errorCode'])->with("alert-class", "alert-danger");
+        return redirect(route('employee.index'))->with("message", "Deletion failed. Error Code : ". $deleteFlag['errorCode'])->with("alert-class", "alert-danger");
     }
 }

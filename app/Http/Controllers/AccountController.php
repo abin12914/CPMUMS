@@ -4,8 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Repositories\AccountRepository;
+use App\Repositories\TransactionRepository;
 use App\Http\Requests\AccountRegistrationRequest;
 use App\Http\Requests\AccountFilterRequest;
+use \Carbon\Carbon;
+use DB;
+use Exception;
+use App\Exceptions\AppCustomException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AccountController extends Controller
 {
@@ -16,7 +22,7 @@ class AccountController extends Controller
     {
         $this->accountRepo          = $accountRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.error_heads.Account');
+        $this->errorHead            = config('settings.controller_code.Account');
     }
 
     /**
@@ -65,15 +71,100 @@ class AccountController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(AccountRegistrationRequest $request)
+    public function store(AccountRegistrationRequest $request, TransactionRepository $transactionRepo)
     {
-        $response   = $this->accountRepo->saveAccount($request);
+        $saveFlag       = false;
+        $errorCode      = 0;
 
-        if($response['flag']) {
-            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "alert-success");
+        $openingBalanceAccountId = config('constants.accountConstants.AccountOpeningBalance.id');
+
+        $destination    = '/images/accounts/'; // image file upload path
+        $fileName       = "";
+
+        //upload image
+        if ($request->hasFile('image_file')) {
+            $file       = $request->file('image_file');
+            $extension  = $file->getClientOriginalExtension(); // getting image extension
+            $fileName   = $name.'_'.time().'.'.$extension; // renameing image
+            $file->move(public_path().$destination, $fileName); // uploading file to given path
+            $fileName   = $destination.$fileName;//file name for saving to db
+        }
+
+        $financialStatus    = $request->get('financial_status');
+        $openingBalance     = $request->get('opening_balance');
+        $name               = $request->get('name');
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            //confirming opening balance existency.
+            $openingBalanceAccount = $this->accountRepo->getAccount($openingBalanceAccountId);
+
+            //save to account table
+            $accountResponse   = $this->accountRepo->saveAccount([
+                'account_name'      => $request->get('account_name'),
+                'description'       => $request->get('description'),
+                'relation'          => $request->get('relation_type'),
+                'financial_status'  => $financialStatus,
+                'opening_balance'   => $openingBalance,
+                'name'              => $name,
+                'phone'             => $request->get('phone'),
+                'address'           => $request->get('address'),
+                'image'             => $fileName,
+            ]);
+
+            if($accountResponse['flag']) {
+                //opening balance transaction details
+                if($financialStatus == 1) { //incoming [account holder gives cash to company] [Creditor]
+                    $debitAccountId     = $openingBalanceAccountId; //cash flow into the opening balance account
+                    $creditAccountId    = $accountResponse['id']; //newly created account id [flow out from new account]
+                    $particulars        = "Opening balance of ". $name . " - Debit [Creditor]";
+                } else if($financialStatus == 2){ //outgoing [company gives cash to account holder] [Debitor]
+                    $debitAccountId     = $accountResponse['id']; //newly created account id [flow into new account]
+                    $creditAccountId    = $openingBalanceAccountId; //flow out from the opening balance account
+                    $particulars        = "Opening balance of ". $name . " - Credit [Debitor]";
+                } else {
+                    $debitAccountId     = $openingBalanceAccountId;
+                    $creditAccountId    = $accountResponse['id']; //newly created account id
+                    $particulars        = "Opening balance of ". $name . " - None";
+                    $openingBalance     = 0;
+                }
+            } else {
+                throw new AppCustomException("CustomError", $accountResponse['errorCode']);
+            }
+
+            //save to transaction table
+            $transactionResponse   = $transactionRepo->saveTransaction([
+                'debit_account_id'  => $debitAccountId,
+                'credit_account_id' => $creditAccountId,
+                'amount'            => $openingBalance,
+                'transaction_date'  => Carbon::now()->format('Y-m-d'),
+                'particulars'       => $particulars,
+                'branch_id'         => 0,
+            ]);
+
+            if($transactionResponse['flag']) {
+                DB::commit();
+                $saveFlag = true;
+            } else {
+                throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+            }
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+            
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 1;
+            }
+        }
+
+        if($saveFlag) {
+            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "alert-success");
         }
         
-        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $response['errorCode'])->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
     }
 
     /**
@@ -84,11 +175,26 @@ class AccountController extends Controller
      */
     public function show($id)
     {
+        $errorCode  = 0;
+        $account    = [];
+
+        try {
+            $account = $this->accountRepo->getAccount($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 2;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Account", $errorCode);
+        }
+
         return view('accounts.details', [
-                'account'       => $this->accountRepo->getAccount($id),
-                'relationTypes' => config('constants.accountRelationTypes'),
-                'accountTypes'  => config('constants.$accountTypes'),
-            ]);
+            'account'       => $account,
+            'relationTypes' => config('constants.accountRelationTypes'),
+            'accountTypes'  => config('constants.$accountTypes'),
+        ]);
     }
 
     /**
@@ -129,11 +235,38 @@ class AccountController extends Controller
      */
     public function destroy($id)
     {
-        $account = $this->accountRepo->getAccount($id);
+        $deleteFlag['flag'] = false;
+        try {
+            $account = $this->accountRepo->getAccount($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Account", $errorCode);
+        }
 
         if(!empty($account) && !empty($account->id)) {
             if($account->relation != 5) {
-                $deleteFlag = $this->accountRepo->deleteAccount($id);
+                
+                //wrappin db transactions
+                DB::beginTransaction();
+
+                try {
+                    $deleteFlag = $this->accountRepo->deleteAccount($id);
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollback();
+
+                    if($e->getMessage() == "CustomError") {
+                        $errorCode = $e->getCode();
+                    } else {
+                        $errorCode = 4;
+                    }
+                }
                 if($deleteFlag['flag']) {
                     return redirect(route('account.index'))->with("message", "Account details deleted successfully.")->with("alert-class", "alert-success");
                 }
@@ -142,6 +275,6 @@ class AccountController extends Controller
             }
         }
 
-        return redirect(route('account.index'))->with("message", "Deletion failed. Error Code : ". $this->errorHead. " / ". $deleteFlag['errorCode'])->with("alert-class", "alert-danger");
+        return redirect(route('account.index'))->with("message", "Deletion failed. Error Code : ". $this->errorHead. " / ". $errorCode)->with("alert-class", "alert-danger");
     }
 }
