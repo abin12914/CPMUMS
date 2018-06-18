@@ -3,11 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Transaction;
-use \Carbon\Carbon;
 use Auth;
 use Exception;
 use App\Exceptions\AppCustomException;
-use DB;
 
 class TransactionRepository
 {
@@ -22,6 +20,7 @@ class TransactionRepository
      */
     public function getTransactions($params=[], $noOfRecords=null)
     {
+        $transactions = [];
         try {
             $transactions = Transaction::active();
 
@@ -71,7 +70,6 @@ class TransactionRepository
             $transaction->created_user_id   = Auth::user()->id;
             //transaction save
             $transaction->save();
-            throw new AppCustomException("CustomError", 179);
             
             $saveFlag = true;
         } catch (Exception $e) {
@@ -102,6 +100,8 @@ class TransactionRepository
      */
     public function getTransaction($id)
     {
+        $transaction = [];
+
         try {
             $transaction = Transaction::active()->findOrFail($id);
         } catch (Exception $e) {
@@ -113,10 +113,6 @@ class TransactionRepository
             
             throw new AppCustomException("CustomError", $this->errorCode);
         }
-        
-        if(empty($transaction) || empty($transaction->id)) {
-            $transaction = [];
-        }
 
         return $transaction;
     }
@@ -125,8 +121,17 @@ class TransactionRepository
     {
         $deleteFlag = false;
 
-        try {
+       try {
+            //get transaction
             $transaction = $this->getTransaction($id);
+
+            if($forceFlag) {
+                $transaction->forceDelete();
+            } else {
+                $transaction->delete();
+            }
+
+            $deleteFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
                 $this->errorCode = $e->getCode();
@@ -135,53 +140,6 @@ class TransactionRepository
             }
             
             throw new AppCustomException("CustomError", $this->errorCode);
-        }
-
-        if($forceFlag) {
-            //wrappin db transactions
-            DB::beginTransaction();
-
-            try {
-                //remove related models permanently
-                $transaction->purchase()->forceDelete();
-                $transaction->sale()->forceDelete();
-                $transaction->employeeWage()->forceDelete();
-                $transaction->expense()->forceDelete();
-                $transaction->voucher()->forceDelete();
-
-                $transaction->forceDelete();
-                DB::commit();
-
-                $deleteFlag = true;
-            } catch (Exception $e) {
-                DB::rollback();
-
-                if($e->getMessage() == "CustomError") {
-                    throw new AppCustomException($e->getCode(), $e->getCode());
-                } else {
-                    throw new AppCustomException("CustomError", ($repositoryCode."/D/02"));
-                }
-            }
-        } else {
-            //wrappin db transactions
-            DB::beginTransaction();
-
-            try {
-                //related models will be deleted by deleting event handlers
-                $transaction->delete();
-                
-                DB::commit();
-
-                $deleteFlag = true;
-            } catch (Exception $e) {
-                DB::rollback();
-
-                if($e->getMessage() == "CustomError") {
-                    throw new AppCustomException($e->getCode(), $e->getCode());
-                } else {
-                    throw new AppCustomException("CustomError", ($repositoryCode."/D/03"));
-                }
-            }
         }
 
         if($deleteFlag) {

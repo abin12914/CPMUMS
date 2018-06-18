@@ -143,16 +143,16 @@ class AccountController extends Controller
                 'branch_id'         => 0,
             ]);
 
-            if($transactionResponse['flag']) {
-                DB::commit();
-                $saveFlag = true;
-            } else {
+            if(!$transactionResponse['flag']) {
                 throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
             }
+
+            DB::commit();
+            $saveFlag = true;
         } catch (Exception $e) {
             //roll back in case of exceptions
             DB::rollback();
-            
+
             if($e->getMessage() == "CustomError") {
                 $errorCode = $e->getCode();
             } else {
@@ -205,12 +205,27 @@ class AccountController extends Controller
      */
     public function edit($id)
     {
+        $errorCode  = 0;
+        $account    = [];
+
         $relationTypes = config('constants.accountRelationTypes');
         //excluding the relationtype 'employee'[index = 5] for account update
         unset($relationTypes[5]);
 
+        try {
+            $account = $this->accountRepo->getAccount($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Account", $errorCode);
+        }
+
         return view('accounts.edit', [
-                'account'       => $this->accountRepo->getAccount($id),
+                'account'       => $account,
                 'relationTypes' => $relationTypes,
             ]);
     }
@@ -235,6 +250,8 @@ class AccountController extends Controller
      */
     public function destroy($id)
     {
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
+        
         $deleteFlag['flag'] = false;
         try {
             $account = $this->accountRepo->getAccount($id);
@@ -242,7 +259,7 @@ class AccountController extends Controller
             if($e->getMessage() == "CustomError") {
                 $errorCode = $e->getCode();
             } else {
-                $errorCode = 3;
+                $errorCode = 4;
             }
             //throwing methodnotfound exception when no model is fetched
             throw new ModelNotFoundException("Account", $errorCode);
@@ -264,7 +281,7 @@ class AccountController extends Controller
                     if($e->getMessage() == "CustomError") {
                         $errorCode = $e->getCode();
                     } else {
-                        $errorCode = 4;
+                        $errorCode = 5;
                     }
                 }
                 if($deleteFlag['flag']) {

@@ -23,7 +23,7 @@ class Employee extends Model
      * @var array
      */
     protected $dispatchesEvents = [
-        'deleting' => DeletingEmployeeEvent::class,
+        //'deleting' => DeletingEmployeeEvent::class,
     ];
     
     /**

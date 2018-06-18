@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Repositories\BranchRepository;
 use App\Http\Requests\BranchRegistrationRequest;
 use App\Http\Requests\BranchFilterRequest;
+use DB;
+use Exception;
+use App\Exceptions\AppCustomException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BranchController extends Controller
 {
@@ -14,9 +18,9 @@ class BranchController extends Controller
 
     public function __construct(BranchRepository $branchRepo)
     {
-        $this->branchRepo  = $branchRepo;
+        $this->branchRepo           = $branchRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.error_heads.Branch');
+        $this->errorHead            = config('settings.controller_code.Branch');
     }
     
     /**
@@ -56,13 +60,40 @@ class BranchController extends Controller
      */
     public function store(BranchRegistrationRequest $request)
     {
-        $response   = $this->branchRepo->saveBranch($request);
+        $saveFlag       = false;
+        $errorCode      = 0;
 
-        if($response['flag']) {
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            $response   = $this->branchRepo->saveBranch([
+                'name'      => $request->get('name'),
+                'place'     => $request->get('place'),
+                'address'   => $request->get('address'),
+            ]);
+
+            if(!$response['flag']) {
+                throw new AppCustomException("CustomError", $accountResponse['errorCode']);
+            }
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 1;
+            }
+        }
+
+        if($saveFlag) {
             return redirect()->back()->with("message","Branch details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "alert-success");
         }
         
-        return redirect()->back()->with("message","Failed to save the branch details. Error Code : ". $this->errorHead. "/". $response['errorCode'])->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the branch details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
     }
 
     /**

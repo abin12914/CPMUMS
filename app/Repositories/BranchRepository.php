@@ -3,36 +3,46 @@
 namespace App\Repositories;
 
 use App\Models\Branch;
-use App\Models\Transaction;
-use \Carbon\Carbon;
-use Auth;
 use Exception;
+use App\Exceptions\AppCustomException;
 
 class BranchRepository
 {
+    public $repositoryCode, $errorCode = 0;
+
+    public function __construct()
+    {
+        $this->repositoryCode = config('settings.repository_code.BranchRepository');
+    }
+
     /**
      * Return branches.
      */
     public function getBranches($params=[], $noOfRecords=null)
     {
-        $branches = Branch::active();
-        
-        foreach ($params as $key => $value) {
-            if(!empty($value)) {
-                $branches = $branches->where($key, $value);
+        $branches = [];
+
+        try {
+            $branches = Branch::active();
+            
+            foreach ($params as $key => $value) {
+                if(!empty($value)) {
+                    $branches = $branches->where($key, $value);
+                }
             }
-        }
-        if(!empty($noOfRecords)) {
-            if($noOfRecords == 1) {
-                $branches = $branches->first();
-            } else {
+            if(!empty($noOfRecords)) {
                 $branches = $branches->paginate($noOfRecords);
+            } else {
+                $branches= $branches->get();
             }
-        } else {
-            $branches= $branches->get();
-        }
-        if(empty($branches) || $branches->count() < 1) {
-            $branches = [];
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 1;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $branches;
@@ -43,34 +53,40 @@ class BranchRepository
      */
     public function saveBranch($request)
     {
-        $branchName = $request->get('branch_name');
-        $place      = $request->get('place');
-        $address    = $request->get('address');
+        $saveFlag = false;
 
         try {
-            $branch = new Branch;
-            $branch->name    = $branchName;
-            $branch->place          = $place;
-            $branch->address        = $address;
+            //employee saving
+            $branch = new Employee;
+            $branch->branch_name    = $inputArray['branch_name'];
+            $branch->place          = $inputArray['place'];
+            $branch->address        = $inputArray['address'];
             $branch->status         = 1;
-            
-            if($branch->save()) {
-                return [
-                        'flag'  => true,
-                        'id'    => $branch->id,
-                    ];
-            }
+            //branch save
+            $branch->save();
+
+            $saveFlag = true;
         } catch (Exception $e) {
+             if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 2;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
+        }
+        
+        if($saveFlag) {
             return [
-                'flag'      => false,
-                'errorCode' => config('settings.error_method_code.Save')."/01",
+                'flag'  => true,
+                'id'    => $branch->id,
             ];
         }
 
         return [
-                'flag'      => false,
-                'errorCode' => config('settings.error_method_code.Save'). "/02",
-            ];
+            'flag'      => false,
+            'errorCode' => $repositoryCode + 3,
+        ];
     }
 
     /**
@@ -78,10 +94,18 @@ class BranchRepository
      */
     public function getBranch($id)
     {
-        $branch = Branch::active()->where('id', $id)->first();
+        $branch = [];
 
-        if(empty($branch) || empty($branch->id)) {
-            $branch = [];
+        try {
+            $branch = Branch::active()->findOrFail($id);
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 4;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $branch;
@@ -89,35 +113,40 @@ class BranchRepository
 
     public function deleteBranch($id, $forceFlag=false)
     {
-        $errorCode = 0;
-        $branch = $this->getBranch($id);
+        $deleteFlag = false;
 
-        if(!empty($branch) && !empty($branch->id)) {
+        try {
+            //get branch record
+            $branch   = $this->getBranch($id);
+
             if($forceFlag) {
-                if($branch->forceDelete()) {
-                    return [
-                        'flag'  => true,
-                        'force' => true,
-                    ];
-                } else {
-                    $errorCode = '01';
-                }
+                //removing branch permanently
+                $branch->forceDelete();
             } else {
-                if($branch->delete()) {
-                    return [
-                        'flag'  => true,
-                        'force' => false,
-                    ];
-                } else {
-                    $errorCode = '02';
-                }
+                $branch->delete();
             }
-        } else {
-            $errorCode = '03';
+
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 5;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
+        
+        if($deleteFlag) {
+            return [
+                'flag'  => true,
+                'force' => $forceFlag,
+            ];
+        }
+
         return [
             'flag'          => false,
-            'error_code'    => config('settings.error_method_code.Delete')."/". $errorCode,
+            'error_code'    => $this->repositoryCode + 6,
         ];
     }
 }

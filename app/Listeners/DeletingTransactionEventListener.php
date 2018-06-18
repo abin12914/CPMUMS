@@ -26,7 +26,6 @@ class DeletingTransactionEventListener
      */
     public function handle(DeletingTransactionEvent $event)
     {
-        dd($event->transaction);
         if($event->transaction->isForceDeleting()) {
             $event->transaction->account()->forceDelete();
         } else {

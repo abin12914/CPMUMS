@@ -14,7 +14,7 @@ $(function () {
     });*/
 
     //hide flash messages
-    dismissAlert();
+    //dismissAlert();
 
     //Initialize Select2 Element for account type select box
     initializeSelect2();

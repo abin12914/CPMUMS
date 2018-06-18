@@ -34,4 +34,20 @@ class Account extends Model
     {
         return $this->hasOne('App\Models\Employee', 'account_id');
     }
+
+    /**
+     * Get the debit transaction records associated with the account.
+     */
+    public function debitTransactions()
+    {
+        return $this->hasMany('App\Models\Transaction', 'debit_account_id');
+    }
+
+    /**
+     * Get the credit transaction records associated with the account.
+     */
+    public function creditTransactions()
+    {
+        return $this->hasMany('App\Models\Transaction', 'credit_account_id');
+    }
 }
