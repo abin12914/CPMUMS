@@ -2,39 +2,38 @@
 
 namespace App\Repositories;
 
-use App\Models\Production;
+use App\Models\EmployeeWage;
 use Exception;
 use App\Exceptions\AppCustomException;
 
-class ProductionRepository
+class EmployeeWageRepository
 {
     public $repositoryCode, $errorCode = 0;
 
     public function __construct()
     {
-        $this->repositoryCode = config('settings.repository_code.ProductionRepository');
+        $this->repositoryCode = config('settings.repository_code.EmployeeWageRepository');
     }
 
     /**
-     * Return productions.
+     * Return employeeWages.
      */
-    public function getProductions($params=[], $noOfRecords=null)
+    public function getEmployeeWages($params=[], $noOfRecords=null, $typeFlag=true)
     {
-        $productions = [];
+        $employeeWages = [];
 
         try {
-            $productions = Production::active();
-
-            foreach ($params as $param) {
-                if(!empty($param) && !empty($param['paramValue'])) {
-                    $productions = $productions->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
+            $employeeWages = EmployeeWage::active();
+            
+            foreach ($params as $key => $value) {
+                if(!empty($value)) {
+                    $employeeWages = $employeeWages->where($key, $value);
                 }
             }
-
             if(!empty($noOfRecords) && $noOfRecords > 0) {
-                $productions = $productions->paginate($noOfRecords);
+                $employeeWages = $employeeWages->paginate($noOfRecords);
             } else {
-                $productions= $productions->get();
+                $employeeWages= $employeeWages->get();
             }
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -42,31 +41,32 @@ class ProductionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 1;
             }
+            
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
-        return $productions;
+        return $employeeWages;
     }
 
     /**
-     * Action for saving productions.
+     * Action for saving employeeWages.
      */
-    public function saveProduction($inputArray)
+    public function saveEmployeeWage($inputArray)
     {
         $saveFlag   = false;
 
         try {
-            //production saving
-            $production = new Production;
-            $production->date           = $inputArray['date'];
-            $production->branch_id      = $inputArray['branch_id'];
-            $production->employee_id    = $inputArray['employee_id'];
-            $production->product_id     = $inputArray['product_id'];
-            $production->mould_quantity = $inputArray['mould_quantity'];
-            $production->piece_quantity = $inputArray['piece_quantity'];
-            $production->status         = 1;
-            //production save
-            $production->save();
+            //employeeWage saving
+            $employeeWage = new EmployeeWage;
+            $employeeWage->production_id    = $inputArray['production_id'];
+            $employeeWage->transaction_id   = $inputArray['transaction_id'];
+            $employeeWage->from_date        = $inputArray['from_date'];
+            $employeeWage->to_date          = $inputArray['to_date'];
+            $employeeWage->wage_type        = $inputArray['wage_type'];
+            $employeeWage->wage_amount      = $inputArray['wage_amount'];
+            $employeeWage->status           = 1;
+            //employeeWage save
+            $employeeWage->save();
 
             $saveFlag = true;
         } catch (Exception $e) {
@@ -82,7 +82,7 @@ class ProductionRepository
         if($saveFlag) {
             return [
                 'flag'  => true,
-                'id'    => $production->id,
+                'id'    => $employeeWage->id,
             ];
         }
         return [
@@ -92,14 +92,14 @@ class ProductionRepository
     }
 
     /**
-     * return production.
+     * return employeeWage.
      */
-    public function getProduction($id)
+    public function getEmployeeWage($id)
     {
-        $production = [];
+        $employeeWage = [];
 
         try {
-            $production = Production::active()->findOrFail($id);
+            $employeeWage = EmployeeWage::active()->findOrFail($id);
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
                 $this->errorCode = $e->getCode();
@@ -110,23 +110,23 @@ class ProductionRepository
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
-        return $production;
+        return $employeeWage;
     }
 
-    public function deleteProduction($id, $forceFlag=false)
+    public function deleteEmployeeWage($id, $forceFlag=false)
     {
         $deleteFlag = false;
 
         try {
-            //get production
-            $production = $this->getProduction($id);
+            //get employeeWage
+            $employeeWage = $this->getEmployeeWage($id);
 
             //force delete or soft delete
             //related models will be deleted by deleting event handlers
             if($forceFlag) {
-                $production->forceDelete();
+                $employeeWage->forceDelete();
             } else {
-                $production->delete();
+                $employeeWage->delete();
             }
             
             $deleteFlag = true;

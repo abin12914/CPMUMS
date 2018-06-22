@@ -78,7 +78,7 @@ class TransactionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 2;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

@@ -51,21 +51,19 @@
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('account_id')) ? 'has-error' : '' }}">
                                             <label for="account_id" class="control-label">Account : </label>
-                                            <select class="form-control select2" name="account_id" id="account_id" style="width: 100%" tabindex="2">
-                                                <option value="">Select account</option>
-                                                @if(!empty($accountsCombo) && (count($accountsCombo) > 0))
-                                                    @foreach($accountsCombo as $account)
-                                                        <option value="{{ $account->id }}" {{ (old('account_id') == $account->id || $params['id'] == $account->id) ? 'selected' : '' }}>{{ $account->account_name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
+                                            {{-- adding account select component --}}
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['id'], 'cashAccountFlag' => false, 'selectName' => 'account_id', 'tabindex' => 2])
+                                            @endcomponent
+
                                             @if(!empty($errors->first('account_id')))
                                                 <p style="color: red;" >{{$errors->first('account_id')}}</p>
                                             @endif
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
                                             <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
-                                            <input type="text" class="form-control number_only" name="no_of_records" id="no_of_records" value="{{ !empty(old('no_of_records')) ? old('no_of_records') : $noOfRecords }}" tabindex="3">
+                                            {{-- adding no of records text component --}}
+                                            @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 3])
+                                            @endcomponent
                                             @if(!empty($errors->first('no_of_records')))
                                                 <p style="color: red;" >{{$errors->first('no_of_records')}}</p>
                                             @endif
@@ -107,11 +105,10 @@
                                         <tr>
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 20%;">Account Name</th>
-                                            <th style="width: 10%;">Type</th>
                                             <th style="width: 15%;">Relation</th>
-                                            <th style="width: 20%;">Account Holder/Head</th>
-                                            <th style="width: 10%;">Opening Credit</th>
-                                            <th style="width: 10%;">Opening Debit</th>
+                                            <th style="width: 20%;">Account Holder</th>
+                                            <th style="width: 15%;">Opening Credit</th>
+                                            <th style="width: 15%;">Opening Debit</th>
                                             <th style="width: 10%;" class="no-print">Details</th>
                                         </tr>
                                     </thead>
@@ -121,13 +118,6 @@
                                                 <tr>
                                                     <td>{{ $index + $accounts->firstItem() }}</td>
                                                     <td>{{ $account->account_name }}</td>
-                                                    @if(!empty($accountTypes))
-                                                        <td>
-                                                            {{ !empty($accountTypes[$account->type]) ? $accountTypes[$account->type] : "Error!" }}
-                                                        </td>
-                                                    @else
-                                                        <td>Error</td>
-                                                    @endif
                                                     @if($account->relation == 0)
                                                         <td>Real/Nominal</td>
                                                     @elseif(!empty($relationTypes))

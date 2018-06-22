@@ -16,6 +16,14 @@ class ComposerServiceProvider extends ServiceProvider
     {
         //current user to all views
         View::composer('*', "App\Http\ViewComposers\AllViewComposer");
+        //accounts to views
+        View::composer('components.selects.accounts', "App\Http\ViewComposers\AccountComponentComposer");
+        //employees to views
+        View::composer('components.selects.employees', "App\Http\ViewComposers\EmployeeComponentComposer");
+        //branches to views
+        View::composer('components.selects.branches', "App\Http\ViewComposers\BranchComponentComposer");
+        //products to views
+        View::composer('components.selects.products', "App\Http\ViewComposers\ProductComponentComposer");
     }
 
     /**

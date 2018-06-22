@@ -24,7 +24,8 @@
                     <b>Stay calm.. We got it covered.</b>
                     <br>For data security last transaction is canceled. Try again please.
                     <br><br>If happen again please report to us.
-                    <br><b class="text-gray">Error Reference Code : EX/{{ $exception->getCode() }}</b>
+                    <br><b class="text-gray" id="exception_code">Error Reference Code : {{ $exception->getCode() }}</b>
+                    <br><b class="text-gray" style="display: none;" id="exception_message">Error Message : {{ $exception->getMessage() }}</b>
                 </p>
             </div>
             <!-- /.error-content -->
@@ -33,4 +34,16 @@
     </section>
     <!-- /.content -->
 </div>
+@endsection
+@section('scripts')
+    <script type="text/javascript">
+        $(function () {
+            $('.content').on("mouseenter", "#exception_code", function() {
+                $('#exception_message').show();
+            });
+            $('.content').on("mouseleave", "#exception_code", function() {
+                $('#exception_message').hide();
+            });
+        });
+    </script>
 @endsection

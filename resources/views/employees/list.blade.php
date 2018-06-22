@@ -50,22 +50,19 @@
                                             @endif
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('employee_id')) ? 'has-error' : '' }}">
-                                            <label for="employee_id" class="control-label">Employee Account : </label>
-                                            <select class="form-control select2" name="employee_id" id="employee_id" style="width: 100%" tabindex="2">
-                                                <option value="">Select account</option>
-                                                @if(!empty($employeesCombo) && (count($employeesCombo) > 0))
-                                                    @foreach($employeesCombo as $employee)
-                                                        <option value="{{ $employee->id }}" {{ (old('employee_id') == $employee->id || $params['id'] == $employee->id) ? 'selected' : '' }}>{{ $employee->account->account_name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
+                                            <label for="employee_id" class="control-label">Employee : </label>
+                                            {{-- adding employee select component --}}
+                                            @component('components.selects.employees', ['selectedEmployeeId' => $params['id'], 'selectName' => 'employee_id', 'tabindex' => 2])
+                                            @endcomponent
                                             @if(!empty($errors->first('employee_id')))
                                                 <p style="color: red;" >{{$errors->first('employee_id')}}</p>
                                             @endif
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
                                             <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
-                                            <input type="text" class="form-control number_only" name="no_of_records" id="no_of_records" value="{{ !empty(old('no_of_records')) ? old('no_of_records') : $noOfRecords }}" tabindex="3">
+                                            {{-- adding no of records text component --}}
+                                            @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 3])
+                                            @endcomponent
                                             @if(!empty($errors->first('no_of_records')))
                                                 <p style="color: red;" >{{$errors->first('no_of_records')}}</p>
                                             @endif
@@ -106,10 +103,10 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 20%;">Employee Name</th>
-                                            <th style="width: 20%;">Wage Type</th>
-                                            <th style="width: 20%;">Wage</th>
-                                            <th style="width: 20%;">Account Name</th>
+                                            <th style="width: 25%;">Employee Name</th>
+                                            <th style="width: 15%;">Wage Type</th>
+                                            <th style="width: 15%;">Wage</th>
+                                            <th style="width: 25%;">Account Name</th>
                                             <th style="width: 15%;" class="no-print">Details</th>
                                         </tr>
                                     </thead>
@@ -126,11 +123,7 @@
                                                     @else
                                                         <td>Error</td>
                                                     @endif
-                                                    @if($employee->wage_type == 3)
-                                                        <td>{{ $employee->wage }} <b>%</b></td>
-                                                    @else
-                                                        <td>{{ $employee->wage }}</td>
-                                                    @endif
+                                                    <td>{{ $employee->wage_rate }}</td>
                                                     <td>{{ $employee->account->account_name }}</td>
                                                     <td class="no-print">
                                                         <a href="{{ route('employee.show', ['id' => $employee->id]) }}">

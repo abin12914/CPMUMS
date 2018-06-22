@@ -7,7 +7,7 @@ use Auth;
 
 class AllViewComposer
 {
-    protected $loggedUser;
+    protected $loggedUser = [];
 
     /**
      * Create a new profile composer.
@@ -17,7 +17,9 @@ class AllViewComposer
      */
     public function __construct()
     {
-        $this->loggedUser = Auth::user();
+        if(Auth::check()) {
+            $this->loggedUser = Auth::user();
+        }
     }
 
     /**

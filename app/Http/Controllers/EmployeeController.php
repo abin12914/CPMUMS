@@ -41,7 +41,6 @@ class EmployeeController extends Controller
             ];
         
         return view('employees.list', [
-                'employeesCombo'    => $this->employeeRepo->getEmployees(),
                 'employees'         => $this->employeeRepo->getEmployees($params, $noOfRecords),
                 'wageTypes'         => config('constants.employeeWageTypes'),
                 'params'            => $params,

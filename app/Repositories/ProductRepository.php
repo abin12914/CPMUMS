@@ -2,39 +2,39 @@
 
 namespace App\Repositories;
 
-use App\Models\Production;
+use App\Models\Product;
 use Exception;
 use App\Exceptions\AppCustomException;
 
-class ProductionRepository
+class ProductRepository
 {
     public $repositoryCode, $errorCode = 0;
 
     public function __construct()
     {
-        $this->repositoryCode = config('settings.repository_code.ProductionRepository');
+        $this->repositoryCode = config('settings.repository_code.ProductRepository');
     }
 
     /**
-     * Return productions.
+     * Return products.
      */
-    public function getProductions($params=[], $noOfRecords=null)
+    public function getProducts($params=[], $noOfRecords=null)
     {
-        $productions = [];
+        $products = [];
 
         try {
-            $productions = Production::active();
+            $products = Product::active();
 
             foreach ($params as $param) {
                 if(!empty($param) && !empty($param['paramValue'])) {
-                    $productions = $productions->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
+                    $products = $products->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
                 }
             }
 
             if(!empty($noOfRecords) && $noOfRecords > 0) {
-                $productions = $productions->paginate($noOfRecords);
+                $products = $products->paginate($noOfRecords);
             } else {
-                $productions= $productions->get();
+                $products= $products->get();
             }
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -45,28 +45,26 @@ class ProductionRepository
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
-        return $productions;
+        return $products;
     }
 
     /**
-     * Action for saving productions.
+     * Action for saving products.
      */
-    public function saveProduction($inputArray)
+    public function saveProduct($inputArray)
     {
         $saveFlag   = false;
 
         try {
-            //production saving
-            $production = new Production;
-            $production->date           = $inputArray['date'];
-            $production->branch_id      = $inputArray['branch_id'];
-            $production->employee_id    = $inputArray['employee_id'];
-            $production->product_id     = $inputArray['product_id'];
-            $production->mould_quantity = $inputArray['mould_quantity'];
-            $production->piece_quantity = $inputArray['piece_quantity'];
-            $production->status         = 1;
-            //production save
-            $production->save();
+            //product saving
+            $product = new Product;
+            $product->name              = $inputArray['name'];
+            $product->alternate_name    = $inputArray['alternate_name'];
+            $product->description       = $inputArray['description'];
+            $product->rate              = $inputArray['rate'];
+            $product->status            = 1;
+            //product save
+            $product->save();
 
             $saveFlag = true;
         } catch (Exception $e) {
@@ -75,14 +73,14 @@ class ProductionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 2;
             }
-
+            
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         if($saveFlag) {
             return [
                 'flag'  => true,
-                'id'    => $production->id,
+                'id'    => $product->id,
             ];
         }
         return [
@@ -92,14 +90,14 @@ class ProductionRepository
     }
 
     /**
-     * return production.
+     * return product.
      */
-    public function getProduction($id)
+    public function getProduct($id)
     {
-        $production = [];
+        $product = [];
 
         try {
-            $production = Production::active()->findOrFail($id);
+            $product = Product::active()->findOrFail($id);
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
                 $this->errorCode = $e->getCode();
@@ -110,23 +108,23 @@ class ProductionRepository
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
-        return $production;
+        return $product;
     }
 
-    public function deleteProduction($id, $forceFlag=false)
+    public function deleteProduct($id, $forceFlag=false)
     {
         $deleteFlag = false;
 
         try {
-            //get production
-            $production = $this->getProduction($id);
+            //get product
+            $product = $this->getProduct($id);
 
             //force delete or soft delete
             //related models will be deleted by deleting event handlers
             if($forceFlag) {
-                $production->forceDelete();
+                $product->forceDelete();
             } else {
-                $production->delete();
+                $product->delete();
             }
             
             $deleteFlag = true;

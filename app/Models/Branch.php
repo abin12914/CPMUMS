@@ -16,8 +16,6 @@ class Branch extends Model
      */
     protected $dates = ['deleted_at'];
 
-    public $timestamps = false;
-
     /**
      * Scope a query to only include active accounts.
      *

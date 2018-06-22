@@ -1,0 +1,1 @@
+<input type="text" class="form-control number_only" name="no_of_records" id="no_of_records" value="{{ !empty(old('no_of_records')) ? old('no_of_records') : $noOfRecords }}" tabindex="{{ $tabindex }}">

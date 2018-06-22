@@ -10,7 +10,7 @@ use App\Repositories\EmployeeWageRepository;
 use App\Repositories\TransactionRepository;
 use App\Http\Requests\ProductionRegistrationRequest;
 use App\Http\Requests\ProductionFilterRequest;
-use \Carbon\Carbon;
+use Carbon\Carbon;
 use DB;
 use Exception;
 use App\Exceptions\AppCustomException;
@@ -51,6 +51,11 @@ class ProductionController extends Controller
                 'paramValue'    => $toDate,
             ],
             [
+                'paramName'     => 'branch_id',
+                'paramOperator' => '=',
+                'paramValue'    => $request->get('branch_id'),
+            ],
+            [
                 'paramName'     => 'product_id',
                 'paramOperator' => '=',
                 'paramValue'    => $request->get('product_id'),
@@ -63,10 +68,10 @@ class ProductionController extends Controller
         ];
 
         return view('production.list', [
-                'production'   => $this->accountRepo->getAccounts($params, $noOfRecords),
-                'params'        => $params,
-                'noOfRecords'   => $noOfRecords,
-            ]);
+            'productionRecords' => $this->productionRepo->getProductions($params, $noOfRecords),
+            'params'            => $params,
+            'noOfRecords'       => $noOfRecords,
+        ]);
     }
 
     /**
@@ -96,7 +101,8 @@ class ProductionController extends Controller
         $errorCode      = 0;
         $wageAmount     = 0;
 
-        $employeeWageAccountId = config('constants.accountConstants.EmployeeWage.id');
+        $employeeWageAccountId  = config('constants.accountConstants.EmployeeWage.id');
+        $transactionDate        = !empty($request->get('date')) ? Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d') : "";
 
         //wrappin db transactions
         DB::beginTransaction();
@@ -108,8 +114,8 @@ class ProductionController extends Controller
             $employee = $employeeRepo->getEmployee($request->get('employee_id'));
 
             //save to account table
-            $productionResponse   = $this->productionRepo->saveAccount([
-                'date'              => $request->get('date'),
+            $productionResponse   = $this->productionRepo->saveProduction([
+                'date'              => $transactionDate,
                 'branch_id'         => $request->get('branch_id'),
                 'employee_id'       => $request->get('employee_id'),
                 'product_id'        => $request->get('product_id'),
@@ -117,38 +123,38 @@ class ProductionController extends Controller
                 'piece_quantity'    => $request->get('piece_quantity'),
             ]);
 
-            if($productionResponse['flag']) {
-                if($employee->wage_type == 3) {
-                    $wageAmount = $request->get('piece_quantity') * $employee->wage_rate;
-                }
-            }
-            else {
+            if(!$productionResponse['flag']) {
                 throw new AppCustomException("CustomError", $productionResponse['errorCode']);
             }
 
-            //save employee wage to transaction table
-            $transactionResponse   = $employeeWageRepo->saveTransaction([
-                'debit_account_id'  => $employeeWageAccount, // debit the employee wage account
-                'credit_account_id' => $employee->account->id, // credit the employee
-                'amount'            => $openingBalance,
-                'transaction_date'  => Carbon::now()->format('Y-m-d'),
-                'particulars'       => $particulars,
-                'branch_id'         => 0,
-            ]);
+            //if per piece wage for the employee
+            if($employee->wage_type == 3) {
+                $wageAmount = $request->get('mould_quantity') * $employee->wage_rate;
 
-            if(!$transactionResponse['flag']) {
-                throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+                //save employee wage to transaction table
+                $transactionResponse   = $transactionRepo->saveTransaction([
+                    'debit_account_id'  => $employeeWageAccountId, // debit the employee wage account
+                    'credit_account_id' => $employee->account->id, // credit the employee
+                    'amount'            => $wageAmount,
+                    'transaction_date'  => $transactionDate,
+                    'particulars'       => ("Wage generated for ". $employee->account->name . " [No Of Piece : ". $request->get('mould_quantity'). " x  Wage Rate :". $employee->wage_rate. "]"),
+                    'branch_id'         => 0,
+                ]);
+
+                if(!$transactionResponse['flag']) {
+                    throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+                }
+
+                //save to employee wage table
+                $wageResponse   = $employeeWageRepo->saveEmployeeWage([
+                    'production_id'     => $productionResponse['id'],
+                    'transaction_id'    => $transactionResponse['id'],
+                    'from_date'         => $transactionDate,
+                    'to_date'           => null,
+                    'wage_type'         => 3, //per piece wage
+                    'wage_amount'       => $wageAmount,
+                ]);
             }
-
-            //save to employee wage table
-            $wageResponse   = $employeeWageRepo->saveEmployeeWage([
-                'production_id'     => $productionResponse['id'],
-                'transaction_id'    => $transactionResponse['id'],
-                'from_date'         => $request->get('date'),
-                'to_date'           => null,
-                'wage_type'         => 3, //per piece wage
-                'wage_amount'       => $wageAmount,
-            ]);
 
             DB::commit();
             $saveFlag = true;
@@ -164,7 +170,7 @@ class ProductionController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "alert-success");
         }
         
         return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
@@ -178,7 +184,24 @@ class ProductionController extends Controller
      */
     public function show($id)
     {
-        //
+        $errorCode  = 0;
+        $production = [];
+
+        try {
+            $production = $this->productionRepo->getProduction($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 2;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Production", $errorCode);
+        }
+
+        return view('production.details', [
+            'production' => $production,
+        ]);
     }
 
     /**
@@ -189,7 +212,24 @@ class ProductionController extends Controller
      */
     public function edit($id)
     {
-        //
+        $errorCode  = 0;
+        $production = [];
+
+        try {
+            $production = $this->productionRepo->getProduction($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Production", $errorCode);
+        }
+
+        return view('production.edit', [
+            'production' => $production,
+        ]);
     }
 
     /**
@@ -212,6 +252,6 @@ class ProductionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
     }
 }
