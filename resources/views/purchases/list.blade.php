@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Production List')
+@section('title', 'Purchase List')
 @section('content')
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Production
+            Purchase
             <small>List</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Production List</li>
+            <li class="active">Purchase List</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -30,7 +30,7 @@
                     </div>
                     <!-- /.box-header -->
                     <div class="box-header">
-                        <form action="{{ route('production.index') }}" method="get" class="form-horizontal" autocomplete="off">
+                        <form action="{{ route('purchase.index') }}" method="get" class="form-horizontal" autocomplete="off">
                             <div class="row">
                                 <div class="col-md-1"></div>
                                 <div class="col-md-10">
@@ -60,22 +60,22 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('product_id')) ? 'has-error' : '' }}">
-                                            <label for="product_id" class="control-label">Product : </label>
-                                            {{-- adding product select component --}}
-                                            @component('components.selects.products', ['selectedProductId' => $params[3]['paramValue'], 'selectName' => 'product_id', 'tabindex' => 4])
+                                        <div class="col-md-4 {{ !empty($errors->first('material_id')) ? 'has-error' : '' }}">
+                                            <label for="material_id" class="control-label">Material : </label>
+                                            {{-- adding material select component --}}
+                                            @component('components.selects.materials', ['selectedMaterialId' => $params[3]['paramValue'], 'selectName' => 'material_id', 'tabindex' => 4])
                                             @endcomponent
-                                            @if(!empty($errors->first('product_id')))
-                                                <p style="color: red;" >{{$errors->first('product_id')}}</p>
+                                            @if(!empty($errors->first('material_id')))
+                                                <p style="color: red;" >{{$errors->first('material_id')}}</p>
                                             @endif
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('employee_id')) ? 'has-error' : '' }}">
-                                            <label for="employee_id" class="control-label">Employee : </label>
-                                            {{-- adding employee select component --}}
-                                            @component('components.selects.employees', ['selectedEmployeeId' => $params[4]['paramValue'],  'selectName' => 'employee_id', 'tabindex' => 5])
+                                        <div class="col-md-4 {{ !empty($errors->first('supplier_account_id')) ? 'has-error' : '' }}">
+                                            <label for="supplier_account_id" class="control-label">Supplier : </label>
+                                            {{-- adding account select component --}}
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params[4]['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
                                             @endcomponent
-                                            @if(!empty($errors->first('employee_id')))
-                                                <p style="color: red;" >{{$errors->first('employee_id')}}</p>
+                                            @if(!empty($errors->first('supplier_account_id')))
+                                                <p style="color: red;" >{{$errors->first('supplier_account_id')}}</p>
                                             @endif
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
@@ -127,33 +127,31 @@
                                         <tr>
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 10%;">Date</th>
-                                            <th style="width: 15%;">Branch</th>
-                                            <th style="width: 15%;">Employee</th>
-                                            <th style="width: 15%;">Product</th>
-                                            <th style="width: 15%;">No of Moulds</th>
-                                            <th style="width: 15%;">No of Pieces</th>
+                                            <th style="width: 20%;">Branch</th>
+                                            <th style="width: 25%;">Supplier</th>
+                                            <th style="width: 15%;">Material</th>
+                                            <th style="width: 15%;">Bill Amount</th>
                                             <th style="width: 5%;" class="no-print"></th>
                                             <th style="width: 5%;" class="no-print"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if(!empty($productionRecords))
-                                            @foreach($productionRecords as $index => $productionRecord)
+                                        @if(!empty($purchaseRecords))
+                                            @foreach($purchaseRecords as $index => $purchaseRecord)
                                                 <tr>
-                                                    <td>{{ $index + $productionRecords->firstItem() }}</td>
-                                                    <td>{{ Carbon\Carbon::parse($productionRecord->date)->format('d-m-Y') }}</td>
-                                                    <td>{{ $productionRecord->branch->name }}</td>
-                                                    <td>{{ $productionRecord->employee->account->account_name }}</td>
-                                                    <td>{{ $productionRecord->product->name }}</td>
-                                                    <td>{{ $productionRecord->mould_quantity }}</td>
-                                                    <td>{{ $productionRecord->piece_quantity }}</td>
+                                                    <td>{{ $index + $purchaseRecords->firstItem() }}</td>
+                                                    <td>{{ Carbon\Carbon::parse($purchaseRecord->date)->format('d-m-Y') }}</td>
+                                                    <td>{{ $purchaseRecord->branch->name }}</td>
+                                                    <td>{{ $purchaseRecord->transaction->creditAccount->account_name }}</td>
+                                                    <td>{{ $purchaseRecord->material->name }}</td>
+                                                    <td>{{ $purchaseRecord->total_amount }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('production.edit', ['id' => $productionRecord->id]) }}" style="float: left;">
+                                                        <a href="{{ route('purchase.edit', ['id' => $purchaseRecord->id]) }}" style="float: left;">
                                                             <button type="button" class="btn btn-warning">Edit</button>
                                                         </a>
                                                     </td>
                                                     <td class="no-print">
-                                                        <form action="{{ route('production.destroy', $productionRecord->id) }}" method="post" class="form-horizontal">
+                                                        <form action="{{ route('purchase.destroy', $purchaseRecord->id) }}" method="post" class="form-horizontal">
                                                             {{ method_field('DELETE') }}
                                                             {{ csrf_field() }}
                                                             <button type="button" class="btn btn-danger">Delete</button>
@@ -168,12 +166,12 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                @if(!empty($productionRecords))
+                                @if(!empty($purchaseRecords))
                                     <div>
-                                        Showing {{ $productionRecords->firstItem(). " - ". $productionRecords->lastItem(). " of ". $productionRecords->total() }}<br>
+                                        Showing {{ $purchaseRecords->firstItem(). " - ". $purchaseRecords->lastItem(). " of ". $purchaseRecords->total() }}<br>
                                     </div>
                                     <div class=" no-print pull-right">
-                                        {{ $productionRecords->appends(Request::all())->links() }}
+                                        {{ $purchaseRecords->appends(Request::all())->links() }}
                                     </div>
                                 @endif
                             </div>

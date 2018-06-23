@@ -67,8 +67,14 @@ class ProductionController extends Controller
             ],
         ];
 
+        $productionRecords = $this->productionRepo->getProductions($params, $noOfRecords);
+
+        //params passing for auto selection
+        $params[0]['paramValue'] = $request->get('from_date');
+        $params[1]['paramValue'] = $request->get('to_date');
+
         return view('production.list', [
-            'productionRecords' => $this->productionRepo->getProductions($params, $noOfRecords),
+            'productionRecords' => $productionRecords,
             'params'            => $params,
             'noOfRecords'       => $noOfRecords,
         ]);

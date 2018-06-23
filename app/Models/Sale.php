@@ -36,4 +36,12 @@ class Sale extends Model
     {
         return $this->belongsTo('App\Models\Transaction','transaction_id');
     }
+
+    /**
+     * Get the branch details associated with the purchase
+     */
+    public function branch()
+    {
+        return $this->belongsTo('App\Models\Branch','branch_id');
+    }
 }

@@ -40,7 +40,7 @@
                 <li class="treeview {{ ( Request::is('purchase/*') || Request::is('purchase') )? 'active' : '' }}">
                     <a href="#">
                         <i class="fa fa-line-chart"></i>
-                        <span>Sale</span>
+                        <span>Purchase</span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
@@ -82,7 +82,7 @@
                 <li class="treeview {{ ( Request::is('sale/*') || Request::is('sale') )? 'active' : '' }}">
                     <a href="#">
                         <i class="fa fa-cart-arrow-down"></i>
-                        <span>Purchase</span>
+                        <span>Sale</span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
