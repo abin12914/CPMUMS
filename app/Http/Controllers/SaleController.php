@@ -3,17 +3,84 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Repositories\SaleRepository;
+use App\Repositories\TransactionRepository;
+use App\Repositories\AccountRepository;
+use App\Repositories\MaterialRepository;
+use App\Http\Requests\SaleRegistrationRequest;
+use App\Http\Requests\SaleFilterRequest;
+use Carbon\Carbon;
+use DB;
+use Exception;
+use App\Exceptions\AppCustomException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class SaleController extends Controller
 {
+    protected $saleRepo;
+    public $errorHead = null, $noOfRecordsPerPage = null;
+
+    public function __construct(SaleRepository $saleRepo)
+    {
+        $this->saleRepo         = $saleRepo;
+        $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
+        $this->errorHead            = config('settings.controller_code.Sale');
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(SaleFilterRequest $request)
     {
-        //
+        $fromDate       = !empty($request->get('from_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('from_date'))->format('Y-m-d') : "";
+        $toDate         = !empty($request->get('to_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('to_date'))->format('Y-m-d') : "";
+        $noOfRecords    = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
+
+        $params = [
+            [
+                'paramName'     => 'date',
+                'paramOperator' => '>=',
+                'paramValue'    => $fromDate,
+            ],
+            [
+                'paramName'     => 'date',
+                'paramOperator' => '<=',
+                'paramValue'    => $toDate,
+            ],
+            [
+                'paramName'     => 'branch_id',
+                'paramOperator' => '=',
+                'paramValue'    => $request->get('branch_id'),
+            ],
+            [
+                'paramName'     => 'material_id',
+                'paramOperator' => '=',
+                'paramValue'    => $request->get('material_id'),
+            ],
+        ];
+
+        $relationalParams = [
+            [
+                'relation'      => 'transaction',
+                'paramName'     => 'credit_account_id',
+                'paramValue'    => $request->get('supplier_account_id'),
+            ]
+        ];
+
+        $sales = $this->saleRepo->getSales($params, $relationalParams, $noOfRecords);
+
+        //params passing for auto selection
+        $params[0]['paramValue'] = $request->get('from_date');
+        $params[1]['paramValue'] = $request->get('to_date');
+        $params = array_merge($params, $relationalParams);
+
+        return view('sales.list', [
+            'saleRecords'   => $sales,
+            'params'            => $params,
+            'noOfRecords'       => $noOfRecords,
+        ]);
     }
 
     /**
@@ -23,7 +90,7 @@ class SaleController extends Controller
      */
     public function create()
     {
-        //
+        return view('sales.register');
     }
 
     /**
@@ -32,9 +99,82 @@ class SaleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(
+        SaleRegistrationRequest $request,
+        TransactionRepository $transactionRepo,
+        AccountRepository $accountRepo,
+        MaterialRepository $materialRepo
+    ) {dd($request->all());
+        $saveFlag       = false;
+        $errorCode      = 0;
+        $wageAmount     = 0;
+
+        $saleAccountId  = config('constants.accountConstants.Sale.id');
+        $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('sale_date'))->format('Y-m-d');
+        $branchId           = $request->get('branch_id');
+        $supplierAccountId  = $request->get('supplier_account_id');
+        $materialId         = $request->get('material_id');
+        $quantity           = $request->get('sale_quantity');
+        $unitRate           = $request->get('sale_rate');
+        $discount           = $request->get('sale_discount');
+        $totalBill          = $request->get('sale_total_bill');
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            //confirming sale account existency.
+            $saleAccount = $accountRepo->getAccount($saleAccountId);
+
+            //accessing supplier account
+            $supplierAccount = $accountRepo->getAccount($supplierAccountId);
+
+            //accessing material account
+            $material = $materialRepo->getMaterial($materialId);
+
+            //save sale to transaction table
+            $transactionResponse   = $transactionRepo->saveTransaction([
+                'debit_account_id'  => $saleAccountId, // debit the sale account
+                'credit_account_id' => $supplierAccountId , // credit the supplier
+                'amount'            => $totalBill ,
+                'transaction_date'  => $transactionDate,
+                'particulars'       => ("Sale of ". $material->name. " [". $quantity. " x ". $unitRate. " = ". ($quantity * $unitRate). " - ". $discount. " = ". $totalBill. "] Supplier : ". $supplierAccount->name ),
+                'branch_id'         => $branchId,
+            ]);
+
+            if(!$transactionResponse['flag']) {
+                throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+            }
+
+            //save to sale table
+            $saleResponse = $this->saleRepo->saveSale([
+                'transaction_id'    => $transactionResponse['id'],
+                'date'              => $transactionDate,
+                'material_id'       => $materialId,
+                'quantity'          => $quantity,
+                'rate'              => $unitRate,
+                'discount'          => $discount,
+                'total_amount'      => $totalBill,
+                'branch_id'         => $branchId,
+            ]);
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 1;
+            }
+        }
+
+        if($saveFlag) {
+            return redirect()->back()->with("message","Sale details saved successfully. Reference Number : ". $saleResponse['id'])->with("alert-class", "alert-success");
+        }
+        
+        return redirect()->back()->with("message","Failed to save the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
     }
 
     /**
