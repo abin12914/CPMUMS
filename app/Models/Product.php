@@ -26,4 +26,12 @@ class Product extends Model
     {
         return $query->where('status', 1);
     }
+
+    /**
+     * The products that belong to the sale.
+     */
+    public function sales()
+    {
+        return $this->belongsToMany('App\Models\Sale', 'sale_product');
+    }
 }

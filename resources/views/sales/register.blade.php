@@ -21,6 +21,15 @@
                 </h4>
             </div>
         @endif
+        @if (count($errors) > 0)
+            <div class="alert alert-danger" id="alert-message">
+                <ul>
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <!-- Main row -->
         <div class="row no-print">
             <div class="col-md-12">
@@ -65,7 +74,7 @@
                                                     <label for="sale_type" class="control-label"><b style="color: red;">* </b> Sale Type : </label>
                                                     <div class="input-group">
                                                         <span class="input-group-addon">
-                                                            <input type="radio" name="sale_type" value="1" id="account_credit_radio" class="sale_type" checked>
+                                                            <input type="radio" name="sale_type" value="1" id="account_credit_radio" class="sale_type" {{ old('sale_type') != 2 ? "checked" : "" }}>
                                                         </span>
                                                         <label for="account_credit_radio" class="form-control">Cash/Account Credit</label>
                                                     </div>
@@ -77,7 +86,7 @@
                                                     <label for="sale_type" class="control-label"><b style="color: red;">* </b> Sale Type : </label>
                                                     <div class="input-group">
                                                         <span class="input-group-addon">
-                                                            <input type="radio" name="sale_type" value="2" id="with_out_account_credit_radio" class="sale_type">
+                                                            <input type="radio" name="sale_type" value="2" id="with_out_account_credit_radio" class="sale_type" {{ old('sale_type') == 2 ? "checked" : "" }}>
                                                         </span>
                                                         <label for="with_out_account_credit_radio" class="form-control">Short Term Credit [With Out Account]</label>
                                                     </div>
@@ -128,31 +137,27 @@
                                                         <th style="width: 20%;">Amount</th>
                                                     </thead>
                                                     <tbody>
-                                                        @for($i = 1; $i <= 5; $i++)
-                                                            <tr id="product__row_{{ $i }}" data-row-id="{{ $i }}">
+                                                        @for($i = 0; $i < 5; $i++)
+                                                            <tr id="product__row_{{ $i }}">
                                                                 <td>
-                                                                    {{ $i }}
+                                                                    @if(!empty($errors->first('product_id.'. $i)) || !empty($errors->first('sale_quantity.'. $i)) || !empty($errors->first('sale_rate.'. $i)) || !empty($errors->first('sub_bill.'. $i)))
+                                                                        {{ $i + 1 }} &nbsp;
+                                                                        <i class="fa fa-hand-o-right" style="color: red;" title="Invalid data in this row."></i>
+                                                                    @else
+                                                                        {{ $i + 1 }}
+                                                                    @endif
                                                                 </td>
-                                                                <td>
-                                                                    @component('components.selects.products_custom', ['selectedProductId' => old('product_id.'. $i-1), 'selectName' => 'product_id[]', 'selectId' => 'product_id_'.$i, 'customClassName' => 'products_combo', 'indexNo' => $i, 'tabindex' => '', 'disabledOption' => (empty(old('product_id.'. $i-1)) && $i > 1 ? true : false )])
+                                                                <td class="{{ !empty($errors->first('product_id'.$i)) ? 'has-error' : '' }}">
+                                                                    @component('components.selects.products_custom', ['selectedProductId' => old('product_id.'. $i), 'selectName' => 'product_id[]', 'selectId' => 'product_id_'.$i, 'customClassName' => 'products_combo', 'indexNo' => $i, 'tabindex' => '', 'disabledOption' => (empty(old('product_id.'. ($i-1))) && $i > 0 ? true : false )])
                                                                     @endcomponent
-                                                                    @if(!empty($errors->first('product_id.'. $i-1)))
-                                                                        <p style="color: red;" >Invalid</p>
-                                                                    @endif
                                                                 </td>
-                                                                <td>
-                                                                    <input type="text" class="form-control number_only sale_quantity" name="sale_quantity[]" id="sale_quantity_{{ $i }}" placeholder="Quantity" value="{{ old('sale_quantity.'. $i-1) }}" maxlength="4" {{ empty(old('product_id.'. $i-1 )) ? 'disabled' : '' }}>
-                                                                    @if(!empty($errors->first('sale_quantity.'. $i-1)))
-                                                                        <p style="color: red;" >Invalid</p>
-                                                                    @endif
+                                                                <td class="{{ !empty($errors->first('product_id.'. $i)) ? 'has-error' : '' }}">
+                                                                    <input type="text" class="form-control number_only sale_quantity" name="sale_quantity[]" id="sale_quantity_{{ $i }}" placeholder="Quantity" value="{{ old('sale_quantity.'. $i) }}" maxlength="4" {{ empty(old('product_id.'. $i )) ? 'disabled' : '' }}>
                                                                 </td>
-                                                                <td>
-                                                                    <input type="text" class="form-control decimal_number_only sale_rate" name="sale_rate[]" id="sale_rate_{{ $i }}" placeholder="Sale rate" value="{{ old('sale_rate.'. $i-1) }}" maxlength="6" {{ empty(old('product_id.'. $i-1 )) ? 'disabled' : '' }}>
-                                                                    @if(!empty($errors->first('sale_rate.'. $i-1)))
-                                                                        <p style="color: red;" >Invalid</p>
-                                                                    @endif
+                                                                <td class="{{ !empty($errors->first('product_id.'. $i)) ? 'has-error' : '' }}">
+                                                                    <input type="text" class="form-control decimal_number_only sale_rate" name="sale_rate[]" id="sale_rate_{{ $i }}" placeholder="Sale rate" value="{{ old('sale_rate.'. $i) }}" maxlength="6" {{ empty(old('product_id.'. $i )) ? 'disabled' : '' }}>
                                                                 </td>
-                                                                <td>
+                                                                <td class="{{ !empty($errors->first('sub_bill.'.$i)) ? 'has-error' : '' }}">
                                                                     <input type="text" class="form-control decimal_number_only" name="sub_bill[]" id="sub_bill_{{ $i }}" placeholder="Bill value" value="{{ old('sub_bill.'.$i) }}" readonly>
                                                                 </td>
                                                             </tr>
@@ -160,37 +165,40 @@
                                                         <tr>
                                                             <td></td>
                                                             <td></td>
-                                                            <td class="pull-right"></td>
                                                             <td>Total</td>
                                                             <td>
-                                                                <input type="text" class="form-control decimal_number_only" name="total_amount" id="total_amount" placeholder="Total Amount" value="{{ old('total_amount') }}" readonly>
                                                                 @if(!empty($errors->first('total_amount')))
-                                                                    <p style="color: red;" >{{ $errors->first('total_amount') }}</p>
+                                                                    <i class="fa fa-hand-o-right" style="color: red;" title="Something went wrong. Please retry again."></i>
                                                                 @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" class="form-control decimal_number_only" name="total_amount" id="total_amount" placeholder="Total Amount" value="{{ old('total_amount') }}" readonly>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td></td>
                                                             <td></td>
-                                                            <td class="pull-right"></td>
                                                             <td>Discount</td>
                                                             <td>
-                                                                <input type="text" class="form-control decimal_number_only" name="discount" id="discount" placeholder="Discount" value="{{ !empty(old('discount')) ? old('discount') : 0 }}" maxlength="5">
                                                                 @if(!empty($errors->first('discount')))
-                                                                    <p style="color: red;" >{{$errors->first('discount')}}</p>
+                                                                    &nbsp;<i class="fa fa-hand-o-right" style="color: red;" title="{{ $errors->first('discount') }}"></i>
                                                                 @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" class="form-control decimal_number_only" name="discount" id="discount" placeholder="Discount" value="{{ !empty(old('discount')) ? old('discount') : 0 }}" maxlength="5">
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td></td>
                                                             <td></td>
-                                                            <td class="pull-right"></td>
                                                             <td>Total Bill Amount</td>
                                                             <td>
-                                                                <input type="text" class="form-control decimal_number_only" name="total_bill" id="total_bill" placeholder="Total Bill Amount" value="{{ old('total_bill') }}" readonly>
                                                                 @if(!empty($errors->first('total_bill')))
-                                                                    <p style="color: red;" >{{$errors->first('total_bill')}}</p>
+                                                                    <i class="fa fa-hand-o-right" style="color: red;" title="Something went wrong. Please retry again."></i>
                                                                 @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" class="form-control decimal_number_only" name="total_bill" id="total_bill" placeholder="Total Bill Amount" value="{{ old('total_bill') }}" readonly>
                                                             </td>
                                                         </tr>
                                                     </tbody>

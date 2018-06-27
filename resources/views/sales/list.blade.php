@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Purchase List')
+@section('title', 'Sale List')
 @section('content')
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Purchase
+            Sale
             <small>List</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Purchase List</li>
+            <li class="active">Sale List</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -30,7 +30,7 @@
                     </div>
                     <!-- /.box-header -->
                     <div class="box-header">
-                        <form action="{{ route('purchase.index') }}" method="get" class="form-horizontal" autocomplete="off">
+                        <form action="{{ route('sale.index') }}" method="get" class="form-horizontal" autocomplete="off">
                             <div class="row">
                                 <div class="col-md-1"></div>
                                 <div class="col-md-10">
@@ -127,31 +127,36 @@
                                         <tr>
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 10%;">Date</th>
-                                            <th style="width: 20%;">Branch</th>
-                                            <th style="width: 25%;">Supplier</th>
-                                            <th style="width: 15%;">Material</th>
+                                            <th style="width: 25%;">Branch</th>
+                                            <th style="width: 35%;">Customer</th>
                                             <th style="width: 15%;">Bill Amount</th>
                                             <th style="width: 5%;" class="no-print"></th>
                                             <th style="width: 5%;" class="no-print"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if(!empty($purchaseRecords))
-                                            @foreach($purchaseRecords as $index => $purchaseRecord)
+                                        @if(!empty($saleRecords))
+                                            @foreach($saleRecords as $index => $saleRecord)
                                                 <tr>
-                                                    <td>{{ $index + $purchaseRecords->firstItem() }}</td>
-                                                    <td>{{ Carbon\Carbon::parse($purchaseRecord->date)->format('d-m-Y') }}</td>
-                                                    <td>{{ $purchaseRecord->branch->name }}</td>
-                                                    <td>{{ $purchaseRecord->transaction->creditAccount->account_name }}</td>
-                                                    <td>{{ $purchaseRecord->material->name }}</td>
-                                                    <td>{{ $purchaseRecord->total_amount }}</td>
+                                                    <td>{{ $index + $saleRecords->firstItem() }}</td>
+                                                    <td>{{ Carbon\Carbon::parse($saleRecord->date)->format('d-m-Y') }}</td>
+                                                    <td>{{ $saleRecord->branch->name }}</td>
+                                                    @if($saleRecord->transaction->debitAccount->status == 1)
+                                                        <td>{{ $saleRecord->transaction->debitAccount->account_name }}</td>
+                                                    @else
+                                                        <td>
+                                                            {{ $saleRecord->transaction->debitAccount->account_name }}
+                                                            &nbsp;<i class="fa fa-clock-o text-orange" title="Short term credit customer"></i>
+                                                        </td>
+                                                    @endif
+                                                    <td>{{ $saleRecord->total_amount }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('purchase.edit', ['id' => $purchaseRecord->id]) }}" style="float: left;">
+                                                        <a href="{{ route('sale.edit', ['id' => $saleRecord->id]) }}" style="float: left;">
                                                             <button type="button" class="btn btn-warning">Edit</button>
                                                         </a>
                                                     </td>
                                                     <td class="no-print">
-                                                        <form action="{{ route('purchase.destroy', $purchaseRecord->id) }}" method="post" class="form-horizontal">
+                                                        <form action="{{ route('sale.destroy', $saleRecord->id) }}" method="post" class="form-horizontal">
                                                             {{ method_field('DELETE') }}
                                                             {{ csrf_field() }}
                                                             <button type="submit" class="btn btn-danger">Delete</button>
@@ -166,12 +171,12 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                @if(!empty($purchaseRecords))
+                                @if(!empty($saleRecords))
                                     <div>
-                                        Showing {{ $purchaseRecords->firstItem(). " - ". $purchaseRecords->lastItem(). " of ". $purchaseRecords->total() }}<br>
+                                        Showing {{ $saleRecords->firstItem(). " - ". $saleRecords->lastItem(). " of ". $saleRecords->total() }}<br>
                                     </div>
                                     <div class=" no-print pull-right">
-                                        {{ $purchaseRecords->appends(Request::all())->links() }}
+                                        {{ $saleRecords->appends(Request::all())->links() }}
                                     </div>
                                 @endif
                             </div>

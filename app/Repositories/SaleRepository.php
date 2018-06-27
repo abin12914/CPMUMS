@@ -23,7 +23,7 @@ class SaleRepository
         $sales = [];
 
         try {
-            $sales = Sale::active();
+            $sales = Sale::with(['branch', 'transaction.debitAccount'])->active();
 
             foreach ($params as $param) {
                 if(!empty($param) && !empty($param['paramValue'])) {
@@ -68,15 +68,14 @@ class SaleRepository
             $sale = new Sale;
             $sale->transaction_id   = $inputArray['transaction_id'];
             $sale->date             = $inputArray['date'];
-            $sale->material_id      = $inputArray['material_id'];
-            $sale->quantity         = $inputArray['quantity'];
-            $sale->rate             = $inputArray['rate'];
             $sale->discount         = $inputArray['discount'];
             $sale->total_amount     = $inputArray['total_amount'];
             $sale->branch_id        = $inputArray['branch_id'];
             $sale->status           = 1;
             //sale save
             $sale->save();
+
+            $sale->products()->sync($inputArray['productsArray']);
 
             $saveFlag = true;
         } catch (Exception $e) {

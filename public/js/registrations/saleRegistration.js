@@ -6,7 +6,7 @@ $(function () {
             $('#customer_with_account_div').show();
             $('#customer_with_out_account_div').hide();
         } else {
-console.log($(this).val());
+
             //non account sale
             $('#customer_with_out_account_div').show();
             $('#customer_with_account_div').hide();
@@ -15,29 +15,47 @@ console.log($(this).val());
 
     //product change event
     $('body').on("change", ".products_combo", function (evt) {
-        var indexNo = $(this).data('index-no');
-        var rate    = $(this).find(':selected').data('rate');
-        var rowId   = $(this).closest('tr').data('row-id');
+        var fieldValue  = $(this).val();
+        var rowId       = $(this).data('index-no');
+console.log('#1#');
+        if(fieldValue && fieldValue != '' && fieldValue != 'undefined') {
+            var rate = $(this).find(':selected').data('rate');
 
-        $(this).closest('tr').find('.sale_quantity').attr('disabled', false);
-        $(this).closest('tr').find('.sale_rate').attr('disabled', false);
+            //enabling quantity & rate in same column
+            $(this).closest('tr').find('.sale_quantity').attr('disabled', false);
+            $(this).closest('tr').find('.sale_rate').attr('disabled', false);
+            
+            //setting rate for selected product
+            $('#sale_rate_'+rowId).val(rate);
 
-        $('#product__row_'+(rowId+1)).find('.products_combo').attr('disabled', false);
-        
-        $('#sale_rate_'+indexNo).val(rate);
+            //enabling next combo box
+            $('#product__row_'+(rowId+1)).find('.products_combo').attr('disabled', false);
 
-        //disabiling same value selection in 2 sites
-        var fieldValue = $(this).val();
+             //disabiling same value selection in 2 product combo boxes
+            $('.products_combo')
+                .not(this)
+                .children('option[value="' + fieldValue + '"]')
+                .prop('disabled', true);
+                /*.siblings().prop('disabled', false);*/
+        } else {
+            //disabling quantity & rate in same column
+            $(this).closest('tr').find('.sale_quantity').attr('disabled', true);
+            $(this).closest('tr').find('.sale_rate').attr('disabled', true);
+            
+            //setting empty values for deselected product
+            $('#sale_quantity_'+rowId).val('');
+            $('#sale_rate_'+rowId).val('');
 
-        $('.products_combo')
-            .not(this)
-            .children('option[value=' + fieldValue + ']')
-            .prop('disabled', true);
-            /*.siblings().prop('disabled', false);*/
+            $('#product__row_'+(rowId+1)).find('.products_combo').val('');
+            //disabling next combo box
+            $('#product__row_'+(rowId+1)).find('.products_combo').attr('disabled', true);
+            $('#product__row_'+(rowId+1)).find('.products_combo').trigger('change');
+        }
 
         initializeSelect2();
         //calculate total sale bill
         calculateTotalPurchaseBill();
+
     });
 
     //purchase quantity event actions
@@ -74,6 +92,8 @@ function calculateTotalPurchaseBill() {
         if(productId && productId != '' && quantity && quantity != '' && rate && rate != '') {
             $('#sub_bill_'+rowId).val((quantity * rate));
             bill = bill + (quantity * rate);
+        } else {
+            $('#sub_bill_'+rowId).val('');
         }
     });
     

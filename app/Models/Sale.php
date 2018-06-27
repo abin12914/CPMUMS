@@ -44,4 +44,12 @@ class Sale extends Model
     {
         return $this->belongsTo('App\Models\Branch','branch_id');
     }
+
+    /**
+     * The sales that belong to the products.
+     */
+    public function products()
+    {
+        return $this->belongsToMany('App\Models\Product', 'sale_product')->as('saleDetail')->withPivot('quantity', 'rate');
+    }
 }

@@ -42,22 +42,24 @@ class SaleRegistrationRequest extends FormRequest
                                         ],
             'customer_account_id'   => [
                                             'required_if:sale_type,1',
-                                            'integer',
+                                            'nullable',
                                             Rule::in(Account::pluck('id')->toArray()),
                                         ],
             'name'                  => [
                                             'required_if:sale_type,2',
+                                            'nullable',
+                                            'min:4',
                                             'max:100'
                                         ],
             'phone'                 => [
                                             'required_if:sale_type,2',
+                                            'nullable',
                                             'integer',
-                                            'max:12',
-                                            'min:10'
+                                            'digits_between:10,12'
                                         ],
             'product_id'            => [
                                             'required',
-                                            'array'
+                                            'array',
                                         ],
             'product_id.*'          => [
                                             'nullable',
@@ -65,7 +67,7 @@ class SaleRegistrationRequest extends FormRequest
                                         ],
             'sale_quantity'         => [    
                                             'required',
-                                            'array'
+                                            'array',
                                         ],
             'sale_quantity.*'       => [    
                                             'required',
@@ -75,7 +77,7 @@ class SaleRegistrationRequest extends FormRequest
                                         ],
             'sale_rate'             => [
                                             'required',
-                                            'array'
+                                            'array',
                                         ],
             'sale_rate.*'           => [
                                             'required',
@@ -85,7 +87,7 @@ class SaleRegistrationRequest extends FormRequest
                                         ],
             'sub_bill'              => [
                                             'required',
-                                            'array'
+                                            'array',
                                         ],
             'sub_bill.*'            => [
                                             'nullable',

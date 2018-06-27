@@ -32,6 +32,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Cash account',
+            'phone'             => '0000000001',
             'status'            => 1,
         ],
 
@@ -44,6 +45,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Sales account',
+            'phone'             => '0000000002',
             'status'            => 1,  
         ],
 
@@ -56,18 +58,20 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Purchases account',
+            'phone'             => '0000000003',
             'status'            => 1,  
         ],
 
-        'TemporaryCredit' => [
+        'ShortTermCredit' => [
             'id'                => 4,
-            'account_name'      => 'Temporary Credit', //account id : 4
-            'description'       => 'Temporary credit account',
+            'account_name'      => 'Short Term Credit', //account id : 4
+            'description'       => 'Short term credit account',
             'type'              => 2, //nominal account
             'relation'          => 0, //nominal
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
-            'name'              => 'Temporary credit account',
+            'name'              => 'Short term credit account',
+            'phone'             => '0000000004',
             'status'            => 1,
         ],
 
@@ -80,6 +84,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Employee wage account',
+            'phone'             => '0000000005',
             'status'            => 1,
         ],
 
@@ -92,6 +97,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Employee salary account',
+            'phone'             => '0000000006',
             'status'            => 1,
         ],
 
@@ -104,6 +110,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Service and expense account',
+            'phone'             => '0000000007',
             'status'            => 1,
         ],
 
@@ -116,6 +123,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Account opening Balance account',
+            'phone'             => '0000000008',
             'status'            => 1,
         ],
 
@@ -128,6 +136,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Temporary account 1',
+            'phone'             => '0000000009',
             'status'            => 0,
         ],
 
@@ -140,6 +149,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Temporary account 2',
+            'phone'             => '0000000010',
             'status'            => 0,
         ],
 
@@ -152,6 +162,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Temporary account 3',
+            'phone'             => '0000000011',
             'status'            => 0,
         ],
     ],

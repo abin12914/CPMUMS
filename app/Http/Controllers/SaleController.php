@@ -22,7 +22,7 @@ class SaleController extends Controller
 
     public function __construct(SaleRepository $saleRepo)
     {
-        $this->saleRepo         = $saleRepo;
+        $this->saleRepo             = $saleRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
         $this->errorHead            = config('settings.controller_code.Sale');
     }
@@ -65,7 +65,7 @@ class SaleController extends Controller
             [
                 'relation'      => 'transaction',
                 'paramName'     => 'credit_account_id',
-                'paramValue'    => $request->get('supplier_account_id'),
+                'paramValue'    => $request->get('customer_account_id'),
             ]
         ];
 
@@ -104,20 +104,26 @@ class SaleController extends Controller
         TransactionRepository $transactionRepo,
         AccountRepository $accountRepo,
         MaterialRepository $materialRepo
-    ) {dd($request->all());
-        $saveFlag       = false;
-        $errorCode      = 0;
-        $wageAmount     = 0;
+    ) {
+        $saveFlag   = false;
+        $errorCode  = 0;
+        $wageAmount = 0;
 
-        $saleAccountId  = config('constants.accountConstants.Sale.id');
+        $saleAccountId      = config('constants.accountConstants.Sale.id');
         $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('sale_date'))->format('Y-m-d');
         $branchId           = $request->get('branch_id');
-        $supplierAccountId  = $request->get('supplier_account_id');
-        $materialId         = $request->get('material_id');
-        $quantity           = $request->get('sale_quantity');
-        $unitRate           = $request->get('sale_rate');
-        $discount           = $request->get('sale_discount');
-        $totalBill          = $request->get('sale_total_bill');
+        $saleType           = $request->get('sale_type');
+        $products           = $request->get('product_id');
+        $totalBill          = $request->get('total_bill');
+
+        foreach ($products as $index => $productId) {
+            if(!empty($request->get('sale_quantity')[$index]) && !empty($request->get('sale_rate')[$index])) {
+                $productArray[$productId] = [
+                    'quantity'  => $request->get('sale_quantity')[$index],
+                    'rate'      => $request->get('sale_rate')[$index],
+                ];
+            }
+        }
 
         //wrappin db transactions
         DB::beginTransaction();
@@ -125,19 +131,54 @@ class SaleController extends Controller
             //confirming sale account existency.
             $saleAccount = $accountRepo->getAccount($saleAccountId);
 
-            //accessing supplier account
-            $supplierAccount = $accountRepo->getAccount($supplierAccountId);
+            if($saleType != 1) {
+                $customerName       = $request->get('name');
+                $customerPhone      = $request->get('phone');
 
-            //accessing material account
-            $material = $materialRepo->getMaterial($materialId);
+                //checking for exist-ency of the account
+                $accounts = $accountRepo->getAccounts(['phone' => $customerPhone],null,null,false);
 
-            //save sale to transaction table
+                if(empty($accounts) || count($accounts) == 0)
+                {
+                    //save short term customer account to table
+                    $accountResponse = $accountRepo->saveAccount([
+                        'account_name'      => $customerName,
+                        'description'       => ("Short term credit account of". $customerName),
+                        'relation'          => 2, //customer
+                        'financial_status'  => 0,
+                        'opening_balance'   => 0,
+                        'name'              => $customerName,
+                        'phone'             => $customerPhone,
+                        'address'           => $customerName. " - ". $customerPhone,
+                        'image'             => null,
+                        'status'            => 2, //short term credit account
+                    ]);
+
+                    if(!$accountResponse['flag']) {
+                        throw new AppCustomException("CustomError", $accountResponse['errorCode']);
+                    }
+                    $customerAccountId  = $accountResponse['id'];
+                    $particulars        = ("Sale to  ". $customerName. "-". $customerPhone);
+                } else {
+                    $customerAccountId = $accounts->first()->id;
+                    //accessing debit account
+                    $customerAccount = $accountRepo->getAccount($customerAccountId, false);
+                    $particulars = ("Sale to  ". $customerAccount->account_name. "-". $customerAccount->phone);
+                }
+            } else {
+                $customerAccountId = $request->get('customer_account_id');
+                //accessing debit account
+                $customerAccount = $accountRepo->getAccount($customerAccountId);
+                $particulars = ("Sale to  ". $customerAccount->account_ame. "-". $customerAccount->phone);
+            }
+
+            //save sale transaction to table
             $transactionResponse   = $transactionRepo->saveTransaction([
-                'debit_account_id'  => $saleAccountId, // debit the sale account
-                'credit_account_id' => $supplierAccountId , // credit the supplier
+                'debit_account_id'  => $customerAccountId, // debit the customer
+                'credit_account_id' => $saleAccountId, // credit the sale account
                 'amount'            => $totalBill ,
                 'transaction_date'  => $transactionDate,
-                'particulars'       => ("Sale of ". $material->name. " [". $quantity. " x ". $unitRate. " = ". ($quantity * $unitRate). " - ". $discount. " = ". $totalBill. "] Supplier : ". $supplierAccount->name ),
+                'particulars'       => $particulars,
                 'branch_id'         => $branchId,
             ]);
 
@@ -147,15 +188,17 @@ class SaleController extends Controller
 
             //save to sale table
             $saleResponse = $this->saleRepo->saveSale([
-                'transaction_id'    => $transactionResponse['id'],
-                'date'              => $transactionDate,
-                'material_id'       => $materialId,
-                'quantity'          => $quantity,
-                'rate'              => $unitRate,
-                'discount'          => $discount,
-                'total_amount'      => $totalBill,
-                'branch_id'         => $branchId,
+                'transaction_id' => $transactionResponse['id'],
+                'date'           => $transactionDate,
+                'productsArray'  => $productArray,
+                'discount'       => $request->get('sale_discount'),
+                'total_amount'   => $totalBill,
+                'branch_id'      => $branchId,
             ]);
+
+            if(!$saleResponse['flag']) {
+                throw new AppCustomException("CustomError", $saleResponse['errorCode']);
+            }
 
             DB::commit();
             $saveFlag = true;
@@ -185,7 +228,24 @@ class SaleController extends Controller
      */
     public function show($id)
     {
-        //
+        $errorCode  = 0;
+        $sale       = [];
+
+        try {
+            $sale = $this->saleRepo->getSale($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 2;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Sale", $errorCode);
+        }
+
+        return view('sales.details', [
+            'sale' => $sale,
+        ]);
     }
 
     /**
@@ -196,7 +256,24 @@ class SaleController extends Controller
      */
     public function edit($id)
     {
-        //
+        $errorCode  = 0;
+        $sale       = [];
+
+        try {
+            $sale = $this->saleRepo->getSale($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Sale", $errorCode);
+        }
+
+        return view('sales.edit', [
+            'sale' => $sale,
+        ]);
     }
 
     /**
@@ -219,6 +296,6 @@ class SaleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
     }
 }

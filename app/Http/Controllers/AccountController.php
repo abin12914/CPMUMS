@@ -109,6 +109,7 @@ class AccountController extends Controller
                 'phone'             => $request->get('phone'),
                 'address'           => $request->get('address'),
                 'image'             => $fileName,
+                'status'            => 1,
             ]);
 
             if($accountResponse['flag']) {

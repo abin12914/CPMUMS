@@ -18,12 +18,17 @@ class AccountRepository
     /**
      * Return accounts.
      */
-    public function getAccounts($params=[], $noOfRecords=null, $typeFlag=true)
+    public function getAccounts($params=[], $noOfRecords=null, $typeFlag=true, $activeFlag=true)
     {
         $accounts = [];
 
         try {
-            $accounts = Account::active();
+            $accounts = Account::query();
+
+            if($activeFlag) {
+                $accounts = $accounts->active();
+            }
+
             if($typeFlag) {
                 $accounts = $accounts->where('type', 3);
             }
@@ -71,7 +76,7 @@ class AccountRepository
             $account->phone             = $inputArray['phone'];
             $account->address           = $inputArray['address'];
             $account->image             = $inputArray['image'];
-            $account->status            = 1;
+            $account->status            = $inputArray['status'];
             //account save
             $account->save();
 
@@ -101,12 +106,18 @@ class AccountRepository
     /**
      * return account.
      */
-    public function getAccount($id)
+    public function getAccount($id, $activeFlag=true)
     {
         $account = [];
 
         try {
-            $account = Account::active()->findOrFail($id);
+            $account = Account::query();
+            
+            if($activeFlag) {
+                $account = $account->active();
+            }
+
+            $account = $account->findOrFail($id);
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
                 $this->errorCode = $e->getCode();
