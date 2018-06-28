@@ -49,50 +49,33 @@
                                                 <p style="color: red;" >{{$errors->first('to_date')}}</p>
                                             @endif
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('supplier_account_id')) ? 'has-error' : '' }}">
-                                            <label for="supplier_account_id" class="control-label">Supplier : </label>
-                                            <select class="form-control select2" name="supplier_account_id" id="supplier_account_id" style="width: 100%" tabindex="3">
-                                                <option value="">Select account</option>
-                                                @if(!empty($accounts) && (count($accounts) > 0))
-                                                    @foreach($accounts as $account)
-                                                        <option value="{{ $account->id }}" {{ (old('supplier_account_id') == $account->id || $params[4]['paramValue'] == $account->id) ? 'selected' : '' }}>
-                                                            {{ $account->account_name }}
-                                                        </option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            @if(!empty($errors->first('supplier_account_id')))
-                                                <p style="color: red;" >{{$errors->first('supplier_account_id')}}</p>
+                                        <div class="col-md-4 {{ !empty($errors->first('branch_id')) ? 'has-error' : '' }}">
+                                            <label for="branch_id" class="control-label">Branch : </label>
+                                            {{-- adding branch select component --}}
+                                            @component('components.selects.branches', ['selectedBranchId' => $params[2]['paramValue'], 'selectName' => 'branch_id', 'tabindex' => 3])
+                                            @endcomponent
+                                            @if(!empty($errors->first('branch_id')))
+                                                <p style="color: red;" >{{$errors->first('branch_id')}}</p>
                                             @endif
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('truck_id')) ? 'has-error' : '' }}">
-                                            <label for="truck_id" class="control-label">Truck : </label>
-                                            <select class="form-control select2" name="truck_id" id="truck_id" style="width: 100%" tabindex="4">
-                                                <option value="">Select truck</option>
-                                                @if(!empty($trucks) && (count($trucks) > 0))
-                                                    @foreach($trucks as $truck)
-                                                        <option value="{{ $truck->id }}" {{ (old('truck_id') == $truck->id || $params[2]['paramValue'] == $truck->id) ? 'selected' : '' }}>{{ $truck->reg_number }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            @if(!empty($errors->first('truck_id')))
-                                                <p style="color: red;" >{{$errors->first('truck_id')}}</p>
-                                            @endif
-                                        </div>
                                         <div class="col-md-4 {{ !empty($errors->first('service_id')) ? 'has-error' : '' }}">
                                             <label for="service_id" class="control-label">Service/Expense : </label>
-                                            <select class="form-control select2" name="service_id" id="service_id" style="width: 100%" tabindex="5">
-                                                <option value="">Select service</option>
-                                                @if(!empty($services) && (count($services) > 0))
-                                                    @foreach($services as $service)
-                                                        <option value="{{ $service->id }}" {{ (old('service_id') == $service->id || $params[3]['paramValue'] == $service->id) ? 'selected' : '' }}>{{ $service->name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
+                                            {{-- adding services select component --}}
+                                            @component('components.selects.services', ['selectedServiceId' => $params[3]['paramValue'], 'selectName' => 'service_id', 'tabindex' => 4])
+                                            @endcomponent
                                             @if(!empty($errors->first('service_id')))
                                                 <p style="color: red;" >{{$errors->first('service_id')}}</p>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-4 {{ !empty($errors->first('supplier_account_id')) ? 'has-error' : '' }}">
+                                            <label for="supplier_account_id" class="control-label">Supplier : </label>
+                                            {{-- adding account select component --}}
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params[4]['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
+                                            @endcomponent
+                                            @if(!empty($errors->first('supplier_account_id')))
+                                                <p style="color: red;" >{{$errors->first('supplier_account_id')}}</p>
                                             @endif
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
@@ -142,9 +125,9 @@
                                         <tr>
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 15%;">Date</th>
-                                            <th style="width: 20%;">Truck</th>
-                                            <th style="width: 20%;">Supplier</th>
+                                            <th style="width: 20%;">Branch</th>
                                             <th style="width: 15%;">Service</th>
+                                            <th style="width: 20%;">Supplier</th>
                                             <th style="width: 15%;">Amount</th>
                                             <th style="width: 10%;" class="no-print">Details</th>
                                         </tr>
@@ -155,12 +138,12 @@
                                                 <tr>
                                                     <td>{{ $index + $expenses->firstItem() }}</td>
                                                     <td>{{ Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</td>
-                                                    <td>{{ $expense->truck->reg_number }}</td>
+                                                    <td>{{ $expense->branch->name }}</td>
                                                     <td>{{ $expense->transaction->creditAccount->account_name }}</td>
                                                     <td>{{ $expense->service->name }}</td>
                                                     <td>{{ $expense->bill_amount }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('expenses.show', ['id' => $expense->id]) }}">
+                                                        <a href="{{ route('expense.show', ['id' => $expense->id]) }}">
                                                             <button type="button" class="btn btn-default">Details</button>
                                                         </a>
                                                     </td>

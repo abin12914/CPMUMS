@@ -37,111 +37,70 @@
                             <div class="box-body">
                                 <input type="hidden" name="_token" value="{{csrf_token()}}">
                                 <div class="row">
-                                    <div class="col-md-11">
+                                    <div class="col-md-1"></div>
+                                    <div class="col-md-10">
                                         <div class="form-group">
-                                            <label for="transaction_type_credit" class="col-md-3 control-label"><b style="color: red;">* </b> Transaction Type : </label>
-                                            <div class="col-md-9">
-                                                <div class="row">
-                                                    <div class="col-md-6 {{ !empty($errors->first('transaction_type')) ? 'has-error' : '' }}">
-                                                        <div class="input-group">
-                                                            <span class="input-group-addon">
-                                                                <input type="radio" name="transaction_type" class="transaction_type" id="transaction_type_credit" value="1" {{ empty(old('transaction_type')) || old('transaction_type') == '1' ? 'checked' : ''}} tabindex="1">
-                                                            </span>
-                                                            <label for="transaction_type_credit" class="form-control">Credit</label>
-                                                        </div>
-                                                        @if(!empty($errors->first('transaction_type')))
-                                                            <p style="color: red;" >{{$errors->first('transaction_type')}}</p>
-                                                        @endif
-                                                    </div>
-                                                    <div class="col-md-6 {{ !empty($errors->first('transaction_type')) ? 'has-error' : '' }}">
-                                                        <div class="input-group">
-                                                            <span class="input-group-addon">
-                                                                <input type="radio" name="transaction_type" class="transaction_type" id="transaction_type_cash" value="2" {{ old('transaction_type') == '2' ? 'checked' : ''}} tabindex="2">
-                                                            </span>
-                                                            <label for="transaction_type_cash" class="form-control">Cash</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group" id="supplier_div">
-                                            <label for="supplier_account_id" class="col-md-3 control-label"><b style="color: red;">* </b> Supplier : </label>
-                                            <div class="col-md-9 {{ !empty($errors->first('supplier_account_id')) ? 'has-error' : '' }}">
-                                                <select class="form-control select2" name="supplier_account_id" id="supplier_account_id" style="width: 100%;" tabindex="3">
-                                                    <option value="" {{ empty(old('supplier_account_id')) ? 'selected' : '' }}>Select account</option>
-                                                    @if(!empty($accounts))
-                                                        @foreach($accounts as $account)
-                                                            <option value="{{ $account->id }}" {{ (old('supplier_account_id') == $account->id) ? 'selected' : '' }}>{{ $account->account_name }}</option>
-                                                        @endforeach
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label for="branch_id" class="control-label"><b style="color: red;">* </b> Branch : </label>
+                                                    {{-- adding branch select component --}}
+                                                    @component('components.selects.branches', ['selectedBranchId' => old('branch_id'), 'selectName' => 'branch_id', 'tabindex' => 3])
+                                                    @endcomponent
+                                                    @if(!empty($errors->first('branch_id')))
+                                                        <p style="color: red;" >{{$errors->first('branch_id')}}</p>
                                                     @endif
-                                                </select>
-                                                @if(!empty($errors->first('supplier_account_id')))
-                                                    <p style="color: red;" >{{$errors->first('supplier_account_id')}}</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="truck_id" class="col-md-3 control-label"><b style="color: red;">* </b> Truck & Date : </label>
-                                            <div class="col-md-9">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <select class="form-control select2" name="truck_id" id="truck_id" style="width: 100%;" tabindex="4">
-                                                            <option value="" {{ empty(old('truck_id')) ? 'selected' : '' }}>Select truck</option>
-                                                            @if(!empty($trucks))
-                                                                @foreach($trucks as $truck)
-                                                                    <option value="{{ $truck->id }}" {{ (old('truck_id') == $truck->id) ? 'selected' : '' }}>{{ $truck->reg_number }} - {{ $truck->truckType->name }}</option>
-                                                                @endforeach
-                                                            @endif
-                                                        </select>
-                                                        @if(!empty($errors->first('truck_id')))
-                                                            <p style="color: red;" >{{$errors->first('truck_id')}}</p>
-                                                        @endif
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <input type="text" class="form-control decimal_number_only datepicker_reg" name="date" id="date" placeholder="Transaction date" value="{{ old('date') }}" tabindex="5">
-                                                        @if(!empty($errors->first('date')))
-                                                            <p style="color: red;" >{{$errors->first('date')}}</p>
-                                                        @endif
-                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="date" class="control-label"><b style="color: red;">* </b> Date : </label>
+                                                    <input type="text" class="form-control decimal_number_only datepicker_reg" name="date" id="date" placeholder="Transaction date" value="{{ old('date') }}" tabindex="5">
+                                                    @if(!empty($errors->first('date')))
+                                                        <p style="color: red;" >{{$errors->first('date')}}</p>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="service_id" class="col-md-3 control-label"><b style="color: red;">* </b> Service : </label>
-                                            <div class="col-md-9 {{ !empty($errors->first('service_id')) ? 'has-error' : '' }}">
-                                                <select class="form-control select2" name="service_id" id="service_id" style="width: 100%;" tabindex="6">
-                                                    <option value="" {{ empty(old('service_id')) ? 'selected' : '' }}>Select service</option>
-                                                    @if(!empty($services))
-                                                        @foreach($services as $service)
-                                                            <option value="{{ $service->id }}" {{ (old('service_id') == $service->id) ? 'selected' : '' }}>{{ $service->name }}</option>
-                                                        @endforeach
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label for="service_id" class="control-label"><b style="color: red;">* </b> Service : </label>
+                                                    {{-- adding services select component --}}
+                                                    @component('components.selects.services', ['selectedServiceId' => old('service_id'), 'selectName' => 'service_id', 'tabindex' => 4])
+                                                    @endcomponent
+                                                    @if(!empty($errors->first('service_id')))
+                                                        <p style="color: red;" >{{$errors->first('service_id')}}</p>
                                                     @endif
-                                                </select>
-                                                @if(!empty($errors->first('service_id')))
-                                                    <p style="color: red;" >{{$errors->first('service_id')}}</p>
-                                                @endif
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="supplier_account_id" class="control-label"><b style="color: red;">* </b> Supplier : </label>
+                                                    {{-- adding account select component --}}
+                                                    @component('components.selects.accounts', ['selectedAccountId' => old('supplier_account_id'), 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
+                                                    @endcomponent
+                                                    @if(!empty($errors->first('supplier_account_id')))
+                                                        <p style="color: red;" >{{$errors->first('supplier_account_id')}}</p>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="description" class="col-md-3 control-label">Description : </label>
-                                            <div class="col-md-9 {{ !empty($errors->first('description')) ? 'has-error' : '' }}">
-                                                @if(!empty(old('description')))
-                                                    <textarea class="form-control" name="description" id="description" rows="3" placeholder="Truck Description" style="resize: none;" tabindex="7">{{ old('description') }}</textarea>
-                                                @else
-                                                    <textarea class="form-control" name="description" id="description" rows="3" placeholder="Truck Description" style="resize: none;" tabindex="7"></textarea>
-                                                @endif
-                                                @if(!empty($errors->first('description')))
-                                                    <p style="color: red;" >{{$errors->first('description')}}</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-md-3 control-label"><b style="color: red;">* </b> Bill Amount : </label>
-                                            <div class="col-md-9 {{ !empty($errors->first('bill_amount')) ? 'has-error' : '' }}">
-                                                <input type="text" class="form-control decimal_number_only" name="bill_amount" id="bill_amount" placeholder="Bill amount" value="{{ old('bill_amount') }}" maxlength="8" tabindex="8">
-                                                @if(!empty($errors->first('bill_amount')))
-                                                    <p style="color: red;" >{{$errors->first('bill_amount')}}</p>
-                                                @endif
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label for="description" class="control-label"><b style="color: red;">* </b> Description: </label>
+                                                    @if(!empty(old('description')))
+                                                        <textarea class="form-control" name="description" id="description" rows="1" placeholder="Description" style="resize: none;" tabindex="7">{{ old('description') }}</textarea>
+                                                    @else
+                                                        <textarea class="form-control" name="description" id="description" rows="1" placeholder="Truck Description" style="resize: none;" tabindex="7"></textarea>
+                                                    @endif
+                                                    @if(!empty($errors->first('description')))
+                                                        <p style="color: red;" >{{$errors->first('description')}}</p>
+                                                    @endif
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="bill_amount" class="control-label"><b style="color: red;">* </b> Bill Amount: </label>
+                                                    <input type="text" class="form-control decimal_number_only" name="bill_amount" id="bill_amount" placeholder="Bill amount" value="{{ old('bill_amount') }}" maxlength="8" tabindex="8">
+                                                    @if(!empty($errors->first('bill_amount')))
+                                                        <p style="color: red;" >{{$errors->first('bill_amount')}}</p>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

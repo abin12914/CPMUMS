@@ -3,24 +3,16 @@
 namespace App\Repositories;
 
 use App\Models\Expense;
-use App\Models\Service;
-use App\Models\Account;
-use App\Models\Transaction;
-use \Carbon\Carbon;
-use Auth;
+use Exception;
+use App\Exceptions\AppCustomException;
 
 class ExpenseRepository
 {
-    /**
-     * Return services.
-     */
-    public function getServices()
+    public $repositoryCode, $errorCode = 0;
+
+    public function __construct()
     {
-        $services = [];
-
-        $services = Service::orderBy('name')->get();
-
-        return $services;
+        $this->repositoryCode = config('settings.repository_code.ExpenseRepository');
     }
 
     /**
@@ -28,34 +20,37 @@ class ExpenseRepository
      */
     public function getExpenses($params=[], $relationalParams=[], $noOfRecords=null)
     {
-        $expenses = Expense::with(['truck','transaction.creditAccount', 'service'])->where('status', 1);
+        $expenses = [];
 
-        foreach ($params as $param) {
-            if(!empty($param) && !empty($param['paramValue'])) {
-                $expenses = $expenses->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
+        try {
+            $expenses = Expense::with(['branch', 'transaction.debitAccount'])->active();
+
+            foreach ($params as $param) {
+                if(!empty($param) && !empty($param['paramValue'])) {
+                    $expenses = $expenses->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
+                }
             }
-        }
 
-
-        foreach ($relationalParams as $param) {
-            if(!empty($param) && !empty($param['paramValue'])) {
-                $expenses = $expenses->whereHas($param['relation'], function($qry) use($param) {
-                    $qry->where($param['paramName'], $param['paramValue']);
-                });
+            foreach ($relationalParams as $param) {
+                if(!empty($param) && !empty($param['paramValue'])) {
+                    $expenses = $expenses->whereHas($param['relation'], function($qry) use($param) {
+                        $qry->where($param['paramName'], $param['paramValue']);
+                    });
+                }
             }
-        }
-        
-        if(!empty($noOfRecords)) {
-            if($noOfRecords == 1) {
-                $expenses = $expenses->first();
-            } else {
+
+            if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $expenses = $expenses->paginate($noOfRecords);
+            } else {
+                $expenses= $expenses->get();
             }
-        } else {
-            $expenses= $expenses->get();
-        }
-        if(empty($expenses) || $expenses->count() < 1) {
-            $expenses = [];
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 1;
+            }
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $expenses;
@@ -64,75 +59,42 @@ class ExpenseRepository
     /**
      * Action for expense save.
      */
-    public function saveExpense($request)
+    public function saveExpense($inputArray=[])
     {
-        $transactionType    = $request->get('transaction_type');
-        $supplierAccountId  = $request->get('supplier_account_id');
-        $truckId            = $request->get('truck_id');
-        $date               = Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d');
-        $serviceId          = $request->get('service_id');
-        $description        = $request->get('description');
-        $billAmount         = $request->get('bill_amount');
+        $saveFlag   = false;
 
-        //getting service and expense account id
-        $expenseAccount = Account::where('account_name','Service And Expenses')->first();
-        if(empty($expenseAccount) || empty($expenseAccount->id)) {
+        try {
+            //expense saving
+            $expense = new Expense;
+            $expense->transaction_id = $inputArray['transaction_id'];
+            $expense->date           = $inputArray['date'];
+            $expense->service_id     = $inputArray['service_id'];
+            $expense->bill_amount    = $inputArray['bill_amount'];
+            $expense->branch_id      = $inputArray['branch_id'];
+            $expense->status         = 1;
+            //expense save
+            $expense->save();
+
+            $saveFlag = true;
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 2;
+            }
+            dd($e);
+            throw new AppCustomException("CustomError", $this->errorCode);
+        }
+
+        if($saveFlag) {
             return [
-                'flag'      => false,
-                'errorCode' => "01"
+                'flag'  => true,
+                'id'    => $expense->id,
             ];
         }
-        $expenseAccountId = $expenseAccount->id;
-
-        if($transactionType == 1) {
-            $supplierAccount = Account::find($supplierAccountId);
-        } else {
-            $supplierAccount = Account::where('account_name', 'Cash')->first();
-
-            if(empty($supplierAccount) || empty($supplierAccount->id)) {
-                return [
-                    'flag'      => false,
-                    'errorCode' => "02"
-                ];
-            }
-        }
-        $truck = Truck::find($truckId);
-        $service = Service::find($serviceId);
-
-        $transaction    = new Transaction;
-        $transaction->debit_account_id  = $expenseAccountId; //service and expense account
-        $transaction->credit_account_id = $supplierAccount->id; //supplier account id
-        $transaction->amount            = $billAmount;
-        $transaction->transaction_date  = $date;
-        $transaction->particulars       = ("Service Expense : ". $truck->reg_number. " - ". $service->name. " -[". $description. "]");
-        $transaction->status            = 1;
-        $transaction->created_user_id   = Auth::user()->id;
-        if($transaction->save()) {
-
-            $expense = new Expense;
-            $expense->transaction_id = $transaction->id;
-            $expense->date           = $date;
-            $expense->truck_id       = $truckId;
-            $expense->service_id     = $serviceId;
-            $expense->bill_amount    = $billAmount;
-            $expense->status         = 1;
-            if($expense->save()) {
-                return [
-                        'flag'  => true,
-                        'id'    => $expense->id,
-                    ];
-            } else {
-                //delete the transaction if expense saving failed
-                $transaction->forceDelete();
-
-                $saveFlag = '03';
-            }
-        } else {
-            $saveFlag = '04';
-        }
         return [
-            'flag'  => false,
-            'id'    => $saveFlag,
+            'flag'      => false,
+            'errorCode' => $this->repositoryCode + 3,
         ];
     }
 
@@ -141,9 +103,18 @@ class ExpenseRepository
      */
     public function getExpense($id)
     {
-        $expense = Expense::with(['truck','transaction.creditAccount', 'service'])->where('status', 1)->where('id', $id)->first();
-        if(empty($expense) || empty($expense->id)) {
-            $expense = [];
+        $expense = [];
+
+        try {
+            $expense = Expense::active()->findOrFail($id);
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 4;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $expense;

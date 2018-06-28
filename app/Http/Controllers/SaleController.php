@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Repositories\SaleRepository;
 use App\Repositories\TransactionRepository;
 use App\Repositories\AccountRepository;
-use App\Repositories\MaterialRepository;
 use App\Http\Requests\SaleRegistrationRequest;
 use App\Http\Requests\SaleFilterRequest;
 use Carbon\Carbon;
@@ -53,18 +52,18 @@ class SaleController extends Controller
                 'paramName'     => 'branch_id',
                 'paramOperator' => '=',
                 'paramValue'    => $request->get('branch_id'),
-            ],
-            [
-                'paramName'     => 'material_id',
-                'paramOperator' => '=',
-                'paramValue'    => $request->get('material_id'),
-            ],
+            ]
         ];
 
         $relationalParams = [
             [
+                'relation'      => 'transaction.debitAccount',
+                'paramName'     => 'status',
+                'paramValue'    => $request->get('customer_type'),
+            ],
+            [
                 'relation'      => 'transaction',
-                'paramName'     => 'credit_account_id',
+                'paramName'     => 'debit_account_id',
                 'paramValue'    => $request->get('customer_account_id'),
             ]
         ];
@@ -78,8 +77,8 @@ class SaleController extends Controller
 
         return view('sales.list', [
             'saleRecords'   => $sales,
-            'params'            => $params,
-            'noOfRecords'       => $noOfRecords,
+            'params'        => $params,
+            'noOfRecords'   => $noOfRecords,
         ]);
     }
 
@@ -102,8 +101,7 @@ class SaleController extends Controller
     public function store(
         SaleRegistrationRequest $request,
         TransactionRepository $transactionRepo,
-        AccountRepository $accountRepo,
-        MaterialRepository $materialRepo
+        AccountRepository $accountRepo
     ) {
         $saveFlag   = false;
         $errorCode  = 0;

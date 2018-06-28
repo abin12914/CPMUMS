@@ -8,7 +8,7 @@
             <small>Details</small>
         </h1>
         <ol class="breadcrumb">
-            <li><a href="{{ route('user.dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="active">Service & Expense Details</li>
         </ol>
     </section>
@@ -35,7 +35,7 @@
                                     <img class="img-circle" src="/images/public/service.png" alt="User Avatar">
                                 </div>
                                 <!-- /.widget-user-image -->
-                                <h3 class="widget-user-username">{{ $expense->truck->reg_number }}</h3>
+                                <h3 class="widget-user-username">{{ $expense->branch->name }}</h3>
                                 <h5 class="widget-user-desc">{{ $expense->service->name }}</h5>
                             </div>
                             <div class="box box-primary">
@@ -52,10 +52,10 @@
                                         </div>
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-truck margin-r-5"></i> Truck Number
+                                                <i class="fa fa-truck margin-r-5"></i> Branch Name
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ $expense->truck->reg_number }}
+                                                {{ $expense->branch->name }}
                                             </p>
                                             <hr>
                                         </div>
@@ -108,12 +108,12 @@
                                         <div class="col-md-4"></div>
                                         <div class="col-md-4">
                                             <div class="col-md-6">
-                                                <form action="{{ route('expenses.edit', $expense->id) }}" method="get" class="form-horizontal">
+                                                <form action="{{ route('expense.edit', $expense->id) }}" method="get" class="form-horizontal">
                                                     <button type="submit" class="btn btn-primary btn-block btn-flat">Edit</button>
                                                 </form>
                                             </div>
                                             <div class="col-md-6">
-                                                <form action="{{ route('expenses.destroy', $expense->id) }}" method="post" class="form-horizontal">
+                                                <form action="{{ route('expense.destroy', $expense->id) }}" method="post" class="form-horizontal">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
                                                     <button type="button" class="btn btn-danger btn-block btn-flat delete_button">Delete</button>

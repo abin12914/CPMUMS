@@ -30,6 +30,14 @@ class Expense extends Model
     }
 
     /**
+     * Get the branch details associated with the purchase
+     */
+    public function branch()
+    {
+        return $this->belongsTo('App\Models\Branch','branch_id');
+    }
+    
+    /**
      * Get the transaction details associated with the expense
      */
     public function transaction()

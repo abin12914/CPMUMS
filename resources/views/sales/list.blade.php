@@ -60,22 +60,24 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('material_id')) ? 'has-error' : '' }}">
-                                            <label for="material_id" class="control-label">Material : </label>
-                                            {{-- adding material select component --}}
-                                            @component('components.selects.materials', ['selectedMaterialId' => $params[3]['paramValue'], 'selectName' => 'material_id', 'tabindex' => 4])
-                                            @endcomponent
-                                            @if(!empty($errors->first('material_id')))
-                                                <p style="color: red;" >{{$errors->first('material_id')}}</p>
+                                        <div class="col-md-4 {{ !empty($errors->first('customer_type')) ? 'has-error' : '' }}">
+                                            <label for="customer_type" class="control-label">Customer Type : </label>
+                                            <select class="form-control select2" name="customer_type" id="customer_type" tabindex="6" style="width: 100%;">
+                                                <option value="" {{ empty(old('customer_type')) ? 'selected' : '' }}>Select customer type</option>
+                                                <option value="1" {{ (old('relation_type') == 1 || $params[3]['paramValue'] == 1) ? 'selected' : '' }}>Long term credit customer</option>
+                                                <option value="2" {{ (old('relation_type') == 2 || $params[3]['paramValue'] == 2) ? 'selected' : '' }}>Short term credit customer</option>
+                                            </select>
+                                            @if(!empty($errors->first('relation_type')))
+                                                <p style="color: red;" >{{$errors->first('relation_type')}}</p>
                                             @endif
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('supplier_account_id')) ? 'has-error' : '' }}">
-                                            <label for="supplier_account_id" class="control-label">Supplier : </label>
+                                        <div class="col-md-4 {{ !empty($errors->first('customer_account_id')) ? 'has-error' : '' }}">
+                                            <label for="customer_account_id" class="control-label">Customer : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params[4]['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params[4]['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'customer_account_id', 'tabindex' => 5])
                                             @endcomponent
-                                            @if(!empty($errors->first('supplier_account_id')))
-                                                <p style="color: red;" >{{$errors->first('supplier_account_id')}}</p>
+                                            @if(!empty($errors->first('customer_account_id')))
+                                                <p style="color: red;" >{{$errors->first('customer_account_id')}}</p>
                                             @endif
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">

@@ -4,20 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Repositories\ExpenseRepository;
+use App\Repositories\TransactionRepository;
+use App\Repositories\AccountRepository;
 use App\Http\Requests\ExpenseRegistrationRequest;
 use App\Http\Requests\ExpenseFilterRequest;
-use \Carbon\Carbon;
+use Carbon\Carbon;
+use DB;
+use Exception;
+use App\Exceptions\AppCustomException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ExpenseController extends Controller
 {
     protected $expenseRepo;
     public $errorHead = null, $noOfRecordsPerPage = null;
 
-     public function __construct(ExpenseRepository $expenseRepo)
+    public function __construct(ExpenseRepository $expenseRepo)
     {
         $this->expenseRepo          = $expenseRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.error_heads.Expense');
+        $this->errorHead            = config('settings.controller_code.Expense');
     }
 
     /**
@@ -32,35 +38,35 @@ class ExpenseController extends Controller
         $noOfRecords        = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
 
         $params = [
-                [
-                    'paramName'     => 'date',
-                    'paramOperator' => '>=',
-                    'paramValue'    => $fromDate,
-                ],
-                [
-                    'paramName'     => 'date',
-                    'paramOperator' => '<=',
-                    'paramValue'    => $toDate,
-                ],
-                [
-                    'paramName'     => 'truck_id',
-                    'paramOperator' => '=',
-                    'paramValue'    => $request->get('truck_id'),
-                ],
-                [
-                    'paramName'     => 'service_id',
-                    'paramOperator' => '=',
-                    'paramValue'    => $request->get('service_id'),
-                ],
-            ];
+            [
+                'paramName'     => 'date',
+                'paramOperator' => '>=',
+                'paramValue'    => $fromDate,
+            ],
+            [
+                'paramName'     => 'date',
+                'paramOperator' => '<=',
+                'paramValue'    => $toDate,
+            ],
+            [
+                'paramName'     => 'branch_id',
+                'paramOperator' => '=',
+                'paramValue'    => $request->get('branch_id'),
+            ],
+            [
+                'paramName'     => 'service_id',
+                'paramOperator' => '=',
+                'paramValue'    => $request->get('service_id'),
+            ],
+        ];
 
         $relationalParams = [
-                [
-                    'relation'      => 'transaction',
-                    'paramName'     => 'credit_account_id',
-                    'paramValue'    => $request->get('supplier_account_id'),
-                ]
-            ];
+            [
+                'relation'      => 'transaction',
+                'paramName'     => 'credit_account_id',
+                'paramValue'    => $request->get('supplier_account_id'),
+            ]
+        ];
 
         $expenses = $this->expenseRepo->getExpenses($params, $relationalParams, $noOfRecords);
 
@@ -70,11 +76,10 @@ class ExpenseController extends Controller
         $params = array_merge($params, $relationalParams);
         
         return view('expenses.list', [
-                'services'      => $this->expenseRepo->getServices(),
-                'expenses'      => $expenses,
-                'params'        => $params,
-                'noOfRecords'   => $noOfRecords,
-            ]);
+            'expenses'      => $expenses,
+            'params'        => $params,
+            'noOfRecords'   => $noOfRecords,
+        ]);
     }
 
     /**
@@ -84,9 +89,7 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        return view('expenses.register', [
-                'services'  => $this->expenseRepo->getServices(),
-            ]);
+        return view('expenses.register');
     }
 
     /**
@@ -95,15 +98,70 @@ class ExpenseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ExpenseRegistrationRequest $request)
-    {
-        $response   = $this->expenseRepo->saveExpense($request);
+    public function store(
+        ExpenseRegistrationRequest $request,
+        TransactionRepository $transactionRepo,
+        AccountRepository $accountRepo
+    ) {
+        $saveFlag   = false;
+        $errorCode  = 0;
 
-        if($response['flag']) {
-            return redirect()->back()->with("message","Expense details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "alert-success");
+        $expenseAccountId   = config('constants.accountConstants.ServiceAndExpense.id');
+        $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d');
+        $branchId           = $request->get('branch_id');
+        $totalBill          = $request->get('bill_amount');
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            //confirming expense account exist-ency.
+            $expenseAccount = $accountRepo->getAccount($expenseAccountId);
+
+            //save expense transaction to table
+            $transactionResponse   = $transactionRepo->saveTransaction([
+                'debit_account_id'  => $expenseAccountId, // debit the expense account
+                'credit_account_id' => $request->get('supplier_account_id'), // credit the supplier
+                'amount'            => $totalBill ,
+                'transaction_date'  => $transactionDate,
+                'particulars'       => $request->get('description')."[Purchase & Expense]",
+                'branch_id'         => $branchId,
+            ]);
+
+            if(!$transactionResponse['flag']) {
+                throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+            }
+
+            //save to expense table
+            $expenseResponse = $this->expenseRepo->saveExpense([
+                'transaction_id' => $transactionResponse['id'],
+                'date'           => $transactionDate,
+                'service_id'     => $request->get('service_id'),
+                'bill_amount'    => $totalBill,
+                'branch_id'      => $branchId,
+            ]);
+
+            if(!$expenseResponse['flag']) {
+                throw new AppCustomException("CustomError", $expenseResponse['errorCode']);
+            }
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 1;
+            }
+        }
+
+        if($saveFlag) {
+            return redirect()->back()->with("message","Expense details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "alert-success");
         }
         
-        return redirect()->back()->with("message","Failed to save the expense details. Error Code : ". $response['errorCode'])->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the expense details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
     }
 
     /**
@@ -114,9 +172,24 @@ class ExpenseController extends Controller
      */
     public function show($id)
     {
+        $errorCode  = 0;
+        $expense    = [];
+
+        try {
+            $expense = $this->expenseRepo->getExpense($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 2;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Expense", $errorCode);
+        }
+
         return view('expenses.details', [
-                'expense' => $this->expenseRepo->getExpense($id),
-            ]);
+            'expense' => $expense,
+        ]);
     }
 
     /**
@@ -127,7 +200,24 @@ class ExpenseController extends Controller
      */
     public function edit($id)
     {
-        //
+        $errorCode  = 0;
+        $expense    = [];
+
+        try {
+            $expense = $this->expenseRepo->getExpense($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Expense", $errorCode);
+        }
+
+        return view('expenses.edit', [
+            'expense' => $expense,
+        ]);
     }
 
     /**
@@ -150,12 +240,6 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        $deleteFlag = $this->expenseRepo->deleteExpense($id);
-
-        if($deleteFlag['flag']) {
-            return redirect(route('expenses.index'))->with("message", "Expense details deleted successfully.")->with("alert-class", "alert-success");
-        }
-
-        return redirect(route('expenses.index'))->with("message", "Deletion failed. Error Code : ". $deleteFlag['errorCode'])->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
     }
 }

@@ -40,11 +40,11 @@ class AccountController extends Controller
             ];
 
         return view('accounts.list', [
-                'accounts'      => $this->accountRepo->getAccounts($params, $noOfRecords),
-                'relationTypes' => config('constants.accountRelationTypes'),
-                'params'        => $params,
-                'noOfRecords'   => $noOfRecords,
-            ]);
+            'accounts'      => $this->accountRepo->getAccounts($params, $noOfRecords),
+            'relationTypes' => config('constants.accountRelationTypes'),
+            'params'        => $params,
+            'noOfRecords'   => $noOfRecords,
+        ]);
     }
 
     /**
