@@ -2,11 +2,11 @@
 
 namespace App\Listeners;
 
-use App\Events\DeletingTransactionEvent;
+use App\Events\DeletingProductionEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DeletingTransactionEventListener
+class DeletingProductionEventListener
 {
     /**
      * Create the event listener.
@@ -21,15 +21,15 @@ class DeletingTransactionEventListener
     /**
      * Handle the event.
      *
-     * @param  DeletingTransactionEvent  $event
+     * @param  DeletingProductionEvent  $event
      * @return void
      */
-    public function handle(DeletingTransactionEvent $event)
+    public function handle(DeletingProductionEvent $event)
     {
-        if($event->transaction->isForceDeleting()) {
-            $event->transaction->account()->forceDelete();
+        if($event->production->isForceDeleting()) {
+            $event->production->employeeWage()->forceDelete();
         } else {
-            $event->transaction->account()->delete();
+            $event->production->employeeWage()->delete();
         }
     }
 }

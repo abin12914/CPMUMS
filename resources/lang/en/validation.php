@@ -118,6 +118,8 @@ return [
 
     'attributes' => [
         'relation_type'                 => 'primary relation',
+        'account_id'                    => 'account',
+        'no_of_records'                 => 'no of records per page',
         'supplier_account_id'           => 'supplier',
         'service_id'                    => 'service',
         'customer_account_id'           => 'customer',

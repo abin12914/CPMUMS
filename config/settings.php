@@ -33,6 +33,8 @@ return [
                                     'AccountComponentComposer'  => 5100,
                                     'EmployeeComponentComposer' => 5200,
                                     'ProductComponentComposer'  => 5300,
+                                    'MaterialComponentComposer' => 5400,
+                                    'ServiceComponentComposer'  => 5500,
                                 ],
     'no_of_record_per_page' => 25,
     'company_name'          => "CPMUMS",

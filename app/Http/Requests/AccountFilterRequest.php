@@ -28,22 +28,22 @@ class AccountFilterRequest extends FormRequest
         $relationTypes  = config('constants.accountRelationTypes');
 
         return [
-            'account_id'    =>  [
-                                    'nullable',
-                                    Rule::in(Account::pluck('id')->toArray()),
-                                ],
             'relation_type' =>  [
                                     'nullable',
                                     Rule::in(array_keys($relationTypes)),
                                 ],
-            'page'          =>  [
+            'account_id'    =>  [
                                     'nullable',
-                                    'integer',
+                                    Rule::in(Account::pluck('id')->toArray()),
                                 ],
             'no_of_records' =>  [
                                     'nullable',
                                     'min:2',
                                     'max:100',
+                                    'integer',
+                                ],
+            'page'          =>  [
+                                    'nullable',
                                     'integer',
                                 ],
         ];

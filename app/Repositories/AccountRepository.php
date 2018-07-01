@@ -26,11 +26,11 @@ class AccountRepository
             $accounts = Account::query();
 
             if($activeFlag) {
-                $accounts = $accounts->active();
+                $accounts = $accounts->active(); //status == 1
             }
 
             if($typeFlag) {
-                $accounts = $accounts->where('type', 3);
+                $accounts = $accounts->where('type', 3); //personal accounts
             }
 
             foreach ($params as $key => $value) {
@@ -38,6 +38,7 @@ class AccountRepository
                     $accounts = $accounts->where($key, $value);
                 }
             }
+            
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $accounts = $accounts->paginate($noOfRecords);
             } else {

@@ -9,21 +9,22 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Models\Transaction;
+use App\Models\Voucher;
 
-class DeletingTransactionEvent
+class DeletingVoucherEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $transaction;
+    public $voucher;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Transaction $transaction)
+    public function __construct(Voucher $voucher)
     {
-        $this->transaction = $transaction;
+        $this->voucher = $voucher;
     }
 
     /**

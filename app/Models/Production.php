@@ -51,6 +51,14 @@ class Production extends Model
     }
 
     /**
+     * Get the employee wage record associated with the production.
+     */
+    public function employeeWage()
+    {
+        return $this->hasOne('App\Models\EmployeeWage', 'production_id');
+    }
+
+    /**
      * Get the product details associated with the production
      */
     public function product()
