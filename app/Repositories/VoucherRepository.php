@@ -3,53 +3,60 @@
 namespace App\Repositories;
 
 use App\Models\Voucher;
-use App\Models\Account;
-use App\Models\Transaction;
-use \Carbon\Carbon;
-use Auth;
+use Exception;
+use App\Exceptions\AppCustomException;
 
 class VoucherRepository
 {
+    public $repositoryCode, $errorCode = 0;
+
+    public function __construct()
+    {
+        $this->repositoryCode = config('settings.repository_code.VoucherRepository');
+    }
+
     /**
      * Return trucks.
      */
-    public function getVouchers($params=[], $relationalOrParams=[], $noOfRecords=null)
+    public function getVouchers($params=[], $relationalOrParams=[], $whereInParams=[], $noOfRecords=null)
     {
-        $vouchers = Voucher::/*with('transaction')->*/where('status', 1);
+        $vouchers = [];
 
-        foreach ($params as $param) {
-            if(!empty($param) && !empty($param['paramValue'])) {
-                $vouchers = $vouchers->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
-                if(!empty($param['paramValue1'])) {
-                    $vouchers = $vouchers->orWhere($param['paramName'], $param['paramOperator'], $param['paramValue1']);
-                }
-            } else {
-                if(!empty($param['paramValue1'])) {
-                    $vouchers = $vouchers->Where($param['paramName'], $param['paramOperator'], $param['paramValue1']);
+        try {
+            $vouchers = Voucher::with(['transaction'])->active();
+
+            foreach ($params as $param) {
+                if(!empty($param) && !empty($param['paramValue'])) {
+                    $vouchers = $vouchers->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
                 }
             }
-        }
 
-        foreach ($relationalOrParams as $param) {
-            if(!empty($param) && !empty($param['paramValue'])) {
-                $vouchers = $vouchers->whereHas($param['relation'], function($qry) use($param) {
-                    $qry->where($param['paramName1'], $param['paramValue'])->orWhere($param['paramName2'], $param['paramValue']);
-                });
+            foreach ($whereInParams as $param) {
+                if(!empty($param) && !empty($param['paramValue']) && count($param['paramValue']) > 0) {
+                    $vouchers = $vouchers->whereIn($param['paramName'], $param['paramValue']);
+                }
             }
-        }
-        
-        if(!empty($noOfRecords)) {
-            if($noOfRecords == 1) {
-                $vouchers = $vouchers->first();
-            } else {
+            foreach ($relationalOrParams as $param) {
+                if(!empty($param) && !empty($param['paramValue'])) {
+                    $vouchers = $vouchers->whereHas($param['relation'], function($qry) use($param) {
+                        $qry->where($param['paramName1'], $param['paramValue'])->orWhere($param['paramName2'], $param['paramValue']);
+                    });
+                }
+            }
+
+            if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $vouchers = $vouchers->paginate($noOfRecords);
+            } else {
+                $vouchers= $vouchers->get();
             }
-        } else {
-            $vouchers= $vouchers->get();
-        }
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 1;
+            }
 
-        if(empty($vouchers) || $vouchers->count() < 1) {
-            $vouchers = [];
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $vouchers;
@@ -58,72 +65,42 @@ class VoucherRepository
     /**
      * Save voucher.
      */
-    public function saveVoucher($request)
+    public function saveVoucher($inputArray)
     {
-        $transactionType    = $request->get('transaction_type');
-        $accountId          = $request->get('voucher_reciept_account_id');
-        $date               = Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d');
-        $description        = $request->get('description');
-        $amount             = $request->get('amount');
+        $saveFlag = false;
 
-        //getting cash account id
-        $cashAccount = Account::where('account_name','Cash')->first();
-        if(empty($cashAccount) || empty($cashAccount->id)) {
-            return [
-                    'flag'      => false,
-                    'errorCode' => "01",
-                ];
-        }
-        $cashAccountId = $cashAccount->id;
-
-        $account = Account::find($accountId);
-
-        //check transaction type
-        if($transactionType == 1) {
-            //transaction from giver to cash
-            $details = "Cash recieved from : ". $account->account_name;
-            $debitAccountId     = $cashAccountId; //cash account
-            $creditAccountId    = $accountId; // giver account
-        } else {
-            //transaction from cash to reciever
-            $details = "Cash paid to : ". $account->account_name;
-            $debitAccountId     = $accountId;
-            $creditAccountId    = $cashAccountId;
-        }
-
-        $transaction    = new Transaction;
-        $transaction->debit_account_id  = $debitAccountId;
-        $transaction->credit_account_id = $creditAccountId;
-        $transaction->amount            = $amount;
-        $transaction->transaction_date  = $date;
-        $transaction->particulars       = $details. " -[". $description. "]";
-        $transaction->status            = 1;
-        $transaction->created_user_id   = Auth::user()->id;
-        if($transaction->save()) {
-
+        try {
+            //transaction saving
             $voucher = new Voucher;
-            $voucher->transaction_id    = $transaction->id;
-            $voucher->date              = $date;
-            $voucher->transaction_type  = $transactionType;
-            $voucher->amount            = $amount;
+            $voucher->transaction_id    = $inputArray['transaction_id'];
+            $voucher->date              = $inputArray['date'];
+            $voucher->voucher_type      = $inputArray['voucher_type'];
+            $voucher->amount            = $inputArray['amount'];
             $voucher->status            = 1;
-            if($voucher->save()) {
-                return [
-                        'flag'  => true,
-                        'id'    => $voucher->id,
-                    ];
+            //voucher save
+            $voucher->save();
+            
+            $saveFlag = true;
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
             } else {
-                //delete the transaction if voucher saving failed
-                $transaction->forceDelete();
-
-                $saveFlag = '02';
+                $this->errorCode = $this->repositoryCode + 2;
             }
-        } else {
-            $saveFlag = '03';
+
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
+
+        if($saveFlag) {
+            return [
+                'flag'  => true,
+                'id'    => $voucher->id,
+            ];
+        }
+        
         return [
-            'flag'  => false,
-            'id'    => $saveFlag,
+            'flag'      => false,
+            'errorCode' => $repositoryCode + 3,
         ];
     }
 
@@ -131,11 +108,19 @@ class VoucherRepository
      * Return trucks.
      */
     public function getVoucher($id)
-    {   
-        $voucher = Voucher::with('transaction')->where('status', 1)->where('id', $id)->first();
+    {
+        $voucher = [];
 
-        if(empty($voucher) || empty($voucher->id)) {
-            $voucher = [];
+        try {
+            $voucher = Voucher::active()->findOrFail($id);
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 4;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
 
         return $voucher;
@@ -146,36 +131,6 @@ class VoucherRepository
      */
     public function deleteVoucher($id, $forceFlag=false)
     {   
-        $voucher = Voucher::with('transaction')->where('status', 1)->where('id', $id)->first();
-
-        if(!empty($voucher) && !empty($voucher->id)) {
-            if($forceFlag) {
-                if($voucher->transaction->forceDelete() && $voucher->forceDelete()) {
-                    return [
-                        'flag'  => true,
-                        'force' => true,
-                    ];
-                } else {
-                    $errorCode = "04";
-                }
-            } else {
-                if($voucher->transaction->delete()) {
-                    if($voucher->delete()) {
-                        return [
-                            'flag'  => true,
-                            'force' => false,
-                        ];
-                    }
-                } else {
-                    $errorCode = "05";
-                }
-            }
-        } else {
-            $errorCode = "06";
-        }
-        return [
-            'flag'      => false,
-            'errorCode' => $errorCode,
-        ];
+        //
     }
 }

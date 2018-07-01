@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Vouchers & Receipts List')
+@section('title', 'Voucher List')
 @section('content')
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Vouchers & Receipts
+            Voucher
             <small>List</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Vouchers & Receipts List</li>
+            <li class="active">Voucher List</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -51,41 +51,34 @@
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('account_id')) ? 'has-error' : '' }}">
                                             <label for="account_id" class="control-label">Supplier : </label>
-                                            <select class="form-control select2" name="account_id" id="account_id" style="width: 100%" tabindex="3">
-                                                <option value="">Select account</option>
-                                                @if(!empty($accounts) && (count($accounts) > 0))
-                                                    @foreach($accounts as $account)
-                                                        <option value="{{ $account->id }}" {{ (old('account_id') == $account->id || $params[3]['paramValue'] == $account->id) ? 'selected' : '' }}>
-                                                            {{ $account->account_name }}
-                                                        </option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            @if(!empty($errors->first('account_id')))
-                                                <p style="color: red;" >{{$errors->first('account_id')}}</p>
+                                            {{-- adding account select component --}}
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params[3]['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'voucher_account_id', 'tabindex' => 5])
+                                            @endcomponent
+                                            @if(!empty($errors->first('voucher_account_id')))
+                                                <p style="color: red;" >{{$errors->first('voucher_account_id')}}</p>
                                             @endif
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('transaction_type_debit')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4 {{ !empty($errors->first('voucher_type_debit')) ? 'has-error' : '' }}">
                                             <label class="control-label"><b style="color: red;">* </b> Transaction Type : </label>
                                             <div class="input-group">
                                                 <span class="input-group-addon">
-                                                    <input type="checkbox" name="transaction_type_debit" id="transaction_type_debit" value="1" {{ ((empty($params[2]['paramValue']) && empty($params[2]['paramValue1'])) || !empty($params[2]['paramValue'])) ? 'checked' : ''}} tabindex="4">
+                                                    <input type="checkbox" name="voucher_type[]" id="voucher_type_debit" value="1" {{ empty($params[2]['paramValue']) || in_array(1, $params[2]['paramValue']) ? 'checked' : ''}} tabindex="4">
                                                 </span>
-                                                <label for="transaction_type_debit" class="form-control">Debit / Reciept</label>
+                                                <label for="voucher_type_debit" class="form-control">Debit / Reciept</label>
                                             </div>
-                                            @if(!empty($errors->first('transaction_type_debit')))
-                                                <p style="color: red;" >{{$errors->first('transaction_type_debit')}}</p>
+                                            @if(!empty($errors->first('voucher_type_debit')))
+                                                <p style="color: red;" >{{$errors->first('voucher_type_debit')}}</p>
                                             @endif
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('transaction_type_credit')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4 {{ !empty($errors->first('voucher_type_credit')) ? 'has-error' : '' }}">
                                             <label class="control-label"><b style="color: red;">* </b> Transaction Type : </label>
                                             <div class="input-group">
                                                 <span class="input-group-addon">
-                                                    <input type="checkbox" name="transaction_type_credit" id="transaction_type_credit" value="2"  {{ ((empty($params[2]['paramValue']) && empty($params[2]['paramValue1'])) || !empty($params[2]['paramValue1'])) ? 'checked' : ''}} tabindex="5">
+                                                    <input type="checkbox" name="voucher_type[]" id="voucher_type_credit" value="2"  {{ empty($params[2]['paramValue']) || in_array(2, $params[2]['paramValue']) ? 'checked' : ''}} tabindex="5">
                                                 </span>
-                                                <label for="transaction_type_credit" class="form-control">Credit / Voucher</label>
+                                                <label for="voucher_type_credit" class="form-control">Credit / Voucher</label>
                                             </div>
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
@@ -148,7 +141,7 @@
                                                 <tr>
                                                     <td>{{ $index + $vouchers->firstItem() }}</td>
                                                     <td>{{ Carbon\Carbon::parse($voucher->date)->format('d-m-Y') }}</td>
-                                                    @if($voucher->transaction_type == 1)
+                                                    @if($voucher->voucher_type == 1)
                                                         <td>{{ $voucher->transaction->creditAccount->account_name }}</td>
                                                         <td>Receipt</td>
                                                         <td>{{ $voucher->amount }}</td>
@@ -160,7 +153,7 @@
                                                         <td>{{ $voucher->amount }}</td>
                                                     @endif
                                                     <td class="no-print">
-                                                        <a href="{{ route('vouchers.show', ['id' => $voucher->id]) }}">
+                                                        <a href="{{ route('voucher.show', ['id' => $voucher->id]) }}">
                                                             <button type="button" class="btn btn-default">Details</button>
                                                         </a>
                                                     </td>

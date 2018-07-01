@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Vouchers & Receipts Details')
+@section('title', 'Voucher Details')
 @section('content')
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Vouchers & Receipts
+            Voucher
             <small>Details</small>
         </h1>
         <ol class="breadcrumb">
-            <li><a href="{{ route('user.dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Vouchers & Receipts Details</li>
+            <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Voucher Details</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -113,12 +113,12 @@
                                         <div class="col-md-4"></div>
                                         <div class="col-md-4">
                                             <div class="col-md-6">
-                                                <form action="{{ route('vouchers.edit', $voucher->id) }}" method="get" class="form-horizontal">
+                                                <form action="{{ route('voucher.edit', $voucher->id) }}" method="get" class="form-horizontal">
                                                     <button type="submit" class="btn btn-primary btn-block btn-flat">Edit</button>
                                                 </form>
                                             </div>
                                             <div class="col-md-6">
-                                                <form action="{{ route('vouchers.destroy', $voucher->id) }}" method="post" class="form-horizontal">
+                                                <form action="{{ route('voucher.destroy', $voucher->id) }}" method="post" class="form-horizontal">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
                                                     <button type="button" class="btn btn-danger btn-block btn-flat delete_button">Delete</button>
