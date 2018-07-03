@@ -9,7 +9,8 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Account List</li>
+            <li><a> Accounts</a></li>
+            <li class="active"> List</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -99,7 +100,7 @@
                     </div>
                     <div class="box-body">
                         <div class="row">
-                            <div class="col-md-12" style="overflow:scroll;">
+                            <div class="col-md-12" style="overflow-x: scroll;">
                                 <table class="table table-responsive table-bordered table-hover">
                                     <thead>
                                         <tr>
@@ -107,9 +108,10 @@
                                             <th style="width: 20%;">Account Name</th>
                                             <th style="width: 15%;">Relation</th>
                                             <th style="width: 20%;">Account Holder</th>
-                                            <th style="width: 15%;">Opening Credit</th>
-                                            <th style="width: 15%;">Opening Debit</th>
-                                            <th style="width: 10%;" class="no-print">Details</th>
+                                            <th style="width: 15%;">Phone</th>
+                                            <th style="width: 10%;">Opening Credit</th>
+                                            <th style="width: 10%;">Opening Debit</th>
+                                            <th style="width: 5%;" class="no-print">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -118,29 +120,16 @@
                                                 <tr>
                                                     <td>{{ $index + $accounts->firstItem() }}</td>
                                                     <td>{{ $account->account_name }}</td>
-                                                    @if($account->relation == 0)
-                                                        <td>Real/Nominal</td>
-                                                    @elseif(!empty($relationTypes))
-                                                        <td>
-                                                            {{ !empty($relationTypes[$account->relation]) ? $relationTypes[$account->relation] : "Error!" }}
-                                                        </td>
-                                                    @else
-                                                        <td>Error</td>
-                                                    @endif
+                                                    <td>
+                                                        {{ (!empty($relationTypes) && !empty($relationTypes[$account->relation])) ? $relationTypes[$account->relation] : "Error!" }}
+                                                    </td>
                                                     <td>{{ $account->name }}</td>
-                                                    @if($account->financial_status == 1)
-                                                        <td>{{ $account->opening_balance }}</td>
-                                                        <td></td>
-                                                    @elseif($account->financial_status == 2)
-                                                        <td></td>
-                                                        <td>{{ $account->opening_balance }}</td>
-                                                    @else
-                                                        <td>-</td>
-                                                        <td>-</td>
-                                                    @endif
+                                                    <td>{{ $account->phone }}</td>
+                                                    <td>{{ $account->financial_status == 1 ? $account->opening_balance : "-" }}</td>
+                                                    <td>{{ $account->financial_status == 2 ? $account->opening_balance : "-" }}</td>
                                                     <td class="no-print">
                                                         <a href="{{ route('account.show', $account->id) }}">
-                                                            <button type="button" class="btn btn-default">Details</button>
+                                                            <button type="button" class="btn btn-info">Details</button>
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -173,4 +162,10 @@
     </section>
     <!-- /.content -->
 </div>
+@endsection
+@section('scripts')
+    <script type="text/javascript">
+        alertType    = "{{ Session::get('alert-class', 'alert-info')  }}";
+        alertMessage = "{{ Session::get('message', 'No message') }}";
+    </script>
 @endsection

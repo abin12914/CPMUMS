@@ -38,7 +38,7 @@ class AccountRepository
                     $accounts = $accounts->where($key, $value);
                 }
             }
-            
+
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $accounts = $accounts->paginate($noOfRecords);
             } else {
@@ -134,38 +134,6 @@ class AccountRepository
 
     public function deleteAccount($id, $forceFlag=false)
     {
-        $deleteFlag = false;
-
-        try {
-            //get account
-            $account = $this->getAccount($id);
-
-            //force delete or soft delete
-            //related models will be deleted by deleting event handlers
-            if($forceFlag) {
-                $account->forceDelete();
-            } else {
-                $account->delete();
-            }
-            
-            $deleteFlag = true;
-        } catch (Exception $e) {
-            if($e->getMessage() == "CustomError") {
-                $this->errorCode = $e->getCode();
-            } else {
-                $this->errorCode = $this->repositoryCode + 5;
-            }
-            
-            throw new AppCustomException("CustomError", $this->errorCode);
-        }
-
-        if($deleteFlag) {
-            return [
-                'flag'  => true,
-                'force' => $forceFlag,
-            ];
-        }
-
         return [
             'flag'          => false,
             'errorCode'    => $this->repositoryCode + 6,

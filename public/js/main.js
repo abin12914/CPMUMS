@@ -1,17 +1,31 @@
+var alertType       = '';
+var alertMessage    = '';
+
 $(function () {
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-    /*swal({
+
+    /*if(alertType && alertMessage && alertType != 'undefined' && alertMessage != 'undefined') {
+        swal({
+            title: alertType,
+            type: alertType,
+            text: alertMessage,
+            timer: 5000,
+            allowOutsideClick : false,
+            showConfirmButton : false,
+        });
+    }*/
+
+    swal({
         title: 'Success...',
-        type: 'success',
         text: 'Everything is ok!',
         timer: 5000,
         allowOutsideClick : false,
         showConfirmButton : false,
-    });*/
+    });
 
     //hide flash messages
     //dismissAlert();

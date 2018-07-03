@@ -4,12 +4,13 @@
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Account
-            <small>Edit</small>
+            Edit
+            <small>Account</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Account Edit</li>
+            <li><a href="{{ route('account.index') }}"> Accounts</a></li>
+            <li class="active">Edit</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -158,7 +159,7 @@
                                             <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="10">Clear</button>
                                         </div>
                                         <div class="col-md-3">
-                                            <button type="button" class="btn btn-primary btn-block btn-flat update_button" tabindex="11">Update</button>
+                                            <button type="button" class="btn btn-warning btn-block btn-flat update_button" tabindex="11">Update</button>
                                         </div>
                                         <!-- /.col -->
                                     </div><br>

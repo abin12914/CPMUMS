@@ -9,7 +9,8 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Account Details</li>
+            <li><a href="{{ route('account.index') }}"> Accounts</a></li>
+            <li class="active"> Details</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -36,13 +37,9 @@
                                 </div>
                                 <!-- /.widget-user-image -->
                                 <h3 class="widget-user-username">{{ $account->account_name }}</h3>
-                                @if(!empty($relationTypes))
-                                    <h5 class="widget-user-desc">
-                                        {{ $relationTypes[$account->relation] or "Error!" }}
-                                    </h5>
-                                @else
-                                    <h5 class="widget-user-desc">Error</h5>
-                                @endif
+                                <h5 class="widget-user-desc">
+                                    {{ (!empty($relationTypes) && !empty($relationTypes[$account->relation])) ? $relationTypes[$account->relation] : "Error" }}
+                                </h5>
                             </div>
                             <div class="box box-primary">
                                 <div class="box-body">
@@ -112,15 +109,7 @@
                                                 <i class="fa fa-link margin-r-5"></i> Relation
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                @if(!empty($relationTypes))
-                                                    @if(!empty($relationTypes[$account->relation]))
-                                                        {{ $relationTypes[$account->relation] }}
-                                                    @else
-                                                        <div class="text-red">Error!</div>
-                                                    @endif
-                                                @else
-                                                    <div class="text-red">Error</div>
-                                                @endif
+                                                {{ (!empty($relationTypes) && !empty($relationTypes[$account->relation])) ? $relationTypes[$account->relation] : "Error" }}
                                             </p>
                                             <hr>
                                         </div>
@@ -146,22 +135,12 @@
                                     <div class="row">
                                         <div class="col-md-4"></div>
                                         <div class="col-md-4">
-                                            <div class="col-md-{{ ($account->relation != 5 && !$loggedUser->isSuperAdmin()) ? "12" : "6" }}">
+                                            <div class="col-md-{{ $account->relation == 1 ? "6" : "12" }}">
                                                 <form action="{{ route('account.edit', $account->id) }}" method="get" class="form-horizontal">
                                                     <button type="submit" class="btn btn-primary btn-block btn-flat">Edit</button>
                                                 </form>
                                             </div>
-                                            @if($account->relation != 5)
-                                                @if($loggedUser->isSuperAdmin())
-                                                    <div class="col-md-6">
-                                                        <form action="{{ route('account.destroy', $account->id) }}" method="post" class="form-horizontal">
-                                                            {{ method_field('DELETE') }}
-                                                            {{ csrf_field() }}
-                                                            <button type="button" class="btn btn-danger btn-block btn-flat delete_button">Delete</button>
-                                                        </form>
-                                                    </div>
-                                                @endif
-                                            @else
+                                            @if($account->relation == 1)
                                                 <div class="col-md-6">
                                                     <a href="{{ route('employee.show', $account->employee->id) }}">
                                                         <button type="button" class="btn btn-info btn-block btn-flat">Employee Details</button>

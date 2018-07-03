@@ -37,7 +37,7 @@ return [
                                     'ServiceComponentComposer'  => 5500,
                                 ],
     'no_of_record_per_page' => 25,
-    'company_name'          => "CPMUMS",
+    'company_name'          => "PRATHIBHA",
     'company_address'       => "ELAVANTHY, ANAPPARA",
     'company_phones'        => "+91 9447171143, +91 9645901143",
 ];

@@ -4,12 +4,13 @@
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Account
-            <small>Registartion</small>
+            Register
+            <small>Account</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Account Registration</li>
+            <li><a href="{{ route('account.index') }}"> Accounts</a></li>
+            <li class="active">Registration</li>
         </ol>
     </section>
     <!-- Main content -->
@@ -154,7 +155,7 @@
                                 <div class="row">
                                     <div class="col-md-3"></div>
                                     <div class="col-md-3">
-                                        <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="10">Clear</button>
+                                        <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="11">Clear</button>
                                     </div>
                                     <div class="col-md-3">
                                         <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="11">Submit</button>
@@ -172,4 +173,10 @@
     </section>
     <!-- /.content -->
 </div>
+@endsection
+@section('scripts')
+    <script type="text/javascript">
+        alertType    = "{{ Session::get('alert-class', '')  }}";
+        alertMessage = "{{ Session::get('message', '') }}";
+    </script>
 @endsection

@@ -55,8 +55,8 @@ class AccountController extends Controller
     public function create()
     {
         $relationTypes = config('constants.accountRelationTypes');
-        //excluding the relationtype 'employee'[index = 5] for new account registration
-        unset($relationTypes[5]);
+        //excluding the relationtype 'employee'[index = 1] for new account registration
+        unset($relationTypes[1]);
 
         return view('accounts.register', [
                 'relationTypes' => $relationTypes,
@@ -83,7 +83,7 @@ class AccountController extends Controller
         if ($request->hasFile('image_file')) {
             $file       = $request->file('image_file');
             $extension  = $file->getClientOriginalExtension(); // getting image extension
-            $fileName   = $name.'_'.time().'.'.$extension; // renameing image
+            $fileName   = $name.'_'.time().'.'.$extension; // renaming image
             $file->move(public_path().$destination, $fileName); // uploading file to given path
             $fileName   = $destination.$fileName;//file name for saving to db
         }
@@ -160,10 +160,10 @@ class AccountController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "danger");
     }
 
     /**
@@ -185,7 +185,7 @@ class AccountController extends Controller
             } else {
                 $errorCode = 2;
             }
-            //throwing methodnotfound exception when no model is fetched
+            //throwing model not found exception when no model is fetched
             throw new ModelNotFoundException("Account", $errorCode);
         }
 
@@ -208,8 +208,8 @@ class AccountController extends Controller
         $account    = [];
 
         $relationTypes = config('constants.accountRelationTypes');
-        //excluding the relationtype 'employee'[index = 5] for account update
-        unset($relationTypes[5]);
+        //excluding the relationtype 'employee'[index = 1] for account update
+        unset($relationTypes[1]);
 
         try {
             $account = $this->accountRepo->getAccount($id);
@@ -250,47 +250,5 @@ class AccountController extends Controller
     public function destroy($id)
     {
         return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
-        
-        $deleteFlag['flag'] = false;
-        try {
-            $account = $this->accountRepo->getAccount($id);
-        } catch (\Exception $e) {
-            if($e->getMessage() == "CustomError") {
-                $errorCode = $e->getCode();
-            } else {
-                $errorCode = 4;
-            }
-            //throwing methodnotfound exception when no model is fetched
-            throw new ModelNotFoundException("Account", $errorCode);
-        }
-
-        if(!empty($account) && !empty($account->id)) {
-            if($account->relation != 5) {
-                
-                //wrappin db transactions
-                DB::beginTransaction();
-
-                try {
-                    $deleteFlag = $this->accountRepo->deleteAccount($id);
-
-                    DB::commit();
-                } catch (\Exception $e) {
-                    DB::rollback();
-
-                    if($e->getMessage() == "CustomError") {
-                        $errorCode = $e->getCode();
-                    } else {
-                        $errorCode = 5;
-                    }
-                }
-                if($deleteFlag['flag']) {
-                    return redirect(route('account.index'))->with("message", "Account details deleted successfully.")->with("alert-class", "alert-success");
-                }
-            } else {
-                return redirect(route('account.index'))->with("message", "Deletion failed. Employee account should be deleted from employee records.")->with("alert-class", "alert-danger");
-            }
-        }
-
-        return redirect(route('account.index'))->with("message", "Deletion failed. Error Code : ". $this->errorHead. " / ". $errorCode)->with("alert-class", "alert-danger");
     }
 }
