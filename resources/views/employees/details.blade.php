@@ -9,18 +9,12 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Employee Details</li>
+            <li><a href="{{ route('employee.index') }}"> Employee</a></li>
+            <li class="active"> Details</li>
         </ol>
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row">
             <div class="col-md-12">
@@ -66,7 +60,7 @@
                                                 <i class="fa fa-phone margin-r-5"></i> Phone
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ $employee->account->phone or "-" }}
+                                                {{ $employee->account->phone }}
                                             </p>
                                             <hr>
                                         </div>
@@ -86,22 +80,16 @@
                                                 <i class="fa fa-tags margin-r-5"></i> Wage Type
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                @if(!empty($wageTypes) && !empty($wageTypes[$employee->wage_type]))
-                                                    {{ $wageTypes[$employee->wage_type] }}
-                                                @else
-                                                    <div class="text-red">
-                                                        Error!
-                                                    </div>
-                                                @endif
+                                                {{ !empty($wageTypes) && !empty($wageTypes[$employee->wage_type]) ? $wageTypes[$employee->wage_type] : 'error'}}
                                             </p>
                                             <hr>
                                         </div>
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-inr margin-r-5"></i> {{ !empty($wageTypes) && !empty($wageTypes[$employee->wage_type]) ? $wageTypes[$employee->wage_type] : "Wage / Monthly Salary / Trip Bata" }}
+                                                <i class="fa fa-inr margin-r-5"></i> Wage Amount
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ $employee->wage }} {{ $employee->wage_type == 3 ? "%" : "" }}
+                                                {{ $employee->wage_rate }}
                                             </p>
                                             <hr>
                                         </div>
@@ -136,22 +124,11 @@
                                 <div class="box-footer">
                                     <div class="clearfix"> </div>
                                     <div class="row">
-                                        <div class="col-md-4"></div>
-                                        <div class="col-md-4">
-                                            <div class="col-md-{{ (!$loggedUser->isSuperAdmin()) ? "12" : "6" }}">
-                                                <form action="{{ route('employee.edit', $employee->id) }}" method="get" class="form-horizontal">
-                                                    <button type="submit" class="btn btn-primary btn-block btn-flat">Edit</button>
-                                                </form>
-                                            </div>
-                                            @if($loggedUser->isSuperAdmin())
-                                                <div class="col-md-6">
-                                                    <form action="{{ route('employee.destroy', $employee->id) }}" method="post" class="form-horizontal">
-                                                        {{ method_field('DELETE') }}
-                                                        {{ csrf_field() }}
-                                                        <button type="button" class="btn btn-danger btn-block btn-flat delete_button">Delete</button>
-                                                    </form>
-                                                </div>
-                                            @endif
+                                        <div class="col-md-5"></div>
+                                        <div class="col-md-2">
+                                            <form action="{{ route('employee.edit', $employee->id) }}" method="get" class="form-horizontal">
+                                                <button type="submit" class="btn btn-primary btn-block btn-flat">Edit</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

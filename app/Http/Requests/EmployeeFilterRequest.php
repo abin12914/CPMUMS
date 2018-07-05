@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Account;
+use App\Models\Employee;
 
 class EmployeeFilterRequest extends FormRequest
 {
@@ -30,7 +30,7 @@ class EmployeeFilterRequest extends FormRequest
         return [
             'employee_id'   =>  [
                                     'nullable',
-                                    Rule::in(Account::pluck('id')->toArray()),
+                                    Rule::in(Employee::pluck('id')->toArray()),
                                 ],
             'wage_type'     =>  [
                                     'nullable',

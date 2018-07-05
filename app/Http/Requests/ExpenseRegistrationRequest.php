@@ -45,7 +45,8 @@ class ExpenseRegistrationRequest extends FormRequest
                                             Rule::in(Account::pluck('id')->toArray()),
                                         ],
             'description'           =>  [
-                                            'nullable',
+                                            'required',
+                                            'min:5',
                                             'max:200',
                                         ],
             'bill_amount'           =>  [

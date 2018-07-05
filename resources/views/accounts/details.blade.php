@@ -15,13 +15,6 @@
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row">
             <div class="col-md-12">

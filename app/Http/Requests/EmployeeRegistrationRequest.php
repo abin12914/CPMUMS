@@ -29,6 +29,7 @@ class EmployeeRegistrationRequest extends FormRequest
         return [
             'name'              =>  [
                                         'required',
+                                        'min:4',
                                         'max:200',
                                     ],
             'phone'             =>  [
@@ -69,7 +70,7 @@ class EmployeeRegistrationRequest extends FormRequest
                                         'required',
                                         'numeric',
                                         'min:0',
-                                        'max:9999999'
+                                        'max:999999'
                                     ]
         ];
     }

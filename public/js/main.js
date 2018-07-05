@@ -8,27 +8,9 @@ $(function () {
         }
     });
 
-    /*if(alertType && alertMessage && alertType != 'undefined' && alertMessage != 'undefined') {
-        swal({
-            title: alertType,
-            type: alertType,
-            text: alertMessage,
-            timer: 5000,
-            allowOutsideClick : false,
-            showConfirmButton : false,
-        });
-    }*/
-
-    swal({
-        title: 'Success...',
-        text: 'Everything is ok!',
-        timer: 5000,
-        allowOutsideClick : false,
-        showConfirmButton : false,
-    });
-
-    //hide flash messages
-    //dismissAlert();
+    if(alertType && alertMessage) {
+        showAlert();
+    }
 
     //Initialize Select2 Element for account type select box
     initializeSelect2();
@@ -55,6 +37,14 @@ $(function () {
         //setting current date as selected
         $('.datepicker_reg').datepicker('setDate', 'now');
     }
+
+    //prevent user from entering data
+    $('body').on("click", "#show_last_message", function (evt) {
+        //show sweet alert on clicking the message icon
+        if(alertType && alertMessage) {
+            showAlert();
+        }
+    });
 
     //default value setting in account registering
     $('body').on("change", "#financial_status", function () {
@@ -237,16 +227,26 @@ $(function () {
     });
 });
 
-//method for automatic disappearing of message boxes
-function dismissAlert() {
-    $("#alert-message").fadeTo(8000, 500).slideUp(1000, function(){
-        $("#alert-message").slideUp(500);
-    });
-}
-
 //method for initializing select2
 function initializeSelect2() {
     $(".select2").select2({
         minimumResultsForSearch: 5,
+    });
+}
+
+//display sweet alert
+function showAlert() {
+    if(alertType == 'error') {
+        messageTitle = "Failed";
+    } else {
+        messageTitle =  alertType;
+    }
+
+    swal({
+        title: messageTitle,
+        type: alertType,
+        text: alertMessage,
+        timer: 5000,
+        showConfirmButton : false,
     });
 }

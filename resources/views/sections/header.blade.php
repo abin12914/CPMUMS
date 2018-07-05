@@ -17,7 +17,14 @@
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
-                <!-- User Account: style can be found in dropdown.less -->
+                @if (Session::has('message'))
+                    <li class="messages-menu" title="See last message">
+                        <a href="#" id="show_last_message">
+                            <i class="fa fa-envelope-o"></i>
+                            <span class="label label-{{ Session::get('alert-class', 'info') }}">1</span>
+                        </a>
+                    </li>
+                @endif
                 <li>
                     <a href="{{ url('/logout') }}" class="fa fa-sign-out" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Logout
@@ -26,10 +33,6 @@
                         {{ csrf_field() }}
                     </form>
                 </li>
-                <!-- Control Sidebar Toggle Button -->
-                {{-- <li>
-                    <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
-                </li> --}}
             </ul>
         </div>
     </nav>

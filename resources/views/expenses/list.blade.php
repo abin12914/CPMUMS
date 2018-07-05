@@ -14,13 +14,6 @@
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row  no-print">
             <div class="col-md-12">
@@ -37,53 +30,55 @@
                                     <div class="form-group">
                                         <div class="col-md-4 {{ !empty($errors->first('from_date')) ? 'has-error' : '' }}">
                                             <label for="from_date" class="control-label">From Date : </label>
-                                            <input type="text" class="form-control datepicker" name="from_date" id="from_date" value="{{ !empty(old('from_date')) ? old('from_date') : $params[0]['paramValue'] }}" tabindex="1">
-                                            @if(!empty($errors->first('from_date')))
-                                                <p style="color: red;" >{{$errors->first('from_date')}}</p>
-                                            @endif
+                                            <input type="text" class="form-control datepicker" name="from_date" id="from_date" value="{{ !empty(old('from_date')) ? old('from_date') : $params['from_date']['paramValue'] }}" tabindex="1">
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'from_date'])
+                                            @endcomponent
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('to_date')) ? 'has-error' : '' }}">
                                             <label for="to_date" class="control-label">To Date : </label>
-                                            <input type="text" class="form-control datepicker" name="to_date" id="to_date" value="{{ !empty(old('to_date')) ? old('to_date') : $params[1]['paramValue'] }}" tabindex="2">
-                                            @if(!empty($errors->first('to_date')))
-                                                <p style="color: red;" >{{$errors->first('to_date')}}</p>
-                                            @endif
+                                            <input type="text" class="form-control datepicker" name="to_date" id="to_date" value="{{ !empty(old('to_date')) ? old('to_date') : $params['to_date']['paramValue'] }}" tabindex="2">
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'to_date'])
+                                            @endcomponent
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('branch_id')) ? 'has-error' : '' }}">
                                             <label for="branch_id" class="control-label">Branch : </label>
                                             {{-- adding branch select component --}}
-                                            @component('components.selects.branches', ['selectedBranchId' => $params[2]['paramValue'], 'selectName' => 'branch_id', 'tabindex' => 3])
+                                            @component('components.selects.branches', ['selectedBranchId' => $params['branch_id']['paramValue'], 'selectName' => 'branch_id', 'tabindex' => 3])
                                             @endcomponent
-                                            @if(!empty($errors->first('branch_id')))
-                                                <p style="color: red;" >{{$errors->first('branch_id')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'branch_id'])
+                                            @endcomponent
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-4 {{ !empty($errors->first('service_id')) ? 'has-error' : '' }}">
                                             <label for="service_id" class="control-label">Service/Expense : </label>
                                             {{-- adding services select component --}}
-                                            @component('components.selects.services', ['selectedServiceId' => $params[3]['paramValue'], 'selectName' => 'service_id', 'tabindex' => 4])
+                                            @component('components.selects.services', ['selectedServiceId' => $params['service_id']['paramValue'], 'selectName' => 'service_id', 'tabindex' => 4])
                                             @endcomponent
-                                            @if(!empty($errors->first('service_id')))
-                                                <p style="color: red;" >{{$errors->first('service_id')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'service_id'])
+                                            @endcomponent
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('supplier_account_id')) ? 'has-error' : '' }}">
                                             <label for="supplier_account_id" class="control-label">Supplier : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params[4]['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['supplier_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
                                             @endcomponent
-                                            @if(!empty($errors->first('supplier_account_id')))
-                                                <p style="color: red;" >{{$errors->first('supplier_account_id')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'supplier_account_id'])
+                                            @endcomponent
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
                                             <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
-                                            <input type="text" class="form-control" name="no_of_records number_only" id="no_of_records" value="{{ !empty(old('no_of_records')) ? old('no_of_records') : $noOfRecords }}" tabindex="6">
-                                            @if(!empty($errors->first('no_of_records')))
-                                                <p style="color: red;" >{{$errors->first('no_of_records')}}</p>
-                                            @endif
+                                            {{-- adding no of records text component --}}
+                                            @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 6])
+                                            @endcomponent
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'no_of_records'])
+                                            @endcomponent
                                         </div>
                                     </div>
                                 </div>
@@ -92,10 +87,10 @@
                             <div class="row">
                                 <div class="col-md-4"></div>
                                 <div class="col-md-2">
-                                    <button type="reset" class="btn btn-default btn-block btn-flat"  value="reset" tabindex="7">Clear</button>
+                                    <button type="reset" class="btn btn-default btn-block btn-flat"  value="reset" tabindex="8">Clear</button>
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="8"><i class="fa fa-search"></i> Search</button>
+                                    <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="7"><i class="fa fa-search"></i> Search</button>
                                 </div>
                             </div>
                         </form>
@@ -119,7 +114,7 @@
                     </div>
                     <div class="box-body">
                         <div class="row">
-                            <div class="col-md-12" style="overflow:scroll;">
+                            <div class="col-md-12" style="overflow-x:scroll;">
                                 <table class="table table-responsive table-bordered table-hover">
                                     <thead>
                                         <tr>
@@ -144,7 +139,7 @@
                                                     <td>{{ $expense->bill_amount }}</td>
                                                     <td class="no-print">
                                                         <a href="{{ route('expense.show', ['id' => $expense->id]) }}">
-                                                            <button type="button" class="btn btn-default">Details</button>
+                                                            <button type="button" class="btn btn-info">Details</button>
                                                         </a>
                                                     </td>
                                                 </tr>

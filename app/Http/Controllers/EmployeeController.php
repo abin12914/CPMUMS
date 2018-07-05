@@ -23,7 +23,7 @@ class EmployeeController extends Controller
     {
         $this->employeeRepo         = $employeeRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Employee');
+        $this->errorHead            = config('settings.controller_code.EmployeeController');
     }
 
     /**
@@ -106,26 +106,27 @@ class EmployeeController extends Controller
                 'phone'             => $request->get('phone'),
                 'address'           => $request->get('address'),
                 'image'             => $fileName,
+                'status'            => 1,
             ]);
 
-            if($accountResponse['flag']) {
-                //opening balance transaction details
-                if($financialStatus == 1) { //incoming [account holder gives cash to company] [Creditor]
-                    $debitAccountId     = $openingBalanceAccountId; //cash flow into the opening balance account
-                    $creditAccountId    = $accountResponse['id']; //newly created account id [flow out from new account]
-                    $particulars        = "Opening balance of ". $name . " - Debit [Creditor]";
-                } else if($financialStatus == 2){ //outgoing [company gives cash to account holder] [Debitor]
-                    $debitAccountId     = $accountResponse['id']; //newly created account id [flow into new account]
-                    $creditAccountId    = $openingBalanceAccountId; //flow out from the opening balance account
-                    $particulars        = "Opening balance of ". $name . " - Credit [Debitor]";
-                } else {
-                    $debitAccountId     = $openingBalanceAccountId;
-                    $creditAccountId    = $accountResponse['id']; //newly created account id
-                    $particulars        = "Opening balance of ". $name . " - None";
-                    $openingBalance     = 0;
-                }
-            } else {
+            if(!$accountResponse['flag']) {
                 throw new AppCustomException("CustomError", $accountResponse['errorCode']);
+            }
+
+            //opening balance transaction details
+            if($financialStatus == 1) { //incoming [account holder gives cash to company] [Creditor]
+                $debitAccountId     = $openingBalanceAccountId; //cash flow into the opening balance account
+                $creditAccountId    = $accountResponse['id']; //newly created account id [flow out from new account]
+                $particulars        = "Opening balance of ". $name . " - Debit [Creditor]";
+            } else if($financialStatus == 2){ //outgoing [company gives cash to account holder] [Debitor]
+                $debitAccountId     = $accountResponse['id']; //newly created account id [flow into new account]
+                $creditAccountId    = $openingBalanceAccountId; //flow out from the opening balance account
+                $particulars        = "Opening balance of ". $name . " - Credit [Debitor]";
+            } else {
+                $debitAccountId     = $openingBalanceAccountId;
+                $creditAccountId    = $accountResponse['id']; //newly created account id
+                $particulars        = "Opening balance of ". $name . " - None";
+                $openingBalance     = 0;
             }
 
             //save to transaction table
@@ -166,10 +167,10 @@ class EmployeeController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Employee details saved successfully. Reference Number : ". $employeeResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Employee details saved successfully. Reference Number : ". $employeeResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the employee details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the employee details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -249,6 +250,6 @@ class EmployeeController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
     }
 }

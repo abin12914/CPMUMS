@@ -35,5 +35,11 @@
         {{-- additional js scripts includes --}}
         @section('scripts')
         @show
+
+        {{-- message type and message for sweet alert --}}
+        <script type="text/javascript">
+            alertType    = "{{ Session::get('alert-class') }}";
+            alertMessage = "{{ Session::get('message') }}";
+        </script>
     </body>
 </html>

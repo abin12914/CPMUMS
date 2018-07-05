@@ -22,7 +22,7 @@ class AccountController extends Controller
     {
         $this->accountRepo          = $accountRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Account');
+        $this->errorHead            = config('settings.controller_code.AccountController');
     }
 
     /**
@@ -163,7 +163,7 @@ class AccountController extends Controller
             return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "danger");
+        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -249,6 +249,6 @@ class AccountController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
     }
 }

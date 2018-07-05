@@ -15,13 +15,6 @@
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row  no-print">
             <div class="col-md-12">
@@ -46,28 +39,27 @@
                                                     @endforeach
                                                 @endif
                                             </select>
-                                            @if(!empty($errors->first('relation_type')))
-                                                <p style="color: red;" >{{$errors->first('relation_type')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'relation_type'])
+                                            @endcomponent
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('account_id')) ? 'has-error' : '' }}">
                                             <label for="account_id" class="control-label">Account : </label>
                                             {{-- adding account select component --}}
                                             @component('components.selects.accounts', ['selectedAccountId' => $params['id'], 'cashAccountFlag' => false, 'selectName' => 'account_id', 'tabindex' => 2])
                                             @endcomponent
-
-                                            @if(!empty($errors->first('account_id')))
-                                                <p style="color: red;" >{{$errors->first('account_id')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'account_id'])
+                                            @endcomponent
                                         </div>
                                         <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
                                             <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
                                             {{-- adding no of records text component --}}
                                             @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 3])
                                             @endcomponent
-                                            @if(!empty($errors->first('no_of_records')))
-                                                <p style="color: red;" >{{$errors->first('no_of_records')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'no_of_records'])
+                                            @endcomponent
                                         </div>
                                     </div>
                                 </div>
@@ -162,10 +154,4 @@
     </section>
     <!-- /.content -->
 </div>
-@endsection
-@section('scripts')
-    <script type="text/javascript">
-        alertType    = "{{ Session::get('alert-class', 'alert-info')  }}";
-        alertMessage = "{{ Session::get('message', 'No message') }}";
-    </script>
 @endsection

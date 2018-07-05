@@ -15,13 +15,6 @@
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row no-print">
             <div class="col-md-12">
@@ -43,9 +36,9 @@
                                             <label for="account_name" class="col-md-3 control-label"><b style="color: red;">* </b> Account Name : </label>
                                             <div class="col-md-9 {{ !empty($errors->first('account_name')) ? 'has-error' : '' }}">
                                                 <input type="text" name="account_name" class="form-control" id="account_name" placeholder="Account Name" value="{{ old('account_name') }}" tabindex="1" maxlength="100">
-                                                @if(!empty($errors->first('account_name')))
-                                                    <p style="color: red;" >{{$errors->first('account_name')}}</p>
-                                                @endif
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'account_name'])
+                                                @endcomponent
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -56,9 +49,9 @@
                                                 @else
                                                     <textarea class="form-control" name="description" id="description" rows="3" placeholder="Description" style="resize: none;" tabindex="2" maxlength="200"></textarea>
                                                 @endif
-                                                @if(!empty($errors->first('description')))
-                                                    <p style="color: red;" >{{$errors->first('description')}}</p>
-                                                @endif
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'description'])
+                                                @endcomponent
                                             </div>
                                         </div><br>
                                         <div class="box-header with-border">
@@ -68,18 +61,18 @@
                                             <label for="name" class="col-md-3 control-label"><b style="color: red;">* </b> Name : </label>
                                             <div class="col-md-9 {{ !empty($errors->first('name')) ? 'has-error' : '' }}">
                                                 <input type="text" name="name" class="form-control alpha_only" id="name" placeholder="Account holder name" value="{{ old('name') }}" tabindex="3" maxlength="100">
-                                                @if(!empty($errors->first('name')))
-                                                    <p style="color: red;" >{{$errors->first('name')}}</p>
-                                                @endif
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'name'])
+                                                @endcomponent
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="phone" class="col-md-3 control-label"><b style="color: red;">* </b> Phone : </label>
                                             <div class="col-md-9 {{ !empty($errors->first('phone')) ? 'has-error' : '' }}">
                                                 <input type="text" name="phone" class="form-control number_only" id="phone" placeholder="Phone number" value="{{ old('phone') }}" tabindex="4" minlength="10" maxlength="13">
-                                                @if(!empty($errors->first('phone')))
-                                                    <p style="color: red;" >{{$errors->first('phone')}}</p>
-                                                @endif
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'phone'])
+                                                @endcomponent
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -90,18 +83,18 @@
                                                 @else
                                                     <textarea class="form-control" name="address" id="address" rows="3" placeholder="Address" style="resize: none;" tabindex="5" maxlength="200"></textarea>
                                                 @endif
-                                                @if(!empty($errors->first('address')))
-                                                    <p style="color: red;" >{{$errors->first('address')}}</p>
-                                                @endif
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'address'])
+                                                @endcomponent
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="image_file" class="col-md-3 control-label">Image : </label>
                                             <div class="col-md-9 {{ !empty($errors->first('image_file')) ? 'has-error' : '' }}">
                                                 <input type="file" name="image_file" class="form-control" id="image_file" value="{{ old('image_file') }}" tabindex="6" accept="image/*">
-                                                @if(!empty($errors->first('image_file')))
-                                                    <p style="color: red;" >{{$errors->first('image_file')}}</p>
-                                                @endif
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'image_file'])
+                                                @endcomponent
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -117,9 +110,9 @@
                                                         @endforeach
                                                     @endif
                                                 </select>
-                                                @if(!empty($errors->first('relation_type')))
-                                                    <p style="color: red;" >{{$errors->first('relation_type')}}</p>
-                                                @endif
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'relation_type'])
+                                                @endcomponent
                                             </div>
                                         </div><br>
                                         <div class="box-header with-border">
@@ -129,24 +122,23 @@
                                         <div class="form-group">
                                             <label for="financial_status" class="col-md-3 control-label"><b style="color: red;">* </b> Financial Status : </label>
                                             <div class="col-md-9 {{ !empty($errors->first('financial_status')) ? 'has-error' : '' }}">
-                                                <select class="form-control select2" name="financial_status" id="financial_status" tabindex="8" style="width: 100%;">
-                                                    <option value="" {{ empty(old('financial_status')) ? 'selected' : '' }}>Select financial status</option>
-                                                    <option value="0" {{ (old('financial_status') == '0') ? 'selected' : '' }}>None (No pending transactions)</option>
-                                                    <option value="2" {{ (old('financial_status') == '2') ? 'selected' : '' }}>Debitor (Account holder owe to the company)</option>
-                                                    <option value="1" {{ (old('financial_status') == '1') ? 'selected' : '' }}>Creditor (Company owe to the account holder)</option>
-                                                </select>
-                                                @if(!empty($errors->first('financial_status')))
-                                                    <p style="color: red;" >{{$errors->first('financial_status')}}</p>
-                                                @endif
+                                                {{-- adding financial_status select component --}}
+                                                @component('components.selects.financial_status', ['tabindex' => 8])
+                                                @endcomponent
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'financial_status'])
+                                                @endcomponent
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="opening_balance" class="col-md-3 control-label"><b style="color: red;">* </b> Opening Balance : </label>
                                             <div class="col-md-9 {{ !empty($errors->first('opening_balance')) ? 'has-error' : '' }}">
-                                                <input type="text" class="form-control decimal_number_only" name="opening_balance" id="opening_balance" placeholder="Opening balance" value="{{ old('opening_balance') }}" {{ old('financial_status') == '0' ? 'readonly' : '' }} tabindex="9" maxlength="8">
-                                                @if(!empty($errors->first('opening_balance')))
-                                                    <p style="color: red;" >{{$errors->first('opening_balance')}}</p>
-                                                @endif
+                                                {{-- adding opening_balance text component --}}
+                                                @component('components.texts.opening_balance', ['tabindex' => 9])
+                                                @endcomponent
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'opening_balance'])
+                                                @endcomponent
                                             </div>
                                         </div>
                                     </div>
@@ -173,10 +165,4 @@
     </section>
     <!-- /.content -->
 </div>
-@endsection
-@section('scripts')
-    <script type="text/javascript">
-        alertType    = "{{ Session::get('alert-class', '')  }}";
-        alertMessage = "{{ Session::get('message', '') }}";
-    </script>
 @endsection

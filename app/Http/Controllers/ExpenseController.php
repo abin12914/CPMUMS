@@ -23,7 +23,7 @@ class ExpenseController extends Controller
     {
         $this->expenseRepo          = $expenseRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Expense');
+        $this->errorHead            = config('settings.controller_code.ExpenseController');
     }
 
     /**
@@ -33,39 +33,39 @@ class ExpenseController extends Controller
      */
     public function index(ExpenseFilterRequest $request)
     {
-        $fromDate           = !empty($request->get('from_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('from_date'))->format('Y-m-d') : "";
-        $toDate             = !empty($request->get('to_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('to_date'))->format('Y-m-d') : "";
-        $noOfRecords        = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
+        $fromDate       = !empty($request->get('from_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('from_date'))->format('Y-m-d') : "";
+        $toDate         = !empty($request->get('to_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('to_date'))->format('Y-m-d') : "";
+        $noOfRecords    = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
 
         $params = [
-            [
-                'paramName'     => 'date',
-                'paramOperator' => '>=',
-                'paramValue'    => $fromDate,
-            ],
-            [
-                'paramName'     => 'date',
-                'paramOperator' => '<=',
-                'paramValue'    => $toDate,
-            ],
-            [
-                'paramName'     => 'branch_id',
-                'paramOperator' => '=',
-                'paramValue'    => $request->get('branch_id'),
-            ],
-            [
-                'paramName'     => 'service_id',
-                'paramOperator' => '=',
-                'paramValue'    => $request->get('service_id'),
-            ],
+            'from_date'     =>  [
+                                    'paramName'     => 'date',
+                                    'paramOperator' => '>=',
+                                    'paramValue'    => $fromDate,
+                                ],
+            'to_date'       =>  [
+                                    'paramName'     => 'date',
+                                    'paramOperator' => '<=',
+                                    'paramValue'    => $toDate,
+                                ],
+            'branch_id'     =>  [
+                                    'paramName'     => 'branch_id',
+                                    'paramOperator' => '=',
+                                    'paramValue'    => $request->get('branch_id'),
+                                ],
+            'service_id'    =>  [
+                                    'paramName'     => 'service_id',
+                                    'paramOperator' => '=',
+                                    'paramValue'    => $request->get('service_id'),
+                                ],
         ];
 
         $relationalParams = [
-            [
-                'relation'      => 'transaction',
-                'paramName'     => 'credit_account_id',
-                'paramValue'    => $request->get('supplier_account_id'),
-            ]
+            'supplier_account_id'   =>  [
+                                            'relation'      => 'transaction',
+                                            'paramName'     => 'credit_account_id',
+                                            'paramValue'    => $request->get('supplier_account_id'),
+                                        ]
         ];
 
         $expenses = $this->expenseRepo->getExpenses($params, $relationalParams, $noOfRecords);
@@ -158,10 +158,10 @@ class ExpenseController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Expense details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Expense details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the expense details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the expense details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -200,7 +200,8 @@ class ExpenseController extends Controller
      */
     public function edit($id)
     {
-        $errorCode  = 0;
+        return redirect()->back()->with("message", "Editing temporarily unavailable.")->with("alert-class", "warning");
+        /*$errorCode  = 0;
         $expense    = [];
 
         try {
@@ -215,9 +216,9 @@ class ExpenseController extends Controller
             throw new ModelNotFoundException("Expense", $errorCode);
         }
 
-        return view('expenses.edit', [
+        return view('expense.edit', [
             'expense' => $expense,
-        ]);
+        ]);*/
     }
 
     /**
@@ -240,6 +241,6 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion temporarily restricted.")->with("alert-class", "warning");
     }
 }

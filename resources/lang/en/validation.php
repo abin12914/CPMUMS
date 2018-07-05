@@ -120,6 +120,7 @@ return [
         'relation_type'                 => 'primary relation',
         'account_id'                    => 'account',
         'no_of_records'                 => 'no of records per page',
+        'image_file'                    => 'image',
         
         'supplier_account_id'           => 'supplier',
         'service_id'                    => 'service',

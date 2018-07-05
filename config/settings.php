@@ -3,17 +3,17 @@
 return [
 
     'controller_code'       =>  [
-                                    'Branch'        => '01',
-                                    'Account'       => '02',
-                                    'Transaction'   => '03',
-                                    'Employee'      => '04',
-                                    'Expense'       => '05',
-                                    'Production'    => '06',
-                                    'Purchase'      => '07',
-                                    'Sale'          => '08',
-                                    'Voucher'       => '09',
-                                    'EmployeeWage'  => '10',
-                                    'Product'       => '11',
+                                    'BranchController'        => '01',
+                                    'AccountController'       => '02',
+                                    'TransactionController'   => '03',
+                                    'EmployeeController'      => '04',
+                                    'ExpenseController'       => '05',
+                                    'ProductionController'    => '06',
+                                    'PurchaseController'      => '07',
+                                    'SaleController'          => '08',
+                                    'VoucherController'       => '09',
+                                    'EmployeeWageController'  => '10',
+                                    'ProductController'       => '11',
                                 ],
     'repository_code'       =>  [
                                     'BranchRepository'          => 100,

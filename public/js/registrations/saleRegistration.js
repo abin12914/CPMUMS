@@ -17,7 +17,7 @@ $(function () {
     $('body').on("change", ".products_combo", function (evt) {
         var fieldValue  = $(this).val();
         var rowId       = $(this).data('index-no');
-console.log('#1#');
+
         if(fieldValue && fieldValue != '' && fieldValue != 'undefined') {
             var rate = $(this).find(':selected').data('rate');
 

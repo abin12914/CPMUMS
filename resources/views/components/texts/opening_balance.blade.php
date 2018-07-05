@@ -1,0 +1,1 @@
+<input type="text" class="form-control decimal_number_only" name="opening_balance" id="opening_balance" placeholder="Opening balance" value="{{ old('opening_balance') }}" tabindex="{{ $tabindex }}" {{ old('financial_status') == '0' ? 'readonly' : '' }} maxlength="8">

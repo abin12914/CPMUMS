@@ -9,18 +9,12 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Service & Expense Details</li>
+            <li><a href="{{ route('expense.index') }}"> Service & Expense</a></li>
+            <li class="active"> Details</li>
         </ol>
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row">
             <div class="col-md-12">
@@ -52,7 +46,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-truck margin-r-5"></i> Branch Name
+                                                <i class="fa fa-building margin-r-5"></i> Branch Name
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 {{ $expense->branch->name }}
@@ -75,7 +69,7 @@
                                                 <i class="fa fa-calendar margin-r-5"></i> Date
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}
+                                                {{ $expense->date->format('d-m-Y') }}
                                             </p>
                                             <hr>
                                         </div>
