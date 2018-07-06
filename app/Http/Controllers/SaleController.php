@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Repositories\SaleRepository;
 use App\Repositories\TransactionRepository;
 use App\Repositories\AccountRepository;
+use App\Repositories\TransportationRepository;
 use App\Http\Requests\SaleRegistrationRequest;
 use App\Http\Requests\SaleFilterRequest;
 use Carbon\Carbon;
@@ -23,7 +24,7 @@ class SaleController extends Controller
     {
         $this->saleRepo             = $saleRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Sale');
+        $this->errorHead            = config('settings.controller_code.SaleController');
     }
 
     /**
@@ -38,17 +39,17 @@ class SaleController extends Controller
         $noOfRecords    = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
 
         $params = [
-            [
+            'from_date'    =>  [
                 'paramName'     => 'date',
                 'paramOperator' => '>=',
                 'paramValue'    => $fromDate,
             ],
-            [
+            'to_date'   =>  [
                 'paramName'     => 'date',
                 'paramOperator' => '<=',
                 'paramValue'    => $toDate,
             ],
-            [
+            'branch_id' =>  [
                 'paramName'     => 'branch_id',
                 'paramOperator' => '=',
                 'paramValue'    => $request->get('branch_id'),
@@ -56,27 +57,29 @@ class SaleController extends Controller
         ];
 
         $relationalParams = [
-            [
+            'customer_type' =>  [
                 'relation'      => 'transaction.debitAccount',
                 'paramName'     => 'status',
                 'paramValue'    => $request->get('customer_type'),
             ],
-            [
+            'customer_account_id'   =>  [
                 'relation'      => 'transaction',
                 'paramName'     => 'debit_account_id',
                 'paramValue'    => $request->get('customer_account_id'),
             ]
         ];
 
-        $sales = $this->saleRepo->getSales($params, $relationalParams, $noOfRecords);
+        $sales          = $this->saleRepo->getSales($params, $relationalParams, $noOfRecords);
+        $totalAmount    = $this->saleRepo->getSales($params, $relationalParams, null)->sum('total_amount');
 
         //params passing for auto selection
-        $params[0]['paramValue'] = $request->get('from_date');
-        $params[1]['paramValue'] = $request->get('to_date');
+        $params['from_date']['paramValue'] = $request->get('from_date');
+        $params['to_date']['paramValue'] = $request->get('to_date');
         $params = array_merge($params, $relationalParams);
 
         return view('sales.list', [
             'saleRecords'   => $sales,
+            'totalAmount'   => $totalAmount,
             'params'        => $params,
             'noOfRecords'   => $noOfRecords,
         ]);
@@ -101,18 +104,23 @@ class SaleController extends Controller
     public function store(
         SaleRegistrationRequest $request,
         TransactionRepository $transactionRepo,
-        AccountRepository $accountRepo
+        AccountRepository $accountRepo,
+        TransportationRepository $transportationRepo
     ) {
         $saveFlag   = false;
         $errorCode  = 0;
         $wageAmount = 0;
 
-        $saleAccountId      = config('constants.accountConstants.Sale.id');
-        $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('sale_date'))->format('Y-m-d');
-        $branchId           = $request->get('branch_id');
-        $saleType           = $request->get('sale_type');
-        $products           = $request->get('product_id');
-        $totalBill          = $request->get('total_bill');
+        $saleAccountId                  = config('constants.accountConstants.Sale.id');
+        $transportationChargeAccountId    = config('constants.accountConstants.TransportationChargeAccount.id');
+
+        $transactionDate        = Carbon::createFromFormat('d-m-Y', $request->get('sale_date'))->format('Y-m-d');
+        $branchId               = $request->get('branch_id');
+        $saleType               = $request->get('sale_type');
+        $products               = $request->get('product_id');
+        $totalBill              = $request->get('total_bill');
+        $transportationCharge   = $request->get('transportation_charge');
+        $transportationLocation = $request->get('transportation_location');
 
         foreach ($products as $index => $productId) {
             if(!empty($request->get('sale_quantity')[$index]) && !empty($request->get('sale_rate')[$index])) {
@@ -128,6 +136,8 @@ class SaleController extends Controller
         try {
             //confirming sale account existency.
             $saleAccount = $accountRepo->getAccount($saleAccountId);
+            //confirming transportation charge account existency.
+            $transportationChargeAccount = $accountRepo->getAccount($transportationChargeAccountId);
 
             if($saleType != 1) {
                 $customerName       = $request->get('name');
@@ -142,7 +152,7 @@ class SaleController extends Controller
                     $accountResponse = $accountRepo->saveAccount([
                         'account_name'      => $customerName,
                         'description'       => ("Short term credit account of". $customerName),
-                        'relation'          => 2, //customer
+                        'relation'          => 3, //customer
                         'financial_status'  => 0,
                         'opening_balance'   => 0,
                         'name'              => $customerName,
@@ -198,6 +208,32 @@ class SaleController extends Controller
                 throw new AppCustomException("CustomError", $saleResponse['errorCode']);
             }
 
+            //save transportation transaction to table
+            $transportationTransactionResponse = $transactionRepo->saveTransaction([
+                'debit_account_id'  => $customerAccountId, // debit the customer
+                'credit_account_id' => $transportationChargeAccountId, // credit the transportation charge account
+                'amount'            => $transportationCharge ,
+                'transaction_date'  => $transactionDate,
+                'particulars'       => ("Transportation charge to ". $transportationLocation. ". Sale Invoice No:". $saleResponse['id']),
+                'branch_id'         => $branchId,
+            ]);
+
+            if(!$transportationTransactionResponse['flag']) {
+                throw new AppCustomException("CustomError", $transportationTransactionResponse['errorCode']);
+            }
+
+            //save to sale table
+            $transportationResponse = $transportationRepo->saveTransportation([
+                'transaction_id'            => $transportationTransactionResponse['id'],
+                'sale_id'                   => $saleResponse['id'],
+                'transportation_location'   => $transportationLocation,
+                'transportation_charge'     => $transportationCharge,
+            ]);
+
+            if(!$transportationResponse['flag']) {
+                throw new AppCustomException("CustomError", $transportationResponse['errorCode']);
+            }
+
             DB::commit();
             $saveFlag = true;
         } catch (Exception $e) {
@@ -212,10 +248,10 @@ class SaleController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Sale details saved successfully. Reference Number : ". $saleResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Sale details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -254,6 +290,7 @@ class SaleController extends Controller
      */
     public function edit($id)
     {
+        return redirect()->back()->with("message", "Updation restricted.")->with("alert-class", "error");
         $errorCode  = 0;
         $sale       = [];
 
@@ -294,6 +331,6 @@ class SaleController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
     }
 }

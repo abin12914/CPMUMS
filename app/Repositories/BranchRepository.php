@@ -51,17 +51,17 @@ class BranchRepository
     /**
      * Action for saving branch.
      */
-    public function saveBranch($request)
+    public function saveBranch($inputArray=[])
     {
         $saveFlag = false;
 
         try {
             //employee saving
-            $branch = new Employee;
-            $branch->branch_name    = $inputArray['branch_name'];
-            $branch->place          = $inputArray['place'];
-            $branch->address        = $inputArray['address'];
-            $branch->status         = 1;
+            $branch = new Branch;
+            $branch->name       = $inputArray['name'];
+            $branch->place      = $inputArray['place'];
+            $branch->address    = $inputArray['address'];
+            $branch->status     = 1;
             //branch save
             $branch->save();
 
@@ -113,37 +113,6 @@ class BranchRepository
 
     public function deleteBranch($id, $forceFlag=false)
     {
-        $deleteFlag = false;
-
-        try {
-            //get branch record
-            $branch   = $this->getBranch($id);
-
-            if($forceFlag) {
-                //removing branch permanently
-                $branch->forceDelete();
-            } else {
-                $branch->delete();
-            }
-
-            $deleteFlag = true;
-        } catch (Exception $e) {
-            if($e->getMessage() == "CustomError") {
-                $this->errorCode = $e->getCode();
-            } else {
-                $this->errorCode = $this->repositoryCode + 5;
-            }
-            
-            throw new AppCustomException("CustomError", $this->errorCode);
-        }
-        
-        if($deleteFlag) {
-            return [
-                'flag'  => true,
-                'force' => $forceFlag,
-            ];
-        }
-
         return [
             'flag'          => false,
             'error_code'    => $this->repositoryCode + 6,

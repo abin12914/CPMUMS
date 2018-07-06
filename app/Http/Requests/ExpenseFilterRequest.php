@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\Branch;
 use App\Models\Service;
 use App\Models\Account;
 
@@ -34,6 +35,10 @@ class ExpenseFilterRequest extends FormRequest
             'to_date'               =>  [
                                             'nullable',
                                             'date_format:d-m-Y',
+                                        ],
+            'branch_id'             =>  [
+                                            'nullable',
+                                            Rule::in(Branch::pluck('id')->toArray()),
                                         ],
             'supplier_account_id'   =>  [
                                             'nullable',

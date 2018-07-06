@@ -23,7 +23,7 @@ class VoucherController extends Controller
     {
         $this->voucherRepo  = $voucherRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Voucher');
+        $this->errorHead            = config('settings.controller_code.VoucherController');
     }
 
     /**
@@ -38,12 +38,12 @@ class VoucherController extends Controller
         $noOfRecords    = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
 
         $params = [
-            [
+            'from_date' =>  [
                 'paramName'     => 'date',
                 'paramOperator' => '>=',
                 'paramValue'    => $fromDate,
             ],
-            [
+            'to_date'   =>  [
                 'paramName'     => 'date',
                 'paramOperator' => '<=',
                 'paramValue'    => $toDate,
@@ -51,33 +51,36 @@ class VoucherController extends Controller
         ];
 
         $whereInParams = [
-            [
+            'voucher_type'  =>  [
                 'paramName'     => 'voucher_type',
                 'paramValue'    => $request->get('voucher_type'),
             ],
         ];
 
         $relationalOrParams = [
-                [
-                    'relation'      => 'transaction',
-                    'paramName1'    => 'debit_account_id',
-                    'paramName2'    => 'credit_account_id',
-                    'paramValue'    => $request->get('voucher_account_id'),
-                ],
-            ];
+            'voucher_account_id'    =>  [
+                'relation'      => 'transaction',
+                'paramName1'    => 'debit_account_id',
+                'paramName2'    => 'credit_account_id',
+                'paramValue'    => $request->get('voucher_account_id'),
+            ],
+        ];
 
-        $vouchers = $this->voucherRepo->getVouchers($params, $relationalOrParams, $whereInParams, $noOfRecords);
+        $vouchers       = $this->voucherRepo->getVouchers($params, $relationalOrParams, $whereInParams, $noOfRecords);
+        $voucherRecords = $this->voucherRepo->getVouchers($params, $relationalOrParams, $whereInParams, null);
 
         //params passing for auto selection
-        $params[0]['paramValue'] = $request->get('from_date');
-        $params[1]['paramValue'] = $request->get('to_date');
+        $params['from_date']['paramValue'] = $request->get('from_date');
+        $params['to_date']['paramValue'] = $request->get('to_date');
         $params = array_merge($params, $whereInParams);
         $params = array_merge($params, $relationalOrParams);
 
         return view('vouchers.list', [
-                'vouchers'      => $vouchers,
-                'params'        => $params,
-                'noOfRecords'   => $noOfRecords,
+                'vouchers'          => $vouchers,
+                'params'            => $params,
+                'noOfRecords'       => $noOfRecords,
+                'totalDebitAmount'  => $voucherRecords->where('voucher_type', 1)->sum('amount'),
+                'totalCreditAmount' => $voucherRecords->where('voucher_type', 2)->sum('amount'),
             ]);
     }
 
@@ -108,6 +111,7 @@ class VoucherController extends Controller
         $cashAccountId      = config('constants.accountConstants.Cash.id');
         $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d');
         $voucherType        = $request->get('voucher_type');
+        $voucherTitle       = $voucherType == 1 ? "Reciept" : "Payemnt";
         $accountId          = $request->get('voucher_account_id');
         $description        = $request->get('description');
         $amount             = $request->get('amount');
@@ -173,10 +177,10 @@ class VoucherController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Voucher/Reciept details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message", $voucherTitle. " details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the voucher/reciept details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the ". $voucherTitle. " details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -215,6 +219,7 @@ class VoucherController extends Controller
      */
     public function edit($id)
     {
+        return redirect()->back()->with("message", "Updation restricted.")->with("alert-class", "error");
         /*$errorCode  = 0;
         $voucher       = [];
 
@@ -255,6 +260,6 @@ class VoucherController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
     }
 }

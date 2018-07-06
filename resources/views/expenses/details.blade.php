@@ -29,8 +29,8 @@
                                     <img class="img-circle" src="/images/public/service.png" alt="User Avatar">
                                 </div>
                                 <!-- /.widget-user-image -->
-                                <h3 class="widget-user-username">{{ $expense->branch->name }}</h3>
-                                <h5 class="widget-user-desc">{{ $expense->service->name }}</h5>
+                                <h3 class="widget-user-username">{{ $expense->service->name }}</h3>
+                                <h5 class="widget-user-desc">{{ $expense->branch->name }}</h5>
                             </div>
                             <div class="box box-primary">
                                 <div class="box-body">

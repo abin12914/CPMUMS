@@ -9,18 +9,12 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Voucher List</li>
+            <li><a> Voucher</a></li>
+            <li class="active"> List</li>
         </ol>
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row  no-print">
             <div class="col-md-12">
@@ -35,58 +29,60 @@
                                 <div class="col-md-1"></div>
                                 <div class="col-md-10">
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('from_date')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4">
                                             <label for="from_date" class="control-label">From Date : </label>
-                                            <input type="text" class="form-control datepicker" name="from_date" id="from_date" value="{{ !empty(old('from_date')) ? old('from_date') : $params[0]['paramValue'] }}" tabindex="1">
-                                            @if(!empty($errors->first('from_date')))
-                                                <p style="color: red;" >{{$errors->first('from_date')}}</p>
-                                            @endif
+                                            <input type="text" class="form-control datepicker" name="from_date" id="from_date" value="{{ !empty(old('from_date')) ? old('from_date') : $params['from_date']['paramValue'] }}" tabindex="1">
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'from_date'])
+                                            @endcomponent
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('to_date')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4">
                                             <label for="to_date" class="control-label">To Date : </label>
-                                            <input type="text" class="form-control datepicker" name="to_date" id="to_date" value="{{ !empty(old('to_date')) ? old('to_date') : $params[1]['paramValue'] }}" tabindex="2">
-                                            @if(!empty($errors->first('to_date')))
-                                                <p style="color: red;" >{{$errors->first('to_date')}}</p>
-                                            @endif
+                                            <input type="text" class="form-control datepicker" name="to_date" id="to_date" value="{{ !empty(old('to_date')) ? old('to_date') : $params['to_date']['paramValue'] }}" tabindex="2">
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'to_date'])
+                                            @endcomponent
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('account_id')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4">
                                             <label for="account_id" class="control-label">Supplier : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params[3]['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'voucher_account_id', 'tabindex' => 5])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['voucher_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'voucher_account_id', 'tabindex' => 5])
                                             @endcomponent
-                                            @if(!empty($errors->first('voucher_account_id')))
-                                                <p style="color: red;" >{{$errors->first('voucher_account_id')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'voucher_account_id'])
+                                            @endcomponent
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('voucher_type_debit')) ? 'has-error' : '' }}">
-                                            <label class="control-label"><b style="color: red;">* </b> Transaction Type : </label>
+                                        <div class="col-md-4">
+                                            <label class="control-label"><b style="color: red;">* </b> Voucher Type : </label>
                                             <div class="input-group">
                                                 <span class="input-group-addon">
-                                                    <input type="checkbox" name="voucher_type[]" id="voucher_type_debit" value="1" {{ empty($params[2]['paramValue']) || in_array(1, $params[2]['paramValue']) ? 'checked' : ''}} tabindex="4">
+                                                    <input type="checkbox" name="voucher_type[]" id="voucher_type_debit" value="1" {{ empty($params['voucher_type']['paramValue']) || in_array(1, $params['voucher_type']['paramValue']) ? 'checked' : ''}} tabindex="4">
                                                 </span>
                                                 <label for="voucher_type_debit" class="form-control">Debit / Reciept</label>
                                             </div>
-                                            @if(!empty($errors->first('voucher_type_debit')))
-                                                <p style="color: red;" >{{$errors->first('voucher_type_debit')}}</p>
-                                            @endif
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'voucher_type'])
+                                            @endcomponent
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('voucher_type_credit')) ? 'has-error' : '' }}">
-                                            <label class="control-label"><b style="color: red;">* </b> Transaction Type : </label>
+                                        <div class="col-md-4">
+                                            <label class="control-label"><b style="color: red;">* </b> Voucher Type : </label>
                                             <div class="input-group">
                                                 <span class="input-group-addon">
-                                                    <input type="checkbox" name="voucher_type[]" id="voucher_type_credit" value="2"  {{ empty($params[2]['paramValue']) || in_array(2, $params[2]['paramValue']) ? 'checked' : ''}} tabindex="5">
+                                                    <input type="checkbox" name="voucher_type[]" id="voucher_type_credit" value="2"  {{ empty($params['voucher_type']['paramValue']) || in_array(2, $params['voucher_type']['paramValue']) ? 'checked' : ''}} tabindex="5">
                                                 </span>
-                                                <label for="voucher_type_credit" class="form-control">Credit / Voucher</label>
+                                                <label for="voucher_type_credit" class="form-control">Credit / Payment</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4">
                                             <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
-                                            <input type="text" class="form-control" name="no_of_records" id="no_of_records" value="{{ !empty(old('no_of_records')) ? old('no_of_records') : $noOfRecords }}" tabindex="6">
-                                            @if(!empty($errors->first('no_of_records')))
-                                                <p style="color: red;" >{{$errors->first('no_of_records')}}</p>
-                                            @endif
+                                            {{-- adding no of records text component --}}
+                                            @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 6])
+                                            @endcomponent
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'no_of_records'])
+                                            @endcomponent
                                         </div>
                                     </div>
                                 </div>
@@ -128,10 +124,10 @@
                                         <tr>
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 15%;">Date</th>
-                                            <th style="width: 20%;">Account</th>
-                                            <th style="width: 10%;">Transaction Type</th>
-                                            <th style="width: 20%;">Cash Debit</th>
-                                            <th style="width: 20%;">Cash Credit</th>
+                                            <th style="width: 25%;">Account</th>
+                                            <th style="width: 15%;">Voucher Type</th>
+                                            <th style="width: 15%;">Cash Debit</th>
+                                            <th style="width: 15%;">Cash Credit</th>
                                             <th style="width: 10%;" class="no-print">Details</th>
                                         </tr>
                                     </thead>
@@ -140,7 +136,7 @@
                                             @foreach($vouchers as $index => $voucher)
                                                 <tr>
                                                     <td>{{ $index + $vouchers->firstItem() }}</td>
-                                                    <td>{{ Carbon\Carbon::parse($voucher->date)->format('d-m-Y') }}</td>
+                                                    <td>{{ $voucher->date->format('d-m-Y') }}</td>
                                                     @if($voucher->voucher_type == 1)
                                                         <td>{{ $voucher->transaction->creditAccount->account_name }}</td>
                                                         <td>Receipt</td>
@@ -148,17 +144,28 @@
                                                         <td></td>
                                                     @else
                                                         <td>{{ $voucher->transaction->debitAccount->account_name }}</td>
-                                                        <td>Voucher</td>
+                                                        <td>Payment</td>
                                                         <td></td>
                                                         <td>{{ $voucher->amount }}</td>
                                                     @endif
                                                     <td class="no-print">
                                                         <a href="{{ route('voucher.show', ['id' => $voucher->id]) }}">
-                                                            <button type="button" class="btn btn-default">Details</button>
+                                                            <button type="button" class="btn btn-info">Details</button>
                                                         </a>
                                                     </td>
                                                 </tr>
                                             @endforeach
+                                            @if(Request::get('page') == $vouchers->lastPage() || $vouchers->lastPage() == 1)
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td class="text-red"><b>Total Amount</b></td>
+                                                    <td></td>
+                                                    <td class="text-red"><b>{{ $totalDebitAmount }}</b></td>
+                                                    <td class="text-red"><b>{{ $totalCreditAmount }}</b></td>
+                                                    <td class="no-print"></td>
+                                                </tr>
+                                            @endif
                                         @endif
                                     </tbody>
                                 </table>

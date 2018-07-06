@@ -25,19 +25,19 @@ class BranchRegistrationRequest extends FormRequest
     public function rules()
     {
         return [
-            'branch_name'          =>  [
-                                            'required',
-                                            'max:100',
-                                            Rule::unique('branches', 'name')->ignore($this->branch),
-                                        ],
-            'place'           =>  [
-                                            'required',
-                                            'max:200',
-                                        ],
-            'address'               =>  [
-                                            'nullable',
-                                            'max:200',
-                                        ],
+            'branch_name'   =>  [
+                                    'required',
+                                    'max:100',
+                                    Rule::unique('branches', 'name')->ignore($this->branch),
+                                ],
+            'place'         =>  [
+                                    'required',
+                                    'max:200',
+                                ],
+            'address'       =>  [
+                                    'required',
+                                    'max:200',
+                                ],
         ];
     }
 }

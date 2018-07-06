@@ -2,47 +2,47 @@
 
 namespace App\Repositories;
 
-use App\Models\Sale;
+use App\Models\Transportation;
 use Exception;
 use App\Exceptions\AppCustomException;
 
-class SaleRepository
+class TransportationRepository
 {
     public $repositoryCode, $errorCode = 0;
 
     public function __construct()
     {
-        $this->repositoryCode = config('settings.repository_code.SaleRepository');
+        $this->repositoryCode = config('settings.repository_code.TransportationRepository');
     }
 
     /**
-     * Return sales.
+     * Return transportations.
      */
-    public function getSales($params=[], $relationalParams=[], $noOfRecords=null)
+    public function getTransportations($params=[], $relationalParams=[], $noOfRecords=null)
     {
-        $sales = [];
+        $transportations = [];
 
         try {
-            $sales = Sale::with(['branch', 'transaction.debitAccount', 'products'])->active();
+            $transportations = Transportation::active();
 
             foreach ($params as $param) {
                 if(!empty($param) && !empty($param['paramValue'])) {
-                    $sales = $sales->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
+                    $transportations = $transportations->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
                 }
             }
 
             foreach ($relationalParams as $param) {
                 if(!empty($param) && !empty($param['paramValue'])) {
-                    $sales = $sales->whereHas($param['relation'], function($qry) use($param) {
+                    $transportations = $transportations->whereHas($param['relation'], function($qry) use($param) {
                         $qry->where($param['paramName'], $param['paramValue']);
                     });
                 }
             }
 
             if(!empty($noOfRecords) && $noOfRecords > 0) {
-                $sales = $sales->paginate($noOfRecords);
+                $transportations = $transportations->paginate($noOfRecords);
             } else {
-                $sales= $sales->get();
+                $transportations= $transportations->get();
             }
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -53,29 +53,26 @@ class SaleRepository
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
-        return $sales;
+        return $transportations;
     }
 
     /**
-     * Action for saving sales.
+     * Action for saving transportations.
      */
-    public function saveSale($inputArray)
+    public function saveTransportation($inputArray)
     {
         $saveFlag   = false;
 
         try {
-            //sale saving
-            $sale = new Sale;
-            $sale->transaction_id   = $inputArray['transaction_id'];
-            $sale->date             = $inputArray['date'];
-            $sale->discount         = $inputArray['discount'];
-            $sale->total_amount     = $inputArray['total_amount'];
-            $sale->branch_id        = $inputArray['branch_id'];
-            $sale->status           = 1;
-            //sale save
-            $sale->save();
-
-            $sale->products()->sync($inputArray['productsArray']);
+            //transportation saving
+            $transportation = new Transportation;
+            $transportation->transaction_id             = $inputArray['transaction_id'];
+            $transportation->sale_id                    = $inputArray['sale_id'];
+            $transportation->transportation_location    = $inputArray['transportation_location'];
+            $transportation->transportation_charge      = $inputArray['transportation_charge'];
+            $transportation->status                     = 1;
+            //transportation save
+            $transportation->save();
 
             $saveFlag = true;
         } catch (Exception $e) {
@@ -90,7 +87,7 @@ class SaleRepository
         if($saveFlag) {
             return [
                 'flag'  => true,
-                'id'    => $sale->id,
+                'id'    => $transportation->id,
             ];
         }
         return [
@@ -100,14 +97,14 @@ class SaleRepository
     }
 
     /**
-     * return sale.
+     * return transportation.
      */
-    public function getSale($id)
+    public function getTransportation($id)
     {
-        $sale = [];
+        $transportation = [];
 
         try {
-            $sale = Sale::with(['branch', 'transaction.debitAccount', 'products', 'transportation'])->active()->findOrFail($id);
+            $transportation = Transportation::active()->findOrFail($id);
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
                 $this->errorCode = $e->getCode();
@@ -118,23 +115,23 @@ class SaleRepository
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
-        return $sale;
+        return $transportation;
     }
 
-    public function deleteSale($id, $forceFlag=false)
+    public function deleteTransportation($id, $forceFlag=false)
     {
         $deleteFlag = false;
 
         try {
-            //get sale
-            $sale = $this->getSale($id);
+            //get transportation
+            $transportation = $this->getTransportation($id);
 
             //force delete or soft delete
             //related models will be deleted by deleting event handlers
             if($forceFlag) {
-                $sale->forceDelete();
+                $transportation->forceDelete();
             } else {
-                $sale->delete();
+                $transportation->delete();
             }
             
             $deleteFlag = true;

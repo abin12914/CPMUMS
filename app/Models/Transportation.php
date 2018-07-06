@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Sale extends Model
+class Transportation extends Model
 {
     use SoftDeletes;
 
@@ -14,12 +14,12 @@ class Sale extends Model
      *
      * @var array
      */
-    protected $dates = ['date', 'deleted_at'];
-    
+    protected $dates = ['deleted_at'];
+
     public $timestamps = false;
 
     /**
-     * Scope a query to only include active sale.
+     * Scope a query to only include active purchase.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
@@ -30,7 +30,7 @@ class Sale extends Model
     }
     
     /**
-     * Get the transaction details associated with the sale
+     * Get the transaction details associated with the purchase
      */
     public function transaction()
     {
@@ -40,24 +40,8 @@ class Sale extends Model
     /**
      * Get the branch details associated with the purchase
      */
-    public function branch()
+    public function sale()
     {
-        return $this->belongsTo('App\Models\Branch','branch_id');
-    }
-
-    /**
-     * The sales that belong to the products.
-     */
-    public function products()
-    {
-        return $this->belongsToMany('App\Models\Product', 'sale_product')->as('saleDetail')->withPivot('quantity', 'rate');
-    }
-
-    /**
-     * The transportation that belong to the sale.
-     */
-    public function transportation()
-    {
-        return $this->hasOne('App\Models\Transportation', 'sale_id', 'id');
+        return $this->belongsTo('App\Models\Sale', 'sale_id');
     }
 }

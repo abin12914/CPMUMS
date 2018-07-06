@@ -21,7 +21,7 @@ class Production extends Model
      *
      * @var array
      */
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'date'];
 
     /**
      * Scope a query to only include active accounts.

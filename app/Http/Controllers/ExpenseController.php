@@ -68,15 +68,17 @@ class ExpenseController extends Controller
                                         ]
         ];
 
-        $expenses = $this->expenseRepo->getExpenses($params, $relationalParams, $noOfRecords);
+        $expenses       = $this->expenseRepo->getExpenses($params, $relationalParams, $noOfRecords);
+        $totalExpense   = $this->expenseRepo->getExpenses($params, $relationalParams, null)->sum('bill_amount');
 
         //params passing for auto selection
-        $params[0]['paramValue'] = $request->get('from_date');
-        $params[1]['paramValue'] = $request->get('to_date');
+        $params['from_date']['paramValue'] = $request->get('from_date');
+        $params['to_date']['paramValue'] = $request->get('to_date');
         $params = array_merge($params, $relationalParams);
         
         return view('expenses.list', [
             'expenses'      => $expenses,
+            'totalExpense'  => $totalExpense,
             'params'        => $params,
             'noOfRecords'   => $noOfRecords,
         ]);

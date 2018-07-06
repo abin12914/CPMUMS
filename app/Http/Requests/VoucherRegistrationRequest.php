@@ -39,7 +39,7 @@ class VoucherRegistrationRequest extends FormRequest
                                             'date_format:d-m-Y',
                                         ],
             'description'           =>  [
-                                            'nullable',
+                                            'required',
                                             'max:200',
                                         ],
             'amount'                =>  [

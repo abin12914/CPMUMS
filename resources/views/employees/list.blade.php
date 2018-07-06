@@ -29,7 +29,7 @@
                                 <div class="col-md-1"></div>
                                 <div class="col-md-10">
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('wage_type')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4">
                                             <label for="wage_type" class="control-label">Wage Type : </label>
                                             <select class="form-control select2" name="wage_type" id="wage_type" style="width: 100%" tabindex="1">
                                                 <option value="">Select wage type</option>
@@ -43,7 +43,7 @@
                                             @component('components.paragraph.error_message', ['fieldName' => 'wage_type'])
                                             @endcomponent
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('employee_id')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4">
                                             <label for="employee_id" class="control-label">Employee : </label>
                                             {{-- adding employee select component --}}
                                             @component('components.selects.employees', ['selectedEmployeeId' => $params['id'], 'selectName' => 'employee_id', 'tabindex' => 2])
@@ -52,7 +52,7 @@
                                             @component('components.paragraph.error_message', ['fieldName' => 'employee_id'])
                                             @endcomponent
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
+                                        <div class="col-md-4">
                                             <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
                                             {{-- adding no of records text component --}}
                                             @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 3])

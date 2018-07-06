@@ -104,51 +104,51 @@ return [
         'AccountOpeningBalance' => [
             'id'                => 7,
             'account_name'      => 'Account Opening Balance', //account id : 7
-            'description'       => 'Account opening Balance account',
+            'description'       => 'Account opening balance account',
             'type'              => 2, //nominal account
             'relation'          => 0, //nominal
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
-            'name'              => 'Account opening Balance account',
+            'name'              => 'Account opening balance account',
             'phone'             => '0000000007',
             'status'            => 1,
         ],
 
-        'Temp1' => [
+        'TransportationChargeAccount' => [
             'id'                => 8,
-            'account_name'      => 'Temp1', //account id : 8
+            'account_name'      => 'Transportation Charge Account', //account id : 8
+            'description'       => 'Transportation charge account',
+            'type'              => 2, //nominal account
+            'relation'          => 0, //nominal
+            'financial_status'  => 0, //none
+            'opening_balance'   => 0,
+            'name'              => 'Transportation charge account',
+            'phone'             => '0000000009',
+            'status'            => 1,
+        ],
+
+        'Temp1' => [
+            'id'                => 9,
+            'account_name'      => 'Temp1', //account id : 9
             'description'       => 'Temporary account 1',
             'type'              => 2, //nominal account
             'relation'          => 0, //nominal
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Temporary account 1',
-            'phone'             => '0000000008',
+            'phone'             => '0000000009',
             'status'            => 0,
         ],
 
         'Temp2' => [
-            'id'                => 9,
-            'account_name'      => 'Temp2', //account id : 9
+            'id'                => 10,
+            'account_name'      => 'Temp2', //account id : 10
             'description'       => 'Temporary account 2',
             'type'              => 2, //nominal account
             'relation'          => 0, //nominal
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Temporary account 2',
-            'phone'             => '0000000009',
-            'status'            => 0,
-        ],
-
-        'Temp3' => [
-            'id'                => 10,
-            'account_name'      => 'Temp3', //account id : 10
-            'description'       => 'Temporary account 3',
-            'type'              => 2, //nominal account
-            'relation'          => 0, //nominal
-            'financial_status'  => 0, //none
-            'opening_balance'   => 0,
-            'name'              => 'Temporary account 3',
             'phone'             => '0000000010',
             'status'            => 0,
         ],

@@ -9,18 +9,12 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Voucher Details</li>
+            <li><a href="{{ route('voucher.index') }}"> Voucher</a></li>
+            <li class="active"> Details</li>
         </ol>
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row">
             <div class="col-md-12">
@@ -39,7 +33,7 @@
                                     <h3 class="widget-user-username">Receipt</h3>
                                     <h5 class="widget-user-desc">{{ $voucher->transaction->creditAccount->account_name }}</h5>
                                 @else
-                                    <h3 class="widget-user-username">Voucher</h3>
+                                    <h3 class="widget-user-username">Payment</h3>
                                     <h5 class="widget-user-desc">{{ $voucher->transaction->debitAccount->account_name }}</h5>
                                 @endif
                             </div>
@@ -60,7 +54,7 @@
                                                 <i class="fa fa-calendar margin-r-5"></i> Date
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ Carbon\Carbon::parse($voucher->date)->format('d-m-Y') }}
+                                                {{ $voucher->date->format('d-m-Y') }}
                                             </p>
                                             <hr>
                                         </div>
@@ -68,10 +62,10 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-sort margin-r-5"></i> Transaction Type
+                                                <i class="fa fa-sort margin-r-5"></i> Voucher Type
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ $voucher->transaction_type == 1 ? "Receipt" : "Voucher" }}
+                                                {{ $voucher->transaction_type == 1 ? "Receipt" : "Payment" }}
                                             </p>
                                             <hr>
                                         </div>
@@ -86,18 +80,18 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-6" title="Debit Account">
                                             <strong>
-                                                <i class="fa fa-user-o margin-r-5"></i> Debit Account
+                                                <i class="fa fa-user-o margin-r-5"></i> Beneficiary / Receiver Account
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 {{ $voucher->transaction->debitAccount->account_name }}
                                             </p>
                                             <hr>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-6" title="Credit Account">
                                             <strong>
-                                                <i class="fa fa-user-o margin-r-5"></i> Credit Account
+                                                <i class="fa fa-user-o margin-r-5"></i> Giver / Payer Account
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 {{ $voucher->transaction->creditAccount->account_name }}

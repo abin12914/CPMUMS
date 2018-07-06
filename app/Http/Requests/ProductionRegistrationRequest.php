@@ -32,23 +32,23 @@ class ProductionRegistrationRequest extends FormRequest
                                         'required',
                                         Rule::in(Branch::pluck('id')->toArray()),
                                     ],
-            'employee_id'       =>  [
+            'date'              =>  [
                                         'required',
-                                        Rule::in(Employee::pluck('id')->toArray()),
+                                        'date_format:d-m-Y',
                                     ],
             'product_id'        =>  [
                                         'required',
                                         Rule::in(Product::pluck('id')->toArray()),
                                     ],
-            'date'              =>  [
+            'employee_id'       =>  [
                                         'required',
-                                        'date_format:d-m-Y',
+                                        Rule::in(Employee::pluck('id')->toArray()),
                                     ],
             'mould_quantity'    =>  [
                                         'required',
                                         'numeric',
                                         'min:1',
-                                        'max:9999',
+                                        'max:999',
                                     ],
             'piece_quantity'    =>  [
                                         'required',

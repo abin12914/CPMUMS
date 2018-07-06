@@ -20,7 +20,7 @@ class CheckUserRole
 
         if(!($role1 == $userRole || $role2 == $userRole || $role3 == $userRole)) {
             return redirect()->back()->with("message"," Unauthorized action. You don't have permission to access the option you requested.")
-                                                ->with("alert-class","alert-danger");
+                                                ->with("alert-class","error");
         }
         return $next($request);
     }

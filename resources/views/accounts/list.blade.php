@@ -29,7 +29,7 @@
                                 <div class="col-md-1"></div>
                                 <div class="col-md-10">
                                     <div class="form-group">
-                                        <div class="col-md-4 {{ !empty($errors->first('relation_type')) ? 'has-error' : '' }}">
+                                        <div class="col-md-3">
                                             <label for="relation_type" class="control-label">Relation : </label>
                                             <select class="form-control select2" name="relation_type" id="relation_type" style="width: 100%" tabindex="1">
                                                 <option value="">Select relation type</option>
@@ -43,7 +43,7 @@
                                             @component('components.paragraph.error_message', ['fieldName' => 'relation_type'])
                                             @endcomponent
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('account_id')) ? 'has-error' : '' }}">
+                                        <div class="col-md-3">
                                             <label for="account_id" class="control-label">Account : </label>
                                             {{-- adding account select component --}}
                                             @component('components.selects.accounts', ['selectedAccountId' => $params['id'], 'cashAccountFlag' => false, 'selectName' => 'account_id', 'tabindex' => 2])
@@ -52,10 +52,22 @@
                                             @component('components.paragraph.error_message', ['fieldName' => 'account_id'])
                                             @endcomponent
                                         </div>
-                                        <div class="col-md-4 {{ !empty($errors->first('no_of_records')) ? 'has-error' : '' }}">
+                                        <div class="col-md-3">
+                                            <label class="control-label"><b style="color: red;">* </b> Account Type : </label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <input type="checkbox" name="status_flag" id="status_flag" value="true" {{ $statusFlag ? 'checked' : ''}} tabindex="3">
+                                                </span>
+                                                <label for="status_flag" class="form-control">Include Short Term Credit Customers</label>
+                                            </div>
+                                            {{-- adding error_message p tag component --}}
+                                            @component('components.paragraph.error_message', ['fieldName' => 'status_flag'])
+                                            @endcomponent
+                                        </div>
+                                        <div class="col-md-3">
                                             <label for="no_of_records" class="control-label">No Of Records Per Page : </label>
                                             {{-- adding no of records text component --}}
-                                            @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 3])
+                                            @component('components.texts.no-of-records-text', ['noOfRecords' => $noOfRecords, 'tabindex' => 4])
                                             @endcomponent
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'no_of_records'])
@@ -68,10 +80,10 @@
                             <div class="row">
                                 <div class="col-md-4"></div>
                                 <div class="col-md-2">
-                                    <button type="reset" class="btn btn-default btn-block btn-flat"  value="reset" tabindex="5">Clear</button>
+                                    <button type="reset" class="btn btn-default btn-block btn-flat"  value="reset" tabindex="6">Clear</button>
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="4"><i class="fa fa-search"></i> Search</button>
+                                    <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="5"><i class="fa fa-search"></i> Search</button>
                                 </div>
                             </div>
                         </form>
@@ -111,7 +123,12 @@
                                             @foreach($accounts as $index => $account)
                                                 <tr>
                                                     <td>{{ $index + $accounts->firstItem() }}</td>
-                                                    <td>{{ $account->account_name }}</td>
+                                                    <td>
+                                                        {{ $account->account_name }}
+                                                        @if($account->status != 1)
+                                                            &emsp;<i class="fa fa-clock-o text-orange no-print" title="Short term credit customer"></i>
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         {{ (!empty($relationTypes) && !empty($relationTypes[$account->relation])) ? $relationTypes[$account->relation] : "Error!" }}
                                                     </td>

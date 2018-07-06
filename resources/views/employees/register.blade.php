@@ -34,7 +34,7 @@
                                 <div class="col-md-11">
                                     <div class="form-group">
                                         <label for="name" class="col-md-3 control-label"><b style="color: red;">* </b> Name : </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('name')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             <input type="text" name="name" class="form-control" id="name" placeholder="Name" value="{{ old('name') }}" tabindex="1" maxlength="100">
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'name'])
@@ -43,7 +43,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="phone" class="col-md-3 control-label"><b style="color: red;">* </b> Phone : </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('phone')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             <input type="text" name="phone" class="form-control number_only" id="phone" placeholder="Phone number" value="{{ old('phone') }}" tabindex="2" maxlength="13">
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'phone'])
@@ -52,7 +52,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="address" class="col-md-3 control-label">Address : </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('address')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             @if(!empty(old('address')))
                                                 <textarea class="form-control" name="address" id="address" rows="3" placeholder="Address" style="resize: none;" tabindex="3" maxlength="199">{{ old('address') }}</textarea>
                                             @else
@@ -65,7 +65,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="image_file" class="col-md-3 control-label">Image : </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('image_file')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             <input type="file" name="image_file" class="form-control" id="image_file" accept="image/*" tabindex="4" value="{{ old('image_file') }}">
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'image_file'])
@@ -77,7 +77,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="col-md-3 control-label"><b style="color: red;">* </b> Wage Type : </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('wage_type')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             <select class="form-control select2" name="wage_type" id="wage_type" tabindex="5">
                                                 <option value="" {{ empty(old('wage_type')) ? 'selected' : '' }}>Select wage type</option>
                                                 @if(!empty($wageTypes))
@@ -93,7 +93,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="wage" class="col-md-3 control-label"><b style="color: red;">* </b> Wage : </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('wage')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             <input type="text" name="wage" class="form-control decimal_number_only" id="wage" placeholder="Monthly salary/wage/piece rate percentage" value="{{ old('wage') }}" tabindex="6">
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'wage'])
@@ -105,7 +105,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="account_name" class="col-md-3 control-label"><b style="color: red;">* </b> Account Name : </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('account_name')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             <input type="text" name="account_name" class="form-control" id="account_name" placeholder="Account Name" value="{{ old('account_name') }}"  tabindex="7" maxlength="100">
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'account_name'])
@@ -114,7 +114,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="col-md-3 control-label"><b style="color: red;">* </b> Financial Status: </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('financial_status')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             {{-- adding financial_status select component --}}
                                             @component('components.selects.financial_status', ['tabindex' => 8])
                                             @endcomponent
@@ -125,7 +125,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="col-md-3 control-label"><b style="color: red;">* </b> Opening Balance: </label>
-                                        <div class="col-md-9 {{ !empty($errors->first('opening_balance')) ? 'has-error' : '' }}">
+                                        <div class="col-md-9">
                                             {{-- adding opening_balance text component --}}
                                             @component('components.texts.opening_balance', ['tabindex' => 9])
                                             @endcomponent

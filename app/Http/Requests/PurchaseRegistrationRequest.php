@@ -32,13 +32,13 @@ class PurchaseRegistrationRequest extends FormRequest
                                             'required',
                                             Rule::in(Branch::pluck('id')->toArray()),
                                         ],
-            'supplier_account_id'   =>  [
-                                            'required',
-                                            Rule::in(Account::pluck('id')->toArray()),
-                                        ],
             'purchase_date'         =>  [
                                             'required',
                                             'date_format:d-m-Y',
+                                        ],
+            'supplier_account_id'   =>  [
+                                            'required',
+                                            Rule::in(Account::pluck('id')->toArray()),
                                         ],
             'material_id'           =>  [
                                             'required',
@@ -71,7 +71,7 @@ class PurchaseRegistrationRequest extends FormRequest
             'purchase_total_bill'   =>  [
                                             'required',
                                             'numeric',
-                                            'max:50000',
+                                            'max:999999',
                                             'min:10',
                                         ],
         ];
@@ -87,7 +87,7 @@ class PurchaseRegistrationRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             if (!$this->checkCalculations()) {
-                $validator->errors()->add('calculations', 'Something went wrong with the calculations!&emsp; Please try again after reloading the page');
+                $validator->errors()->add('calculations', 'Something went wrong with the calculations! Please try again after reloading the page');
             }
         });
     }

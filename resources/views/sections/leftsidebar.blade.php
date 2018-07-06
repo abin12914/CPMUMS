@@ -20,6 +20,29 @@
                     <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                 </a>
             </li>
+            @if($loggedUser->isSuperAdmin() || $loggedUser->isAdmin())
+                <li class="treeview {{ (Request::is('branch/*') || Request::is('branch'))? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-building"></i>
+                        <span>Branch</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('branch/create')? 'active' : '' }}">
+                            <a href="{{ route('branch.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('branch')? 'active' : '' }}">
+                            <a href="{{ route('branch.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @endif
             @if($loggedUser->isSuperAdmin() || $loggedUser->isAdmin() || $loggedUser->isUser())
                 <li class="treeview {{ Request::is('reports/*')? 'active' : '' }}">
                     <a href="#">

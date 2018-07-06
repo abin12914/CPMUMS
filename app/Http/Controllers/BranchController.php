@@ -20,7 +20,7 @@ class BranchController extends Controller
     {
         $this->branchRepo           = $branchRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Branch');
+        $this->errorHead            = config('settings.controller_code.BranchController');
     }
     
     /**
@@ -28,17 +28,10 @@ class BranchController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(BranchFilterRequest $request)
+    public function index()
     {
-        $noOfRecords = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
-
-        $params = [];
-
         return view('branches.list', [
-                'branchesCombo' => $this->branchRepo->getBranches(),
-                'branches'      => $this->branchRepo->getBranches($params, $noOfRecords),
-                'params'        => $params,
-                'noOfRecords'   => $noOfRecords,
+                'branches'      => $this->branchRepo->getBranches([], null),
             ]);
     }
 
@@ -67,7 +60,7 @@ class BranchController extends Controller
         DB::beginTransaction();
         try {
             $response   = $this->branchRepo->saveBranch([
-                'name'      => $request->get('name'),
+                'name'      => $request->get('branch_name'),
                 'place'     => $request->get('place'),
                 'address'   => $request->get('address'),
             ]);
@@ -90,10 +83,10 @@ class BranchController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Branch details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Branch details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the branch details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the branch details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -129,9 +122,9 @@ class BranchController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(BranchRegistrationRequest $request, $id)
     {
-        //
+        
     }
 
     /**
@@ -142,11 +135,6 @@ class BranchController extends Controller
      */
     public function destroy($id)
     {
-        $deleteFlag = $this->branchRepo->deleteBranch($id);
-        if($deleteFlag['flag']) {
-            return redirect(route('branch.index'))->with("message", "Branch details deleted successfully.")->with("alert-class", "alert-success");
-        }
-
-        return redirect(route('branch.index'))->with("message", "Deletion failed. Error Code : ". $this->errorHead. " / ". $deleteFlag['errorCode'])->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
     }
 }

@@ -24,7 +24,7 @@ class PurchaseController extends Controller
     {
         $this->purchaseRepo         = $purchaseRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Purchase');
+        $this->errorHead            = config('settings.controller_code.PurchaseController');
     }
 
     /**
@@ -39,22 +39,22 @@ class PurchaseController extends Controller
         $noOfRecords    = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
 
         $params = [
-            [
+            'from_date'     =>  [
                 'paramName'     => 'date',
                 'paramOperator' => '>=',
                 'paramValue'    => $fromDate,
             ],
-            [
+            'to_date'       =>  [
                 'paramName'     => 'date',
                 'paramOperator' => '<=',
                 'paramValue'    => $toDate,
             ],
-            [
+            'branch_id'     =>  [
                 'paramName'     => 'branch_id',
                 'paramOperator' => '=',
                 'paramValue'    => $request->get('branch_id'),
             ],
-            [
+            'material_id'   =>  [
                 'paramName'     => 'material_id',
                 'paramOperator' => '=',
                 'paramValue'    => $request->get('material_id'),
@@ -62,22 +62,24 @@ class PurchaseController extends Controller
         ];
 
         $relationalParams = [
-            [
+            'supplier_account_id'   =>  [
                 'relation'      => 'transaction',
                 'paramName'     => 'credit_account_id',
                 'paramValue'    => $request->get('supplier_account_id'),
             ]
         ];
 
-        $purchases = $this->purchaseRepo->getPurchases($params, $relationalParams, $noOfRecords);
+        $purchases      = $this->purchaseRepo->getPurchases($params, $relationalParams, $noOfRecords);
+        $totalAmount    = $this->purchaseRepo->getPurchases($params, $relationalParams, null)->sum('total_amount');
 
         //params passing for auto selection
-        $params[0]['paramValue'] = $request->get('from_date');
-        $params[1]['paramValue'] = $request->get('to_date');
+        $params['from_date']['paramValue'] = $request->get('from_date');
+        $params['to_date']['paramValue'] = $request->get('to_date');
         $params = array_merge($params, $relationalParams);
 
         return view('purchases.list', [
             'purchaseRecords'   => $purchases,
+            'totalAmount'       => $totalAmount,
             'params'            => $params,
             'noOfRecords'       => $noOfRecords,
         ]);
@@ -157,6 +159,10 @@ class PurchaseController extends Controller
                 'branch_id'         => $branchId,
             ]);
 
+            if(!$purchaseResponse['flag']) {
+                throw new AppCustomException("CustomError", $purchaseResponse['errorCode']);
+            }
+
             DB::commit();
             $saveFlag = true;
         } catch (Exception $e) {
@@ -171,10 +177,10 @@ class PurchaseController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Purchase details saved successfully. Reference Number : ". $purchaseResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Purchase details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the purchase details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the purchase details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -196,7 +202,7 @@ class PurchaseController extends Controller
      */
     public function edit($id)
     {
-        //
+        return redirect()->back()->with("message","Temporarily Restricted.")->with("alert-class", "error");
     }
 
     /**
@@ -219,6 +225,6 @@ class PurchaseController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return redirect()->back()->with("message","Temporarily Restricted.")->with("alert-class", "error");
     }
 }

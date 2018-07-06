@@ -9,18 +9,12 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Branch Details</li>
+            <li><a href="{{ route('branch.index') }}"> Branch</a></li>
+            <li class="active"> Details</li>
         </ol>
     </section>
     <!-- Main content -->
     <section class="content">
-        @if (Session::has('message'))
-            <div class="alert {{ Session::get('alert-class', 'alert-info') }}" id="alert-message">
-                <h4>
-                    {{ Session::get('message') }}
-                </h4>
-            </div>
-        @endif
         <!-- Main row -->
         <div class="row">
             <div class="col-md-12">
@@ -32,7 +26,7 @@
                             <!-- Add the bg color to the header using any of the bg-* classes -->
                             <div class="widget-user-header bg-yellow">
                                 <div class="widget-user-image">
-                                    <img class="img-circle" src="/images/branch/default_branch.png" alt="Branch Image">
+                                    <i class="fa fa-5x fa-building-o" style="float: left;"></i>
                                 </div>
                                 <!-- /.widget-user-image -->
                                 <h3 class="widget-user-username">{{ $branch->name }}</h3>
@@ -65,7 +59,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-file-text-o margin-r-5"></i> Place
+                                                <i class="fa fa-map-marker margin-r-5"></i> Place
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 {{ $branch->place }}
@@ -74,7 +68,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-map-marker margin-r-5"></i> Address
+                                                <i class="fa fa-file-text-o margin-r-5"></i> Address
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 {{ $branch->address or "-" }}
@@ -87,8 +81,8 @@
                                 <div class="box-footer">
                                     <div class="clearfix"> </div>
                                     <div class="row no-print">
-                                        <div class="col-md-4"></div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-5"></div>
+                                        <div class="col-md-2">
                                             <form action="{{ route('branch.edit', $branch->id) }}" method="get" class="form-horizontal">
                                                 <button type="submit" class="btn btn-primary btn-block btn-flat">Edit</button>
                                             </form>

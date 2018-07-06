@@ -9,6 +9,11 @@ $(function () {
     });
 
     if(alertType && alertMessage) {
+        if (window.performance && window.performance.navigation.type == window.performance.navigation.TYPE_BACK_FORWARD) {
+            //'Got here using the browser "Back" or "Forward" button
+            $('#show_last_message').hide();
+            return false;
+        }
         showAlert();
     }
 

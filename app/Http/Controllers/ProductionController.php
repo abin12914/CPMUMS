@@ -25,7 +25,7 @@ class ProductionController extends Controller
     {
         $this->productionRepo       = $productionRepo;
         $this->noOfRecordsPerPage   = config('settings.no_of_record_per_page');
-        $this->errorHead            = config('settings.controller_code.Production');
+        $this->errorHead            = config('settings.controller_code.ProductionController');
     }
 
     /**
@@ -40,41 +40,46 @@ class ProductionController extends Controller
         $noOfRecords    = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
 
         $params = [
-            [
-                'paramName'     => 'date',
-                'paramOperator' => '>=',
-                'paramValue'    => $fromDate,
-            ],
-            [
-                'paramName'     => 'date',
-                'paramOperator' => '<=',
-                'paramValue'    => $toDate,
-            ],
-            [
-                'paramName'     => 'branch_id',
-                'paramOperator' => '=',
-                'paramValue'    => $request->get('branch_id'),
-            ],
-            [
-                'paramName'     => 'product_id',
-                'paramOperator' => '=',
-                'paramValue'    => $request->get('product_id'),
-            ],
-            [
-                'paramName'     => 'employee_id',
-                'paramOperator' => '=',
-                'paramValue'    => $request->get('employee_id'),
-            ],
+            'from_date'     =>  [
+                                    'paramName'     => 'date',
+                                    'paramOperator' => '>=',
+                                    'paramValue'    => $fromDate,
+                                ],
+            'to_date'       =>  [
+                                    'paramName'     => 'date',
+                                    'paramOperator' => '<=',
+                                    'paramValue'    => $toDate,
+                                ],
+            'branch_id'     =>  [
+                                    'paramName'     => 'branch_id',
+                                    'paramOperator' => '=',
+                                    'paramValue'    => $request->get('branch_id'),
+                                ],
+            'product_id'    =>  [
+                                    'paramName'     => 'product_id',
+                                    'paramOperator' => '=',
+                                    'paramValue'    => $request->get('product_id'),
+                                ],
+            'employee_id'   =>  [
+                                    'paramName'     => 'employee_id',
+                                    'paramOperator' => '=',
+                                    'paramValue'    => $request->get('employee_id'),
+                                ],
         ];
 
-        $productionRecords = $this->productionRepo->getProductions($params, $noOfRecords);
+        $productionRecords  = $this->productionRepo->getProductions($params, $noOfRecords);
+        $productions        = $this->productionRepo->getProductions($params, null);
+        $noOfMoulds         = $productions->sum('mould_quantity');
+        $noOfPieces         = $productions->sum('piece_quantity');
 
         //params passing for auto selection
-        $params[0]['paramValue'] = $request->get('from_date');
-        $params[1]['paramValue'] = $request->get('to_date');
+        $params['from_date']['paramValue'] = $request->get('from_date');
+        $params['to_date']['paramValue'] = $request->get('to_date');
 
         return view('production.list', [
             'productionRecords' => $productionRecords,
+            'noOfMoulds'        => $noOfMoulds,
+            'noOfPieces'        => $noOfPieces,
             'params'            => $params,
             'noOfRecords'       => $noOfRecords,
         ]);
@@ -176,10 +181,10 @@ class ProductionController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "alert-success");
+            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -218,7 +223,8 @@ class ProductionController extends Controller
      */
     public function edit($id)
     {
-        $errorCode  = 0;
+        return redirect()->back()->with("message", "Editing temporarily restricted.")->with("alert-class", "error");
+        /*$errorCode  = 0;
         $production = [];
 
         try {
@@ -235,7 +241,7 @@ class ProductionController extends Controller
 
         return view('production.edit', [
             'production' => $production,
-        ]);
+        ]);*/
     }
 
     /**
@@ -258,6 +264,6 @@ class ProductionController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "alert-danger");
+        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
     }
 }

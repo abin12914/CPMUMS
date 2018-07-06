@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Account;
+
 
 class VoucherFilterRequest extends FormRequest
 {
@@ -24,7 +27,33 @@ class VoucherFilterRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'from_date'             =>  [
+                                            'nullable',
+                                            'date_format:d-m-Y',
+                                        ],
+            'to_date'               =>  [
+                                            'nullable',
+                                            'date_format:d-m-Y',
+                                        ],
+            'voucher_account_id'    =>  [
+                                            'nullable',
+                                            Rule::in(Account::pluck('id')->toArray()),
+                                        ],
+            'voucher_type'          =>  [
+                                            'nullable',
+                                            'array',
+                                            Rule::in([1, 2]),
+                                        ],
+            'no_of_records'         =>  [
+                                            'nullable',
+                                            'min:2',
+                                            'max:100',
+                                            'integer',
+                                        ],
+            'page'                  =>  [
+                                            'nullable',
+                                            'integer',
+                                        ],
         ];
     }
 }
