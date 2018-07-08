@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\DeletingVoucherEvent;
 
 class Voucher extends Model
 {
@@ -17,6 +18,15 @@ class Voucher extends Model
     protected $dates = ['date', 'deleted_at'];
 
     public $timestamps = false;
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'deleting' => DeletingVoucherEvent::class,
+    ];
 
     /**
      * Scope a query to only include active vouchers.

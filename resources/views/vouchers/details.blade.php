@@ -99,6 +99,17 @@
                                             <hr>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <strong>
+                                                <i class="fa fa-user-o margin-r-5"></i> Description
+                                            </strong>
+                                            <p class="text-muted multi-line">
+                                                {{ $voucher->transaction->particulars }}
+                                            </p>
+                                            <hr>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- /.box-body -->
                                 <div class="box-footer">

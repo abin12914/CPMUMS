@@ -26,10 +26,16 @@ class DeletingProductionEventListener
      */
     public function handle(DeletingProductionEvent $event)
     {
+        $employeeWage = $event->production->employeeWage()->first();
+
+        if(empty($employeeWage) || empty($employeeWage->id)) {
+            return;
+        }
+
         if($event->production->isForceDeleting()) {
-            $event->production->employeeWage()->forceDelete();
+            $employeeWage->forceDelete();
         } else {
-            $event->production->employeeWage()->delete();
+            $employeeWage->delete();
         }
     }
 }

@@ -46,7 +46,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-building margin-r-5"></i> Branch
+                                                <i class="fa fa-industry margin-r-5"></i> Branch
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 {{ $sale->branch->name }}
@@ -153,9 +153,9 @@
                                         <div class="col-md-3"></div>
                                         <div class="col-md-6">
                                             <div class="col-md-4">
-                                                <button type="button" class="btn btn-default btn-block btn-flat">
-                                                    <i class="fa fa-print"></i> Invoice
-                                                </button>
+                                                <a href="{{ route('sale.invoice', ['id' => $sale->id]) }}" target="_blank">
+                                                    <button type="button" class="btn btn-default btn-block btn-flat"><i class="fa fa-print"></i> Invoice</button>
+                                                </a>
                                             </div>
                                             <div class="col-md-4">
                                                 <form action="{{ route('sale.edit', $sale->id) }}" method="get" class="form-horizontal">

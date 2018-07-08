@@ -59,13 +59,15 @@ class SaleRepository
     /**
      * Action for saving sales.
      */
-    public function saveSale($inputArray)
+    public function saveSale($inputArray, $sale=null)
     {
         $saveFlag   = false;
 
         try {
             //sale saving
-            $sale = new Sale;
+            if(empty($sale)) {
+                $sale = new Sale;
+            }
             $sale->transaction_id   = $inputArray['transaction_id'];
             $sale->date             = $inputArray['date'];
             $sale->discount         = $inputArray['discount'];

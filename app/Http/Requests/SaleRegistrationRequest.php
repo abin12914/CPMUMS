@@ -74,6 +74,7 @@ class SaleRegistrationRequest extends FormRequest
             'product_id.*'              =>  [
                                                 'nullable',
                                                 Rule::in(Product::pluck('id')->toArray()),
+                                                'distinct'
                                             ],
             'sale_quantity'             =>  [    
                                                 'required',

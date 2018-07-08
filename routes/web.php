@@ -35,6 +35,9 @@ Route::group(['middleware' => 'auth.check'], function () {
         //branch
         Route::resource('branch', 'BranchController');
 
+        //product
+        Route::resource('product', 'ProductController');
+
         //account
         Route::resource('account', 'AccountController');
 
@@ -48,6 +51,7 @@ Route::group(['middleware' => 'auth.check'], function () {
         Route::resource('purchase', 'PurchaseController');
 
         //sales
+        Route::get('/sale/{id}/invoice', 'SaleController@invoice')->name('sale.invoice');
         Route::resource('sale', 'SaleController');
 
         //expenses

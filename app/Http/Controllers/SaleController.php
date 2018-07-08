@@ -166,18 +166,18 @@ class SaleController extends Controller
                         throw new AppCustomException("CustomError", $accountResponse['errorCode']);
                     }
                     $customerAccountId  = $accountResponse['id'];
-                    $particulars        = ("Sale to  ". $customerName. "-". $customerPhone);
+                    $particulars        = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerName. "-". $customerPhone);
                 } else {
                     $customerAccountId = $accounts->first()->id;
                     //accessing debit account
                     $customerAccount = $accountRepo->getAccount($customerAccountId, false);
-                    $particulars = ("Sale to  ". $customerAccount->account_name. "-". $customerAccount->phone);
+                    $particulars = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerAccount->account_name. "-". $customerAccount->phone);
                 }
             } else {
                 $customerAccountId = $request->get('customer_account_id');
                 //accessing debit account
-                $customerAccount = $accountRepo->getAccount($customerAccountId);
-                $particulars = ("Sale to  ". $customerAccount->account_ame. "-". $customerAccount->phone);
+                $customerAccount = $accountRepo->getAccount($customerAccountId, false);
+                $particulars = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerAccount->account_name);
             }
 
             //save sale transaction to table
@@ -248,7 +248,7 @@ class SaleController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Sale details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
+            return redirect(route('sale.index'))->with("message","Sale details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to save the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
@@ -290,7 +290,6 @@ class SaleController extends Controller
      */
     public function edit($id)
     {
-        return redirect()->back()->with("message", "Updation restricted.")->with("alert-class", "error");
         $errorCode  = 0;
         $sale       = [];
 
@@ -318,9 +317,169 @@ class SaleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(
+        SaleRegistrationRequest $request,
+        $id,
+        TransactionRepository $transactionRepo,
+        AccountRepository $accountRepo,
+        TransportationRepository $transportationRepo
+    ) {
+        $saveFlag   = false;
+        $errorCode  = 0;
+        $wageAmount = 0;
+        $transportationTransaction = null;
+
+        $saleAccountId                  = config('constants.accountConstants.Sale.id');
+        $transportationChargeAccountId  = config('constants.accountConstants.TransportationChargeAccount.id');
+
+        $transactionDate        = Carbon::createFromFormat('d-m-Y', $request->get('sale_date'))->format('Y-m-d');
+        $branchId               = $request->get('branch_id');
+        $saleType               = $request->get('sale_type');
+        $products               = $request->get('product_id');
+        $totalBill              = $request->get('total_bill');
+        $transportationCharge   = $request->get('transportation_charge');
+        $transportationLocation = $request->get('transportation_location');
+
+        foreach ($products as $index => $productId) {
+            if(!empty($request->get('sale_quantity')[$index]) && !empty($request->get('sale_rate')[$index])) {
+                $productArray[$productId] = [
+                    'quantity'  => $request->get('sale_quantity')[$index],
+                    'rate'      => $request->get('sale_rate')[$index],
+                ];
+            }
+        }
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            //get sale
+            $sale = $this->saleRepo->getSale($id);
+            //get sale transaction
+            $saleTransaction = $transactionRepo->getTransaction($sale->transaction_id);
+            //get sale transportation
+            $transportation = $transportationRepo->getTransportations([['paramName' => 'sale_id', 'paramOperator' => '=', 'paramValue' => $sale->id]])->first();
+            if(!empty($transportation)) {
+                $transportationTransaction = $transactionRepo->getTransaction($transportation->transaction_id);
+            }
+
+            //confirming sale account existency.
+            $saleAccount = $accountRepo->getAccount($saleAccountId);
+            //confirming transportation charge account existency.
+            $transportationChargeAccount = $accountRepo->getAccount($transportationChargeAccountId);
+
+            if($saleType != 1) {
+                $customerName       = $request->get('name');
+                $customerPhone      = $request->get('phone');
+
+                //checking for exist-ency of the account
+                $accounts = $accountRepo->getAccounts(['phone' => $customerPhone],null,null,false);
+
+                if(empty($accounts) || count($accounts) == 0)
+                {
+                    //save short term customer account to table
+                    $accountResponse = $accountRepo->saveAccount([
+                        'account_name'      => $customerName,
+                        'description'       => ("Short term credit account of". $customerName),
+                        'relation'          => 3, //customer
+                        'financial_status'  => 0,
+                        'opening_balance'   => 0,
+                        'name'              => $customerName,
+                        'phone'             => $customerPhone,
+                        'address'           => $customerName. " - ". $customerPhone,
+                        'image'             => null,
+                        'status'            => 2, //short term credit account
+                    ]);
+
+                    if(!$accountResponse['flag']) {
+                        throw new AppCustomException("CustomError", $accountResponse['errorCode']);
+                    }
+                    $customerAccountId  = $accountResponse['id'];
+                    $particulars        = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerName. "-". $customerPhone);
+                } else {
+                    $customerAccountId = $accounts->first()->id;
+                    //accessing debit account
+                    $customerAccount = $accountRepo->getAccount($customerAccountId, false);
+                    $particulars = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerAccount->account_name. "-". $customerAccount->phone);
+                }
+            } else {
+                $customerAccountId = $request->get('customer_account_id');
+                //accessing debit account
+                $customerAccount = $accountRepo->getAccount($customerAccountId, false);
+                $particulars = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerAccount->account_name);
+            }
+
+            //save sale transaction to table
+            $transactionResponse   = $transactionRepo->saveTransaction([
+                'debit_account_id'  => $customerAccountId, // debit the customer
+                'credit_account_id' => $saleAccountId, // credit the sale account
+                'amount'            => $totalBill ,
+                'transaction_date'  => $transactionDate,
+                'particulars'       => $particulars,
+                'branch_id'         => $branchId,
+            ], $saleTransaction);
+
+            if(!$transactionResponse['flag']) {
+                throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+            }
+
+            //save to sale table
+            $saleResponse = $this->saleRepo->saveSale([
+                'transaction_id' => $transactionResponse['id'],
+                'date'           => $transactionDate,
+                'productsArray'  => $productArray,
+                'discount'       => $request->get('sale_discount'),
+                'total_amount'   => $totalBill,
+                'branch_id'      => $branchId,
+            ], $sale);
+
+            if(!$saleResponse['flag']) {
+                throw new AppCustomException("CustomError", $saleResponse['errorCode']);
+            }
+
+            //save transportation transaction to table
+            $transportationTransactionResponse = $transactionRepo->saveTransaction([
+                'debit_account_id'  => $customerAccountId, // debit the customer
+                'credit_account_id' => $transportationChargeAccountId, // credit the transportation charge account
+                'amount'            => $transportationCharge ,
+                'transaction_date'  => $transactionDate,
+                'particulars'       => ("Transportation charge to ". $transportationLocation. ". Sale Invoice No:". $saleResponse['id']),
+                'branch_id'         => $branchId,
+            ], $transportationTransaction);
+
+            if(!$transportationTransactionResponse['flag']) {
+                throw new AppCustomException("CustomError", $transportationTransactionResponse['errorCode']);
+            }
+
+            //save to sale table
+            $transportationResponse = $transportationRepo->saveTransportation([
+                'transaction_id'            => $transportationTransactionResponse['id'],
+                'sale_id'                   => $saleResponse['id'],
+                'transportation_location'   => $transportationLocation,
+                'transportation_charge'     => $transportationCharge,
+            ], $transportation);
+
+            if(!$transportationResponse['flag']) {
+                throw new AppCustomException("CustomError", $transportationResponse['errorCode']);
+            }
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 4;
+            }
+        }
+
+        if($saveFlag) {
+            return redirect(route('sale.show', $sale->id))->with("message","Sale details updated successfully. Updated Record Number : ". $transactionResponse['id'])->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to update the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -331,6 +490,62 @@ class SaleController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
+        $deleteFlag = false;
+        $errorCode  = 0;
+
+        //wrapping db transactions
+        DB::beginTransaction();
+        try {
+            $deleteResponse = $this->saleRepo->deleteSale($id);
+            
+            if(!$deleteResponse['flag']) {
+                throw new AppCustomException("CustomError", $deleteResponse['errorCode']);
+            }
+            
+            DB::commit();
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 5;
+            }
+        }
+
+        if($deleteFlag) {
+            return redirect(route('sale.index'))->with("message","Sale details deleted successfully.")->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to delete the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
+    }
+
+    /**
+     * Show the invoice for print.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function invoice($id)
+    {
+        $errorCode  = 0;
+        $sale       = [];
+
+        try {
+            $sale = $this->saleRepo->getSale($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 6;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Sale", $errorCode);
+        }
+
+        return view('sales.invoice', [
+            'sale' => $sale,
+        ]);
     }
 }

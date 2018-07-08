@@ -65,13 +65,15 @@ class VoucherRepository
     /**
      * Save voucher.
      */
-    public function saveVoucher($inputArray)
+    public function saveVoucher($inputArray=[], $voucher=null)
     {
         $saveFlag = false;
 
         try {
             //transaction saving
-            $voucher = new Voucher;
+            if(empty($voucher)) {
+                $voucher = new Voucher;
+            }
             $voucher->transaction_id    = $inputArray['transaction_id'];
             $voucher->date              = $inputArray['date'];
             $voucher->voucher_type      = $inputArray['voucher_type'];
@@ -131,6 +133,41 @@ class VoucherRepository
      */
     public function deleteVoucher($id, $forceFlag=false)
     {   
-        //
+        $deleteFlag = false;
+
+        try {
+            //get voucher
+            $voucher = $this->getVoucher($id);
+
+            //force delete or soft delete
+            //related models will be deleted by deleting event handlers
+            if($forceFlag) {
+                $voucher->forceDelete();
+            } else {
+                $voucher->delete();
+            }
+            
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 5;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
+        }
+
+        if($deleteFlag) {
+            return [
+                'flag'  => true,
+                'force' => $forceFlag,
+            ];
+        }
+
+        return [
+            'flag'          => false,
+            'errorCode'    => $this->repositoryCode + 6,
+        ];
     }
 }

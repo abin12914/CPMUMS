@@ -223,8 +223,7 @@ class ProductionController extends Controller
      */
     public function edit($id)
     {
-        return redirect()->back()->with("message", "Editing temporarily restricted.")->with("alert-class", "error");
-        /*$errorCode  = 0;
+        $errorCode  = 0;
         $production = [];
 
         try {
@@ -241,7 +240,7 @@ class ProductionController extends Controller
 
         return view('production.edit', [
             'production' => $production,
-        ]);*/
+        ]);
     }
 
     /**
@@ -251,9 +250,105 @@ class ProductionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(
+        ProductionRegistrationRequest $request,
+        $id,
+        AccountRepository $accountRepo,
+        EmployeeRepository $employeeRepo,
+        EmployeeWageRepository $employeeWageRepo,
+        TransactionRepository $transactionRepo
+    ) {
+        $saveFlag                = false;
+        $errorCode               = 0;
+        $wageAmount              = 0;
+        $employeeWageTransaction = null;
+
+        $employeeWageAccountId  = config('constants.accountConstants.EmployeeWage.id');
+        $transactionDate        = !empty($request->get('date')) ? Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d') : "";
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            //get the production record
+            $production = $this->productionRepo->getProduction($id);
+
+            //get employee wage if any
+            $employeeWage = $employeeWageRepo->getEmployeeWages(['production_id' => $production->id])->first();
+            if(!empty($employeeWage)) {
+                $employeeWageTransaction = $transactionRepo->getTransaction($employeeWage->transaction_id);
+            }
+
+            //confirming wage account existency.
+            $employeeWageAccount = $accountRepo->getAccount($employeeWageAccountId);
+
+            //employee record
+            $employee = $employeeRepo->getEmployee($request->get('employee_id'));
+
+            //save to account table
+            $productionResponse   = $this->productionRepo->saveProduction([
+                'date'              => $transactionDate,
+                'branch_id'         => $request->get('branch_id'),
+                'employee_id'       => $request->get('employee_id'),
+                'product_id'        => $request->get('product_id'),
+                'mould_quantity'    => $request->get('mould_quantity'),
+                'piece_quantity'    => $request->get('piece_quantity'),
+            ], $production);
+
+            if(!$productionResponse['flag']) {
+                throw new AppCustomException("CustomError", $productionResponse['errorCode']);
+            }
+
+            //if per piece wage for the employee
+            if($employee->wage_type == 3) {
+                $wageAmount = $request->get('mould_quantity') * $employee->wage_rate;
+
+                //save employee wage to transaction table
+                $transactionResponse   = $transactionRepo->saveTransaction([
+                    'debit_account_id'  => $employeeWageAccountId, // debit the employee wage account
+                    'credit_account_id' => $employee->account->id, // credit the employee
+                    'amount'            => $wageAmount,
+                    'transaction_date'  => $transactionDate,
+                    'particulars'       => ("Wage generated for ". $employee->account->name . " [No Of Piece : ". $request->get('mould_quantity'). " x  Wage Rate :". $employee->wage_rate. "]"),
+                    'branch_id'         => 0,
+                ], $employeeWageTransaction);
+
+                if(!$transactionResponse['flag']) {
+                    throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+                }
+
+                //save to employee wage table
+                $wageResponse   = $employeeWageRepo->saveEmployeeWage([
+                    'production_id'     => $productionResponse['id'],
+                    'transaction_id'    => $transactionResponse['id'],
+                    'from_date'         => $transactionDate,
+                    'to_date'           => null,
+                    'wage_type'         => 3, //per piece wage
+                    'wage_amount'       => $wageAmount,
+                ], $employeeWage);
+            } else {
+                if(!empty($employeeWage)) {
+                    $employeeWageDeleteResponse = $employeeWageRepo->deleteEmployeeWage($employeeWage->id);
+                }
+            }
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+        }
+
+        if($saveFlag) {
+            return redirect(route('production.index'))->with("message","Account details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -264,6 +359,35 @@ class ProductionController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
+        $deleteFlag = false;
+        $errorCode  = 0;
+
+        //wrapping db transactions
+        DB::beginTransaction();
+        try {
+            $deleteResponse = $this->productionRepo->deleteProduction($id);
+            
+            if(!$deleteResponse['flag']) {
+                throw new AppCustomException("CustomError", $deleteResponse['errorCode']);
+            }
+            
+            DB::commit();
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+        }
+
+        if($deleteFlag) {
+            return redirect(route('production.index'))->with("message","Production details deleted successfully.")->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to delete the production details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 }

@@ -59,13 +59,15 @@ class ExpenseRepository
     /**
      * Action for expense save.
      */
-    public function saveExpense($inputArray=[])
+    public function saveExpense($inputArray=[], $expense=null)
     {
         $saveFlag   = false;
 
         try {
             //expense saving
-            $expense = new Expense;
+            if(empty($expense)) {
+                $expense = new Expense;
+            }
             $expense->transaction_id = $inputArray['transaction_id'];
             $expense->date           = $inputArray['date'];
             $expense->service_id     = $inputArray['service_id'];
@@ -82,7 +84,6 @@ class ExpenseRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 2;
             }
-            dd($e);
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -122,37 +123,41 @@ class ExpenseRepository
 
     public function deleteExpense($id, $forceFlag=false)
     {
-        $errorCode = 'Unknown';
-        $expense = Expense::with('transaction')->where('status', 1)->where('id', $id)->first();
+        $deleteFlag = false;
 
-        if(!empty($expense) && !empty($expense->id)) {
+        try {
+            //get expense
+            $expense = $this->getExpense($id);
+
+            //force delete or soft delete
+            //related models will be deleted by deleting event handlers
             if($forceFlag) {
-                if($expense->transaction->forceDelete() && $expense->forceDelete()) {
-                    return [
-                        'flag'  => true,
-                        'force' => true,
-                    ];
-                } else {
-                    $errorCode = '05';
-                }
+                $expense->forceDelete();
             } else {
-                if($expense->transaction->delete()) {
-                    if($expense->delete()) {
-                        return [
-                            'flag'  => true,
-                            'force' => false,
-                        ];
-                    } else {
-                        $errorCode = '06';
-                    }
-                } else {
-                    $errorCode = '07';
-                }
+                $expense->delete();
             }
+            
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
+            } else {
+                $this->errorCode = $this->repositoryCode + 5;
+            }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
+
+        if($deleteFlag) {
+            return [
+                'flag'  => true,
+                'force' => $forceFlag,
+            ];
+        }
+
         return [
             'flag'          => false,
-            'error_code'    => $errorCode,
+            'errorCode'    => $this->repositoryCode + 6,
         ];
     }
 }

@@ -59,13 +59,15 @@ class TransportationRepository
     /**
      * Action for saving transportations.
      */
-    public function saveTransportation($inputArray)
+    public function saveTransportation($inputArray, $transportation=null)
     {
         $saveFlag   = false;
 
         try {
             //transportation saving
-            $transportation = new Transportation;
+            if(empty($transportation)) {
+                $transportation = new Transportation;
+            }
             $transportation->transaction_id             = $inputArray['transaction_id'];
             $transportation->sale_id                    = $inputArray['sale_id'];
             $transportation->transportation_location    = $inputArray['transportation_location'];

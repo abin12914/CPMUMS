@@ -51,13 +51,15 @@ class BranchRepository
     /**
      * Action for saving branch.
      */
-    public function saveBranch($inputArray=[])
+    public function saveBranch($inputArray=[], $branch=null)
     {
         $saveFlag = false;
 
         try {
             //employee saving
-            $branch = new Branch;
+            if(empty($branch)) {
+                $branch = new Branch;
+            }
             $branch->name       = $inputArray['name'];
             $branch->place      = $inputArray['place'];
             $branch->address    = $inputArray['address'];

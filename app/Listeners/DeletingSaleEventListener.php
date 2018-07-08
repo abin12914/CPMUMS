@@ -26,10 +26,15 @@ class DeletingSaleEventListener
      */
     public function handle(DeletingSaleEvent $event)
     {
+        $transaction    = $event->sale->transaction()->firstOrFail();
+        $transportation = $event->sale->transportation;
+
         if($event->sale->isForceDeleting()) {
-            $event->sale->transaction()->forceDelete();
+            $transaction->forceDelete();
+            $transportation->forceDelete();
         } else {
-            $event->sale->transaction()->delete();
+            $transaction->delete();
+            $transportation->delete();
         }
     }
 }

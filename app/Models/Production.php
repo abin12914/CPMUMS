@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\DeletingProductionEvent;
 
 class Production extends Model
 {
@@ -22,6 +23,15 @@ class Production extends Model
      * @var array
      */
     protected $dates = ['deleted_at', 'date'];
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'deleting' => DeletingProductionEvent::class,
+    ];
 
     /**
      * Scope a query to only include active accounts.

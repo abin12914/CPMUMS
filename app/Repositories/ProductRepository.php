@@ -51,18 +51,21 @@ class ProductRepository
     /**
      * Action for saving products.
      */
-    public function saveProduct($inputArray)
+    public function saveProduct($inputArray, $product=null)
     {
         $saveFlag   = false;
 
         try {
             //product saving
-            $product = new Product;
-            $product->name              = $inputArray['name'];
-            $product->alternate_name    = $inputArray['alternate_name'];
-            $product->description       = $inputArray['description'];
-            $product->rate              = $inputArray['rate'];
-            $product->status            = 1;
+            if(empty($product)) {
+                $product = new Product;
+            }
+            $product->name          = $inputArray['name'];
+            $product->hsn_code      = $inputArray['hsn_code'];
+            $product->uom_code      = $inputArray['uom_code'];
+            $product->description   = $inputArray['description'];
+            $product->rate          = $inputArray['rate'];
+            $product->status        = 1;
             //product save
             $product->save();
 
@@ -109,45 +112,5 @@ class ProductRepository
         }
 
         return $product;
-    }
-
-    public function deleteProduct($id, $forceFlag=false)
-    {
-        $deleteFlag = false;
-
-        try {
-            //get product
-            $product = $this->getProduct($id);
-
-            //force delete or soft delete
-            //related models will be deleted by deleting event handlers
-            if($forceFlag) {
-                $product->forceDelete();
-            } else {
-                $product->delete();
-            }
-            
-            $deleteFlag = true;
-        } catch (Exception $e) {
-            if($e->getMessage() == "CustomError") {
-                $this->errorCode = $e->getCode();
-            } else {
-                $this->errorCode = $this->repositoryCode + 5;
-            }
-            
-            throw new AppCustomException("CustomError", $this->errorCode);
-        }
-
-        if($deleteFlag) {
-            return [
-                'flag'  => true,
-                'force' => $forceFlag,
-            ];
-        }
-
-        return [
-            'flag'          => false,
-            'errorCode'    => $this->repositoryCode + 6,
-        ];
     }
 }

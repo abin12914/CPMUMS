@@ -103,10 +103,13 @@ class VoucherController extends Controller
     public function store(
         VoucherRegistrationRequest $request,
         TransactionRepository $transactionRepo,
-        AccountRepository $accountRepo
+        AccountRepository $accountRepo,
+        $id=null
     ) {
-        $saveFlag   = false;
-        $errorCode  = 0;
+        $saveFlag           = false;
+        $errorCode          = 0;
+        $voucher            = null;
+        $voucherTransaction = null;
 
         $cashAccountId      = config('constants.accountConstants.Cash.id');
         $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d');
@@ -119,6 +122,10 @@ class VoucherController extends Controller
         //wrappin db transactions
         DB::beginTransaction();
         try {
+            if(!empty($id)) {
+                $voucher = $this->voucherRepo->getVoucher($id);
+                $voucherTransaction = $transactionRepo->getTransaction($voucher->transaction_id);
+            }
             //confirming cash account existency.
             $cashAccount = $accountRepo->getAccount($cashAccountId);
 
@@ -145,7 +152,7 @@ class VoucherController extends Controller
                 'transaction_date'  => $transactionDate,
                 'particulars'       => $particulars,
                 'branch_id'         => null,
-            ]);
+            ], $voucherTransaction);
 
             if(!$transactionResponse['flag']) {
                 throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
@@ -157,7 +164,7 @@ class VoucherController extends Controller
                 'date'           => $transactionDate,
                 'voucher_type'   => $voucherType,
                 'amount'         => $amount,
-            ]);
+            ], $voucher);
 
             if(!$voucherResponse['flag']) {
                 throw new AppCustomException("CustomError", $voucherResponse['errorCode']);
@@ -177,9 +184,21 @@ class VoucherController extends Controller
         }
 
         if($saveFlag) {
+            if(!empty($id)) {
+                return [
+                    'flag'  => true,
+                    'id'    => $voucherResponse['id']
+                ];
+            }
             return redirect()->back()->with("message", $voucherTitle. " details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
+        if(!empty($id)) {
+            return [
+                'flag'      => false,
+                'errorCode' => $errorCode
+            ];
+        }
         return redirect()->back()->with("message","Failed to save the ". $voucherTitle. " details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
@@ -219,8 +238,7 @@ class VoucherController extends Controller
      */
     public function edit($id)
     {
-        return redirect()->back()->with("message", "Updation restricted.")->with("alert-class", "error");
-        /*$errorCode  = 0;
+        $errorCode  = 0;
         $voucher       = [];
 
         try {
@@ -237,7 +255,7 @@ class VoucherController extends Controller
 
         return view('vouchers.edit', [
             'voucher' => $voucher,
-        ]);*/
+        ]);
     }
 
     /**
@@ -247,9 +265,19 @@ class VoucherController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(
+        VoucherRegistrationRequest $request,
+        TransactionRepository $transactionRepo,
+        AccountRepository $accountRepo,
+        $id
+    ) {
+        $updateResponse = $this->store($request, $transactionRepo, $accountRepo, $id);
+
+        if($updateResponse['flag']) {
+            return redirect(route('voucher.index'))->with("message","Voucher details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to update the voucher details. Error Code : ". $this->errorHead. "/". $updateResponse['errorCode'])->with("alert-class", "error");
     }
 
     /**
@@ -260,6 +288,35 @@ class VoucherController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
+        $deleteFlag = false;
+        $errorCode  = 0;
+
+        //wrapping db transactions
+        DB::beginTransaction();
+        try {
+            $deleteResponse = $this->voucherRepo->deleteVoucher($id);
+            
+            if(!$deleteResponse['flag']) {
+                throw new AppCustomException("CustomError", $deleteResponse['errorCode']);
+            }
+            
+            DB::commit();
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 5;
+            }
+        }
+
+        if($deleteFlag) {
+            return redirect(route('voucher.index'))->with("message","Voucher details deleted successfully.")->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to delete the voucher details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 }

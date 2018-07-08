@@ -202,7 +202,24 @@ class PurchaseController extends Controller
      */
     public function edit($id)
     {
-        return redirect()->back()->with("message","Temporarily Restricted.")->with("alert-class", "error");
+        $errorCode  = 0;
+        $purchase   = [];
+
+        try {
+            $purchase = $this->purchaseRepo->getPurchase($id);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 2;
+            }
+            //throwing methodnotfound exception when no model is fetched
+            throw new ModelNotFoundException("Purchase", $errorCode);
+        }
+
+        return view('purchases.edit', [
+            'purchase' => $purchase,
+        ]);
     }
 
     /**
@@ -212,9 +229,93 @@ class PurchaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(
+        PurchaseRegistrationRequest $request,
+        $id,
+        TransactionRepository $transactionRepo,
+        AccountRepository $accountRepo,
+        MaterialRepository $materialRepo
+    ) {
+        $saveFlag       = false;
+        $errorCode      = 0;
+        $wageAmount     = 0;
+
+        $purchaseAccountId  = config('constants.accountConstants.Purchase.id');
+        $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('purchase_date'))->format('Y-m-d');
+        $branchId           = $request->get('branch_id');
+        $supplierAccountId  = $request->get('supplier_account_id');
+        $materialId         = $request->get('material_id');
+        $quantity           = $request->get('purchase_quantity');
+        $unitRate           = $request->get('purchase_rate');
+        $discount           = $request->get('purchase_discount');
+        $totalBill          = $request->get('purchase_total_bill');
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            //accessing purchase record
+            $purchase = $this->purchaseRepo->getPurchase($id);
+
+            //accessing purchase transaction
+            $purchaseTransaction = $transactionRepo->getTransaction($purchase->transaction_id);
+
+            //confirming purchase account existency.
+            $purchaseAccount = $accountRepo->getAccount($purchaseAccountId);
+
+            //accessing supplier account
+            $supplierAccount = $accountRepo->getAccount($supplierAccountId);
+
+            //accessing material account
+            $material = $materialRepo->getMaterial($materialId);
+
+            //save purchase to transaction table
+            $transactionResponse   = $transactionRepo->saveTransaction([
+                'debit_account_id'  => $purchaseAccountId, // debit the purchase account
+                'credit_account_id' => $supplierAccountId , // credit the supplier
+                'amount'            => $totalBill ,
+                'transaction_date'  => $transactionDate,
+                'particulars'       => ("Purchase of ". $material->name. " [". $quantity. " x ". $unitRate. " = ". ($quantity * $unitRate). " - ". $discount. " = ". $totalBill. "] Supplier : ". $supplierAccount->name ),
+                'branch_id'         => $branchId,
+            ], $purchaseTransaction);
+
+            if(!$transactionResponse['flag']) {
+                throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
+            }
+
+            //save to purchase table
+            $purchaseResponse = $this->purchaseRepo->savePurchase([
+                'transaction_id'    => $transactionResponse['id'],
+                'date'              => $transactionDate,
+                'material_id'       => $materialId,
+                'quantity'          => $quantity,
+                'rate'              => $unitRate,
+                'discount'          => $discount,
+                'total_amount'      => $totalBill,
+                'branch_id'         => $branchId,
+            ], $purchase);
+
+            if(!$purchaseResponse['flag']) {
+                throw new AppCustomException("CustomError", $purchaseResponse['errorCode']);
+            }
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+        }
+
+        if($saveFlag) {
+            return redirect(route('purchase.index'))->with("message","Purchase details updated successfully. Updated Record Number : ". $transactionResponse['id'])->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to update the purchase details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -225,6 +326,35 @@ class PurchaseController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message","Temporarily Restricted.")->with("alert-class", "error");
+        $deleteFlag = false;
+        $errorCode  = 0;
+
+        //wrapping db transactions
+        DB::beginTransaction();
+        try {
+            $deleteResponse = $this->purchaseRepo->deletePurchase($id);
+            
+            if(!$deleteResponse['flag']) {
+                throw new AppCustomException("CustomError", $deleteResponse['errorCode']);
+            }
+            
+            DB::commit();
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 3;
+            }
+        }
+
+        if($deleteFlag) {
+            return redirect(route('purchase.index'))->with("message","Purchase details deleted successfully.")->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to delete the purchase details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 }

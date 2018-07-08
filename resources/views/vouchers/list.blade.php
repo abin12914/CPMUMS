@@ -46,7 +46,7 @@
                                         <div class="col-md-4">
                                             <label for="account_id" class="control-label">Supplier : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params['voucher_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'voucher_account_id', 'tabindex' => 5])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['voucher_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'voucher_account_id', 'activeFlag' => false, 'tabindex' => 5])
                                             @endcomponent
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'voucher_account_id'])

@@ -77,7 +77,7 @@
                                             <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="5">Clear</button>
                                         </div>
                                         <div class="col-md-3">
-                                            <button type="button" class="btn btn-primary btn-block btn-flat update_button" tabindex="4">Update</button>
+                                            <button type="button" class="btn btn-warning btn-block btn-flat update_button" tabindex="4">Update</button>
                                         </div>
                                         <!-- /.col -->
                                     </div><br>

@@ -17,7 +17,7 @@ class Employee extends Model
      */
     protected $dates = ['deleted_at'];
 
-     /**
+    /**
      * The event map for the model.
      *
      * @var array

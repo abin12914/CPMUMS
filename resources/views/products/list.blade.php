@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Branch List')
+@section('title', 'Product List')
 @section('content')
 <div class="content-wrapper">
      <section class="content-header">
         <h1>
-            Branch
+            Product
             <small>List</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li><a> Branch</a></li>
+            <li><a> Product</a></li>
             <li class="active"> List</li>
         </ol>
     </section>
@@ -22,27 +22,31 @@
                     @include('sections.print-head')
                     <div class="box-body">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12" style="overflow-x: scroll;">
                                 <table class="table table-responsive table-bordered table-hover">
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 30%;">Branch Name</th>
-                                            <th style="width: 20%;">Place</th>
-                                            <th style="width: 35%;">Address</th>
+                                            <th style="width: 20%;">Product Name</th>
+                                            <th style="width: 15%;">HSN Code</th>
+                                            <th style="width: 15%;">UOM Code</th>
+                                            <th style="width: 25%;">Description</th>
+                                            <th style="width: 10%;">Rate</th>
                                             <th style="width: 10%;" class="no-print">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if(!empty($branches))
-                                            @foreach($branches as $index => $branch)
+                                        @if(!empty($products))
+                                            @foreach($products as $index => $product)
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $branch->name }}</td>
-                                                    <td>{{ $branch->place }}</td>
-                                                    <td>{{ $branch->address }}</td>
+                                                    <td>{{ $product->name }}</td>
+                                                    <td>{{ $product->hsn_code }}</td>
+                                                    <td>{{ $product->uom_code }}</td>
+                                                    <td>{{ $product->description }}</td>
+                                                    <td>{{ $product->rate }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('branch.edit', $branch->id) }}">
+                                                        <a href="{{ route('product.edit', $product->id) }}">
                                                             <button type="button" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</button>
                                                         </a>
                                                     </td>

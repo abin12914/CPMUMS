@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\DeletingSaleEvent;
 
 class Sale extends Model
 {
@@ -17,6 +18,15 @@ class Sale extends Model
     protected $dates = ['date', 'deleted_at'];
     
     public $timestamps = false;
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'deleting' => DeletingSaleEvent::class,
+    ];
 
     /**
      * Scope a query to only include active sale.
@@ -58,6 +68,6 @@ class Sale extends Model
      */
     public function transportation()
     {
-        return $this->hasOne('App\Models\Transportation', 'sale_id', 'id');
+        return $this->hasOne('App\Models\Transportation', 'sale_id');
     }
 }

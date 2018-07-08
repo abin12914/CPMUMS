@@ -31,6 +31,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\DeletingVoucherEvent' => [
             'App\Listeners\DeletingVoucherEventListener',
         ],
+        'App\Events\DeletingTransportationEvent' => [
+            'App\Listeners\DeletingTransportationEventListener',
+        ],
     ];
 
     /**

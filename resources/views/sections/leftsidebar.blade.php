@@ -23,7 +23,7 @@
             @if($loggedUser->isSuperAdmin() || $loggedUser->isAdmin())
                 <li class="treeview {{ (Request::is('branch/*') || Request::is('branch'))? 'active' : '' }}">
                     <a href="#">
-                        <i class="fa fa-building"></i>
+                        <i class="fa fa-industry"></i>
                         <span>Branch</span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
@@ -37,6 +37,27 @@
                         </li>
                         <li class="{{ Request::is('branch')? 'active' : '' }}">
                             <a href="{{ route('branch.index') }}">
+                                <i class="fa fa-circle-o text-aqua"></i> List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="treeview {{ (Request::is('product/*') || Request::is('product'))? 'active' : '' }}">
+                    <a href="#">
+                        <i class="fa fa-industry"></i>
+                        <span>Product</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li class="{{ Request::is('product/create')? 'active' : '' }}">
+                            <a href="{{ route('product.create') }}">
+                                <i class="fa fa-circle-o text-yellow"></i> Register
+                            </a>
+                        </li>
+                        <li class="{{ Request::is('product')? 'active' : '' }}">
+                            <a href="{{ route('product.index') }}">
                                 <i class="fa fa-circle-o text-aqua"></i> List
                             </a>
                         </li>

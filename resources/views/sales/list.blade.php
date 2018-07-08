@@ -68,7 +68,7 @@
                                         <div class="col-md-4">
                                             <label for="customer_account_id" class="control-label">Customer : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params['customer_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'customer_account_id', 'tabindex' => 5])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['customer_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'customer_account_id', 'activeFlag' => false, 'tabindex' => 5])
                                             @endcomponent
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'customer_account_id'])
@@ -147,12 +147,12 @@
                                                     <td>{{ count($saleRecord->products) }}</td>
                                                     <td>{{ $saleRecord->total_amount }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('sale.show', ['id' => $saleRecord->id]) }}" style="float: left;">
+                                                        <a href="{{ route('sale.show', ['id' => $saleRecord->id]) }}">
                                                             <button type="button" class="btn btn-info"> Details</button>
                                                         </a>
                                                     </td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('sale.show', ['id' => $saleRecord->id]) }}" style="float: left;">
+                                                        <a href="{{ route('sale.invoice', ['id' => $saleRecord->id]) }}">
                                                             <button type="button" class="btn btn-default"><i class="fa fa-print"></i> Invoice</button>
                                                         </a>
                                                     </td>

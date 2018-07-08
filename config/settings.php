@@ -14,6 +14,7 @@ return [
                                     'VoucherController'       => '09',
                                     'EmployeeWageController'  => '10',
                                     'ProductController'       => '11',
+                                    'ReportController'        => '12',
                                 ],
     'repository_code'       =>  [
                                     'BranchRepository'          => 100,
@@ -38,7 +39,9 @@ return [
                                 ],
     'no_of_record_per_page' => 25,
     'print_head_flag'       => true,
+    'display_phone_flag'    => false,
     'company_name'          => "PRATHIBHA",
-    'company_address'       => "ELAVANTHY, ANAPPARA",
+    'company_address'       => "ANAPPARA P.O. ELAVANTHY ERNAKULAM-683581",
     'company_phones'        => "+91 9447171143, +91 9645901143",
+    'company_GSTIN'         => '32BLMPS2227M1ZS',
 ];

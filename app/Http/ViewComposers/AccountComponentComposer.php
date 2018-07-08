@@ -24,7 +24,7 @@ class AccountComponentComposer
         $cashAccountId      = config('constants.accountConstants.Cash.id');
         
         try {
-            $this->accounts     = $accountRepo->getAccounts();
+            $this->accounts     = $accountRepo->getAccounts([], null, true, false);
             $this->cashAccount  = $accountRepo->getAccount($cashAccountId);//retrieving cash account
 
             if(empty($this->accounts) && count($this->accounts) <= 0) {

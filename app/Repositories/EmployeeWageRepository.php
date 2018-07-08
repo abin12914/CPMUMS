@@ -18,7 +18,7 @@ class EmployeeWageRepository
     /**
      * Return employeeWages.
      */
-    public function getEmployeeWages($params=[], $noOfRecords=null, $typeFlag=true)
+    public function getEmployeeWages($params=[], $noOfRecords=null)
     {
         $employeeWages = [];
 
@@ -51,13 +51,15 @@ class EmployeeWageRepository
     /**
      * Action for saving employeeWages.
      */
-    public function saveEmployeeWage($inputArray)
+    public function saveEmployeeWage($inputArray, $employeeWage=null)
     {
         $saveFlag   = false;
 
         try {
             //employeeWage saving
-            $employeeWage = new EmployeeWage;
+            if(empty($employeeWage)) {
+                $employeeWage = new EmployeeWage;
+            }
             $employeeWage->production_id    = $inputArray['production_id'];
             $employeeWage->transaction_id   = $inputArray['transaction_id'];
             $employeeWage->from_date        = $inputArray['from_date'];

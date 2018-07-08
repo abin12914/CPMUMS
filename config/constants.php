@@ -22,6 +22,33 @@ return [
         3   => 'Per Piece',
     ],
 
+    'transactionRelations' => [
+        1 => [
+            'relationName'  => 'purchase',
+            'displayName'   => 'Purchase'
+        ],
+        2 => [
+            'relationName'  => 'employeeWage',
+            'displayName'   => 'Employee Wage'
+        ],
+        3 => [
+            'relationName'  => 'sale',
+            'displayName'   => 'Sale'
+        ],
+        4 => [
+            'relationName'  => 'transportation',
+            'displayName'   => 'Transportation'
+        ],
+        5 => [
+            'relationName'  => 'expense',
+            'displayName'   => 'Expense'
+        ],
+        6 => [
+            'relationName'  => 'voucher',
+            'displayName'   => 'Voucher'
+        ]
+    ],
+
     'accountConstants' => [
         'Cash' => [
             'id'                => 1,

@@ -46,7 +46,7 @@
                                         <div class="col-md-3">
                                             <label for="account_id" class="control-label">Account : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params['id'], 'cashAccountFlag' => false, 'selectName' => 'account_id', 'tabindex' => 2])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['id'], 'cashAccountFlag' => false, 'selectName' => 'account_id', 'activeFlag' => !$activeFlag, 'tabindex' => 2])
                                             @endcomponent
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'account_id'])
@@ -56,7 +56,7 @@
                                             <label class="control-label"><b style="color: red;">* </b> Account Type : </label>
                                             <div class="input-group">
                                                 <span class="input-group-addon">
-                                                    <input type="checkbox" name="status_flag" id="status_flag" value="true" {{ $statusFlag ? 'checked' : ''}} tabindex="3">
+                                                    <input type="checkbox" name="status_flag" id="status_flag" value="true" {{ $activeFlag ? 'checked' : ''}} tabindex="3">
                                                 </span>
                                                 <label for="status_flag" class="form-control">Include Short Term Credit Customers</label>
                                             </div>

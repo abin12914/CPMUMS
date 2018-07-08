@@ -65,7 +65,7 @@
                                         <div class="col-md-4">
                                             <label for="supplier_account_id" class="control-label">Supplier : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params['supplier_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['supplier_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'activeFlag' => true, 'tabindex' => 5])
                                             @endcomponent
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'supplier_account_id'])
@@ -124,7 +124,8 @@
                                             <th style="width: 15%;">Service</th>
                                             <th style="width: 20%;">Supplier</th>
                                             <th style="width: 15%;">Amount</th>
-                                            <th style="width: 10%;" class="no-print">Details</th>
+                                            <th style="width: 5%;" class="no-print">Edit</th>
+                                            <th style="width: 5%;" class="no-print">Delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -138,9 +139,16 @@
                                                     <td>{{ $expense->service->name }}</td>
                                                     <td>{{ $expense->bill_amount }}</td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('expense.show', ['id' => $expense->id]) }}">
-                                                            <button type="button" class="btn btn-info">Details</button>
+                                                        <a href="{{ route('expense.edit', ['id' => $expense->id]) }}" style="float: left;">
+                                                            <button type="button" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</button>
                                                         </a>
+                                                    </td>
+                                                    <td class="no-print">
+                                                        <form action="{{ route('expense.destroy', $expense->id) }}" method="post" class="form-horizontal">
+                                                            {{ method_field('DELETE') }}
+                                                            {{ csrf_field() }}
+                                                            <button type="button" class="btn btn-danger delete_button"><i class="fa fa-trash"></i> Delete</button>
+                                                        </form>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -152,6 +160,7 @@
                                                     <td class="text-red"><b>Total Amount</b></td>
                                                     <td></td>
                                                     <td class="text-red"><b>{{ $totalExpense }}</b></td>
+                                                    <td class="no-print"></td>
                                                     <td class="no-print"></td>
                                                 </tr>
                                             @endif

@@ -9,22 +9,22 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Models\EmployeeWage;
+use App\Models\Transportation;
 
-class DeletingEmployeeWageEvent
+class DeletingTransportationEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $employeeWage;
+    public $transportation;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(EmployeeWage $employeeWage)
+    public function __construct(Transportation $transportation)
     {
-        $this->employeeWage = $employeeWage;
+        $this->transportation = $transportation;
     }
 
     /**

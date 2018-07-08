@@ -59,13 +59,15 @@ class PurchaseRepository
     /**
      * Action for saving purchases.
      */
-    public function savePurchase($inputArray)
+    public function savePurchase($inputArray, $purchase=null)
     {
         $saveFlag   = false;
 
         try {
+            if(empty($purchase)) {
+                $purchase = new Purchase;
+            }
             //purchase saving
-            $purchase = new Purchase;
             $purchase->transaction_id   = $inputArray['transaction_id'];
             $purchase->date             = $inputArray['date'];
             $purchase->material_id      = $inputArray['material_id'];

@@ -150,7 +150,7 @@
                                                         <form action="{{ route('production.destroy', $productionRecord->id) }}" method="post" class="form-horizontal">
                                                             {{ method_field('DELETE') }}
                                                             {{ csrf_field() }}
-                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                            <button type="button" class="btn btn-danger delete_button">Delete</button>
                                                         </form>
                                                     </td>
                                                 </tr>

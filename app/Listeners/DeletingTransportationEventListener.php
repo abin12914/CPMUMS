@@ -2,11 +2,11 @@
 
 namespace App\Listeners;
 
-use App\Events\DeletingVoucherEvent;
+use App\Events\DeletingTransportationEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DeletingVoucherEventListener
+class DeletingTransportationEventListener
 {
     /**
      * Create the event listener.
@@ -21,14 +21,14 @@ class DeletingVoucherEventListener
     /**
      * Handle the event.
      *
-     * @param  DeletingVoucherEvent  $event
+     * @param  DeletingTransportationEvent  $event
      * @return void
      */
-    public function handle(DeletingVoucherEvent $event)
+    public function handle(DeletingTransportationEvent $event)
     {
-        $transaction = $event->voucher->transaction;
+        $transaction    = $event->transportation->transaction()->firstOrFail();
 
-        if($event->voucher->isForceDeleting()) {
+        if($event->transportation->isForceDeleting()) {
             $transaction->forceDelete();
         } else {
             $transaction->delete();

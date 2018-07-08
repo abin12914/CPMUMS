@@ -66,7 +66,7 @@
                                         <div class="col-md-4">
                                             <label for="supplier_account_id" class="control-label">Supplier : </label>
                                             {{-- adding account select component --}}
-                                            @component('components.selects.accounts', ['selectedAccountId' => $params['supplier_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'tabindex' => 5])
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['supplier_account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'activeFlag' => true, 'tabindex' => 5])
                                             @endcomponent
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'supplier_account_id'])
@@ -121,10 +121,13 @@
                                         <tr>
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 10%;">Date</th>
-                                            <th style="width: 20%;">Branch</th>
-                                            <th style="width: 25%;">Supplier</th>
-                                            <th style="width: 15%;">Material</th>
-                                            <th style="width: 15%;">Bill Amount</th>
+                                            <th style="width: 15%;">Branch</th>
+                                            <th style="width: 20%;">Supplier</th>
+                                            <th style="width: 10%;">Material</th>
+                                            <th style="width: 10%;">Quantity</th>
+                                            <th style="width: 5%;">Rate</th>
+                                            <th style="width: 5%;">Discount</th>
+                                            <th style="width: 10%;">Bill Amount</th>
                                             <th style="width: 5%;" class="no-print">Actions</th>
                                             <th style="width: 5%;" class="no-print">Actions</th>
                                         </tr>
@@ -138,17 +141,20 @@
                                                     <td>{{ $purchaseRecord->branch->name }}</td>
                                                     <td>{{ $purchaseRecord->transaction->creditAccount->account_name }}</td>
                                                     <td>{{ $purchaseRecord->material->name }}</td>
+                                                    <td>{{ $purchaseRecord->quantity }}</td>
+                                                    <td>{{ $purchaseRecord->rate }}</td>
+                                                    <td>{{ $purchaseRecord->discount }}</td>
                                                     <td>{{ $purchaseRecord->total_amount }}</td>
                                                     <td class="no-print">
                                                         <a href="{{ route('purchase.edit', ['id' => $purchaseRecord->id]) }}" style="float: left;">
-                                                            <button type="button" class="btn btn-warning">Edit</button>
+                                                            <button type="button" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</button>
                                                         </a>
                                                     </td>
                                                     <td class="no-print">
                                                         <form action="{{ route('purchase.destroy', $purchaseRecord->id) }}" method="post" class="form-horizontal">
                                                             {{ method_field('DELETE') }}
                                                             {{ csrf_field() }}
-                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                            <button type="button" class="btn btn-danger delete_button"><i class="fa fa-trash"></i> Delete</button>
                                                         </form>
                                                     </td>
                                                 </tr>
@@ -159,6 +165,9 @@
                                                     <td></td>
                                                     <td></td>
                                                     <td class="text-red"><b>Total Amount</b></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
                                                     <td></td>
                                                     <td class="text-red"><b>{{ $totalAmount }}</b></td>
                                                     <td class="no-print"></td>

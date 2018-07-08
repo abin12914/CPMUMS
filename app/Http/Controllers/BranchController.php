@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Repositories\BranchRepository;
 use App\Http\Requests\BranchRegistrationRequest;
-use App\Http\Requests\BranchFilterRequest;
 use DB;
 use Exception;
 use App\Exceptions\AppCustomException;
@@ -66,7 +65,7 @@ class BranchController extends Controller
             ]);
 
             if(!$response['flag']) {
-                throw new AppCustomException("CustomError", $accountResponse['errorCode']);
+                throw new AppCustomException("CustomError", $response['errorCode']);
             }
 
             DB::commit();
@@ -124,7 +123,43 @@ class BranchController extends Controller
      */
     public function update(BranchRegistrationRequest $request, $id)
     {
+        $saveFlag       = false;
+        $errorCode      = 0;
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            //get branch
+            $branch = $this->branchRepo->getBranch($id);
+
+            $response   = $this->branchRepo->saveBranch([
+                'name'      => $request->get('branch_name'),
+                'place'     => $request->get('place'),
+                'address'   => $request->get('address'),
+            ], $branch);
+
+            if(!$response['flag']) {
+                throw new AppCustomException("CustomError", $response['errorCode']);
+            }
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 1;
+            }
+        }
+
+        if($saveFlag) {
+            return redirect(route('branch.index'))->with("message","Branch details updated successfully. Updated Record Number : ". $response['id'])->with("alert-class", "success");
+        }
         
+        return redirect()->back()->with("message","Failed to update the branch details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -135,6 +170,6 @@ class BranchController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
+        return redirect()->back()->with("message", "Branch deletion restricted.")->with("alert-class", "error");
     }
 }

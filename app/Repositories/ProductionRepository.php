@@ -51,13 +51,16 @@ class ProductionRepository
     /**
      * Action for saving productions.
      */
-    public function saveProduction($inputArray)
+    public function saveProduction($inputArray, $production=null)
     {
         $saveFlag   = false;
 
         try {
             //production saving
-            $production = new Production;
+            if(empty($production)) {
+                $production = new Production;
+            }
+
             $production->date           = $inputArray['date'];
             $production->branch_id      = $inputArray['branch_id'];
             $production->employee_id    = $inputArray['employee_id'];

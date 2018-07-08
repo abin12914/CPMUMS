@@ -33,20 +33,20 @@ class AccountController extends Controller
     public function index(AccountFilterRequest $request)
     {
         $noOfRecords    = !empty($request->get('no_of_records')) ? $request->get('no_of_records') : $this->noOfRecordsPerPage;
-        $statusFlag     = !empty($request->get('status_flag')) && $request->get('status_flag') ? true : false;
+        $activeFlag     = !empty($request->get('status_flag')) && $request->get('status_flag') ? true : false;
 
         $params = [
                 'relation'      => $request->get('relation_type'),
                 'id'            => $request->get('account_id'),
             ];
         //when request has status_flag = true then code will not check (status = 1 condition) else will check for (status = 1)
-        //Note the !statusFlag for excluding status check
+        //Note the !activeFlag for excluding status check
         return view('accounts.list', [
-            'accounts'      => $this->accountRepo->getAccounts($params, $noOfRecords, true, !$statusFlag),
+            'accounts'      => $this->accountRepo->getAccounts($params, $noOfRecords, true, !$activeFlag),
             'relationTypes' => config('constants.accountRelationTypes'),
             'params'        => $params,
             'noOfRecords'   => $noOfRecords,
-            'statusFlag'    => $statusFlag,
+            'activeFlag'    => $activeFlag,
         ]);
     }
 

@@ -60,6 +60,14 @@ class Transaction extends Model
     }
 
     /**
+     * The transportation that belong to the transaction.
+     */
+    public function transportation()
+    {
+        return $this->hasOne('App\Models\Transportation', 'transaction_id');
+    }
+
+    /**
      * Get the employee wage record associated with the transaction.
      */
     public function employeeWage()

@@ -1,4 +1,5 @@
 $(function () {
+    siblingsHandling();
     //purchase quantity event actions
     $('body').on("change", ".sale_type", function (evt) {
         if($(this).val() == 1) {
@@ -30,13 +31,6 @@ $(function () {
 
             //enabling next combo box
             $('#product__row_'+(rowId+1)).find('.products_combo').attr('disabled', false);
-
-             //disabiling same value selection in 2 product combo boxes
-            $('.products_combo')
-                .not(this)
-                .children('option[value="' + fieldValue + '"]')
-                .prop('disabled', true);
-                /*.siblings().prop('disabled', false);*/
         } else {
             //disabling quantity & rate in same column
             $(this).closest('tr').find('.sale_quantity').attr('disabled', true);
@@ -48,10 +42,12 @@ $(function () {
 
             $('#product__row_'+(rowId+1)).find('.products_combo').val('');
             //disabling next combo box
-            $('#product__row_'+(rowId+1)).find('.products_combo').attr('disabled', true);
             $('#product__row_'+(rowId+1)).find('.products_combo').trigger('change');
+            $('#product__row_'+(rowId+1)).find('.products_combo').attr('disabled', true);
         }
 
+        //disabiling same value selection in 2 product combo boxes
+        siblingsHandling();
         initializeSelect2();
         //calculate total sale bill
         calculateTotalPurchaseBill();
@@ -112,4 +108,42 @@ function calculateTotalPurchaseBill() {
         $('#discount').val(0);
         $('#total_bill').val(0);
     }
+}
+
+function siblingsHandling() {
+    var selectedOptions = [];
+
+    //getting all selected option values with unique select element index number
+    $('.products_combo').each(function() {
+        fieldValue = $(this).val();
+        indexNo    = $(this).data('index-no');
+
+        if(fieldValue && fieldValue != '') {
+            //selectedOptions hold selected option values using select's data-index-no as index
+            selectedOptions[parseInt(indexNo)] = parseInt(fieldValue);
+        }
+    });
+
+    //traversing each selects
+    $('.products_combo').each(function() {
+        //traversing through every select elements
+        $(this).children('option').each(function() {
+            optionValue = parseInt($(this).val());
+            indexNo     = $(this).parent().data('index-no');
+            
+            //if current option is in the selectedOptions
+            if(selectedOptions.includes(optionValue)) {
+                //if index number of the current select and index of the selectedOptions match leave it from disabling
+                if(indexNo == selectedOptions.indexOf(optionValue)) {
+                    $(this).attr('disabled', false);
+                    return;
+                }
+                //else disable the option
+                $(this).attr('disabled', true);
+            } else {
+                //else enable
+                $(this).attr('disabled', false);
+            }
+        });
+    });
 }

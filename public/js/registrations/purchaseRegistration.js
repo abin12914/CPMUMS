@@ -1,4 +1,5 @@
 $(function () {
+    calculateTotalPurchaseBill();
     //purchase quantity event actions
     $('body').on("change keyup", "#purchase_quantity", function (evt) {
         //calculate total purchase bill

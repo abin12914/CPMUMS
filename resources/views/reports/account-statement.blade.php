@@ -7,7 +7,7 @@
             Account Statement
         </h1>
         <ol class="breadcrumb">
-            <li><a href="{{ route('user.dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="active">Account Statement</li>
         </ol>
     </section>
@@ -25,28 +25,23 @@
                                     <div class="form-group">
                                         <div class="col-md-4">
                                             <label for="account_id" class="control-label">Account : </label>
-                                            <select class="form-control select2" name="account_id" id="account_id" tabindex="1" style="width: 100%">
-                                                @if(!empty($accounts) && (count($accounts) > 0))
-                                                    <option value="">Select account</option>
-                                                    @foreach($accounts as $account)
-                                                        <option value="{{ $account->id }}" {{ ((old('account_id') == $account->id ) || $params['account_id'] == $account->id) ? 'selected' : '' }}>{{ $account->account_name }}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
+                                            {{-- adding account select component --}}
+                                            @component('components.selects.accounts', ['selectedAccountId' => $params['account_id']['paramValue'], 'cashAccountFlag' => true, 'selectName' => 'account_id', 'activeFlag' => false, 'tabindex' => 1])
+                                            @endcomponent
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'account_id'])
                                             @endcomponent
                                         </div>
                                         <div class="col-md-4">
                                             <label for="from_date" class="control-label">Start Date : </label>
-                                            <input type="text" class="form-control decimal_number_only datepicker" name="from_date" id="from_date" placeholder="Date" value="{{ $params['from_date'] or old('from_date') }}" tabindex="2">
+                                            <input type="text" class="form-control decimal_number_only datepicker" name="from_date" id="from_date" placeholder="Date" value="{{ $params['from_date']['paramValue'] or old('from_date') }}" tabindex="2">
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'from_date'])
                                             @endcomponent
                                         </div>
                                         <div class="col-md-4">
                                             <label for="to_date" class="control-label">End Date : </label>
-                                            <input type="text" class="form-control decimal_number_only datepicker" name="to_date" id="to_date" placeholder="Date" value="{{ $params['to_date'] or old('to_date') }}" tabindex="3">
+                                            <input type="text" class="form-control decimal_number_only datepicker" name="to_date" id="to_date" placeholder="Date" value="{{ $params['to_date']['paramValue'] or old('to_date') }}" tabindex="3">
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'to_date'])
                                             @endcomponent
@@ -54,17 +49,17 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-4">
-                                            <label for="relation_type" class="control-label">Transaction Relation : </label>
-                                            <select class="form-control select2" name="relation_type" id="relation_type" style="width: 100%" tabindex="4">
+                                            <label for="relation" class="control-label">Transaction Relation : </label>
+                                            <select class="form-control select2" name="relation" id="relation" style="width: 100%" tabindex="4">
                                                 @if(!empty($relations) && (count($relations) > 0))
                                                     <option value="">Select relation</option>
                                                     @foreach($relations as $key => $relation)
-                                                        <option value="{{ $key }}" {{ ((old('relation_type') == $key ) || $params['relation_type'] == $key) ? 'selected' : '' }}>{{ $relation }}</option>
+                                                        <option value="{{ $key }}" {{ ((old('relation') == $key ) || $params['relation']['paramValue'] == $key) ? 'selected' : '' }}>{{ $relation['displayName'] }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
                                             {{-- adding error_message p tag component --}}
-                                            @component('components.paragraph.error_message', ['fieldName' => 'relation_type'])
+                                            @component('components.paragraph.error_message', ['fieldName' => 'relation'])
                                             @endcomponent
                                         </div>
                                         <div class="col-md-4">
@@ -72,9 +67,9 @@
                                                 Transaction Type : 
                                             </label>
                                             <select class="form-control select2" name="transaction_type" id="transaction_type" style="width: 100%" tabindex="5">
-                                                <option value="">All type</option>
-                                                <option value="1" {{ ((old('transaction_type') == 1 ) || $params['transaction_type'] == 1) ? 'selected' : '' }}>Debit</option>
-                                                <option value="2" {{ ((old('transaction_type') == 2 ) || $params['transaction_type'] == 2) ? 'selected' : '' }}>Credit</option>
+                                                <option value="0" {{ (empty(old('transaction_type'))  || old('transaction_type') == 0 || $transactionType == 0) ? 'selected' : '' }}>All type</option>
+                                                <option value="1" {{ ((old('transaction_type') == 1 ) || $transactionType == 1) ? 'selected' : '' }}>Debit</option>
+                                                <option value="2" {{ ((old('transaction_type') == 2 ) || $transactionType == 2) ? 'selected' : '' }}>Credit</option>
                                             </select>
                                             {{-- adding error_message p tag component --}}
                                             @component('components.paragraph.error_message', ['fieldName' => 'transaction_type'])
@@ -96,87 +91,53 @@
                             <div class="row no-print">
                                 <div class="col-md-4"></div>
                                 <div class="col-md-2">
-                                    <button type="reset" class="btn btn-default btn-block btn-flat"  value="reset" tabindex="7">Clear</button>
+                                    <button type="reset" class="btn btn-default btn-block btn-flat"  value="reset" tabindex="8">Clear</button>
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="8"><i class="fa fa-search"></i> Get</button>
+                                    <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="7"><i class="fa fa-search"></i> Get</button>
                                 </div>
                             </div>
                         </form>
                         <!-- /.form end -->
-                    </div>
-                    <div class="box-body">
+                    </div><br>
+                    <div class="box-body no-print">
                         <div class="row">
                             <div class="col-md-3"></div>
                             <div class="col-md-6">
-                                @if(!empty($accounts->firstWhere('id', $params['account_id'])) && !empty($accounts->firstWhere('id', $params['account_id'])->account_name))
-                                    <div class="box-header">
-                                        <div class="pad margin no-print">
-                                            <div class="callout callout-default">
-                                                <h4 style="color: green;">Account Overview</h4>
-                                                <div class="table-responsive">
-                                                    <table class="table table-hover" style="color: orangered;">
-                                                        <tr>
-                                                            <th style="width:45%">
-                                                                <span class="badge bg-black"><i class="fa fa-book"></i></span>&nbsp&nbsp Account Name
-                                                                <b class="pull-right">:</b>
-                                                            </th>
-                                                            <td>
-                                                                <span class="badge bg-light-blue" style="width:100%; font-size: 15px;">
-                                                                    @if(!empty($accounts->firstWhere('id', $params['account_id'])))
-                                                                        {{ $accounts->firstWhere('id', $params['account_id'])->account_name }}
-                                                                    @else
-                                                                        Error
-                                                                    @endif
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>
-                                                                <span class="badge bg-black"><i class="fa fa-arrow-down"></i></span>&nbsp&nbsp Total Debit
-                                                                <b class="pull-right">:</b>
-                                                            </th>
-                                                            <td>
-                                                                <span class="badge bg-yellow" style="width:100%; font-size: 15px;">{{ $overviewDebit }}</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>
-                                                                <span class="badge bg-black"><i class="fa fa-arrow-up"></i></span>&nbsp&nbsp Total Credit
-                                                                <b class="pull-right">:</b>
-                                                            </th>
-                                                            <td>
-                                                                <span class="badge bg-orange" style="width:100%; font-size: 15px;">
-                                                                    {{ $overviewCredit }}
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            @if($overviewDebit >= $overviewCredit)
-                                                                <th>
-                                                                    <span class="badge bg-black"><i class="fa fa-inr"></i></span>&nbsp&nbsp Balance To Get
-                                                                    <b class="pull-right">:</b>
-                                                                </th>
-                                                                <td>
-                                                                    <span class="badge bg-green" style="width:100%; font-size: 15px;">
-                                                                        {{ $overviewDebit - $overviewCredit }}
-                                                                    </span>
-                                                                </td>
-                                                            @else
-                                                                <th>
-                                                                    <span class="badge bg-black"><i class="fa fa-inr"></i></span>&nbsp&nbsp Balance To Pay
-                                                                    <b class="pull-right">:</b>
-                                                                </th>
-                                                                <td>
-                                                                    <span class="badge bg-red" style="width:100%; font-size: 15px;">{{ $overviewCredit - $overviewDebit }}</span>
-                                                                </td>
-                                                            @endif
-                                                        </tr>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                @if(!empty($account))
+                                    <h4 style="color: darkblue;">Account Overview</h4>
+                                    <table class="table table-responsive table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 5%;">#</th>
+                                                <th style="width: 45%;">Account Name</th>
+                                                <th style="width: 25%;">Total Debit</th>
+                                                <th style="width: 25%;">Total Credit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><i class="fa fa-bookmark-o"></i></td>
+                                                <td class="text-orange">{{ $account->account_name }}</td>
+                                                <td class="text-orange">{{ $outstandingDebit }}</td>
+                                                <td class="text-orange">{{ $outstandingCredit }}</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td><i class="fa fa-calculator"></i></td>
+                                                @if($outstandingDebit > $outstandingCredit)
+                                                    <td class="text-red"><strong> Balance To Get</strong></td>
+                                                    <td></td>
+                                                    <td class="text-red"><strong> {{ $outstandingDebit - $outstandingCredit }}</strong></td>
+                                                @else
+                                                    <td class="text-green"><strong> Balance To Pay</strong></td>
+                                                    <td class="text-green"><strong> {{ $outstandingCredit - $outstandingDebit }}</strong></td>
+                                                    <td></td>
+                                                @endif
+                                            </tr>
+                                        </tfoot>
+                                    </table>
                                 @endif
                             </div>
                         </div>
@@ -197,11 +158,9 @@
                             @endif
                         @endforeach
                         <h4>
-                            @if($accounts->firstWhere('id', $params['account_id']))
-                                Ledger of <b>{{ $accounts->firstWhere('id', $params['account_id'])->account_name }}</b>
-                                - [ {{ $params['from_date'] or 'starting' }} - {{ $params['to_date'] or 'end' }} ]
-                            @else
-                                Error
+                            @if(!empty($account))
+                                Ledger of <b>{{ $account->account_name }}</b>
+                                - [ {{ $params['from_date']['paramValue'] or 'starting' }} - {{ $params['to_date']['paramValue'] or 'end' }} ]
                             @endif
                         </h4>
                     </div>
@@ -212,8 +171,7 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 10%;">Date & Time</th>
-                                            <th style="width: 5%;" class="no-print">Ref No.</th>
+                                            <th style="width: 15%;">Date & Time</th>
                                             <th style="width: 60%;">Particulars</th>
                                             <th style="width: 10%;">Debit</th>
                                             <th style="width: 10%;">Credit</th>
@@ -223,15 +181,17 @@
                                         @if(!empty($transactions))
                                             @foreach($transactions as $index => $transaction)
                                                 <tr>
-                                                    <td>{{ $index + $transactions->firstItem() }}</td>
+                                                    <td>
+                                                        {{ $index + $transactions->firstItem() }}
+                                                        <i class="no-print bg-info"> / {{ $transaction->id }}</i>
+                                                    </td>
                                                     <td>{{ $transaction->transaction_date->format('d-m-Y') }}</td>
-                                                    <td class="no-print">{{ $transaction->id }}</td>
                                                     <td>{{ $transaction->particulars }}</td>
-                                                    @if($transaction->debit_account_id == $params['account_id'])
+                                                    @if($transaction->debit_account_id == $account->id)
                                                         <td>{{ $transaction->amount }}</td>
-                                                        <td>-</td>
-                                                    @elseif($transaction->credit_account_id == $params['account_id'])
-                                                        <td>-</td>
+                                                        <td></td>
+                                                    @elseif($transaction->credit_account_id == $account->id)
+                                                        <td></td>
                                                         <td>{{ $transaction->amount }}</td>
                                                     @else
                                                         <td>0</td>
@@ -241,40 +201,49 @@
                                             @endforeach
                                             @if(Request::get('page') == $transactions->lastPage() || $transactions->lastPage() == 1)
                                                 <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td class="no-print"></td>
-                                                    <td>Sub Total</td>
-                                                    <td>{{ $subtotalDebit }}</td>
-                                                    <td>{{ $subtotalCredit }}</td>
+                                                    <td></td><td></td><td></td><td></td><td></td>
                                                 </tr>
                                                 <tr>
                                                     <td></td>
                                                     <td></td>
-                                                    <td class="no-print"></td>
-                                                    <td>Old Balance</td>
-                                                    <td>{{ $obDebit }}</td>
-                                                    <td>{{ $obCredit }}</td>
+                                                    <td><strong>Sub Total</strong></td>
+                                                    <td><strong>{{ $subTotalDebit }}</strong></td>
+                                                    <td><strong>{{ $subTotalCredit }}</strong></td>
                                                 </tr>
                                                 <tr>
                                                     <td></td>
                                                     <td></td>
-                                                    <td class="no-print"></td>
-                                                    <td>Total Amount</td>
-                                                    <td>{{ $subtotalDebit + $obDebit }}</td>
-                                                    <td>{{ $subtotalCredit + $obCredit }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td class="no-print"></td>
-                                                    <td>{{ 'Balance' }}</td>
-                                                    @if($totalDebit <= $totalCredit)
-                                                        <td>{{ $totalCredit - $totalDebit }}</td>
+                                                    @if($obDebit > $obCredit)
+                                                        <td class="text-red"><strong> Old Balance To Get</strong></td>
+                                                        <td class="text-red"><strong> {{ $obDebit - $obCredit }}</strong></td>
                                                         <td></td>
                                                     @else
+                                                        <td class="text-green"><strong> Old Balance To Pay</strong></td>
                                                         <td></td>
-                                                        <td>{{ $totalDebit - $totalCredit }}</td>
+                                                        <td class="text-green"><strong> {{ $obCredit - $obDebit }}</strong></td>
+                                                    @endif
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td><strong>Total Amount</strong></td>
+                                                    <td><strong>{{ $subTotalDebit + $obDebit }}</strong></td>
+                                                    <td><strong>{{ $subTotalCredit + $obCredit }}</strong></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td><td></td><td></td><td></td><td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    @if($outstandingDebit > $outstandingCredit)
+                                                        <td class="text-red"><strong> Outstanding Balance To Get</strong></td>
+                                                        <td></td>
+                                                        <td class="text-red"><strong> {{ $outstandingDebit - $outstandingCredit }}</strong></td>
+                                                    @else
+                                                        <td class="text-green"><strong> Balance To Pay</strong></td>
+                                                        <td class="text-green"><strong> {{ $outstandingCredit - $outstandingDebit }}</strong></td>
+                                                        <td></td>
                                                     @endif
                                                 </tr>
                                             @endif

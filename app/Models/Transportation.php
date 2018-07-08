@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\DeletingTransportationEvent;
 
 class Transportation extends Model
 {
@@ -17,6 +18,15 @@ class Transportation extends Model
     protected $dates = ['deleted_at'];
 
     public $timestamps = false;
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'deleting' => DeletingTransportationEvent::class,
+    ];
 
     /**
      * Scope a query to only include active purchase.

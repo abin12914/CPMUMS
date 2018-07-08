@@ -103,10 +103,13 @@ class ExpenseController extends Controller
     public function store(
         ExpenseRegistrationRequest $request,
         TransactionRepository $transactionRepo,
-        AccountRepository $accountRepo
+        AccountRepository $accountRepo,
+        $id=null
     ) {
-        $saveFlag   = false;
-        $errorCode  = 0;
+        $saveFlag           = false;
+        $errorCode          = 0;
+        $expense            = null;
+        $expenseTransaction = null;
 
         $expenseAccountId   = config('constants.accountConstants.ServiceAndExpense.id');
         $transactionDate    = Carbon::createFromFormat('d-m-Y', $request->get('date'))->format('Y-m-d');
@@ -116,6 +119,10 @@ class ExpenseController extends Controller
         //wrappin db transactions
         DB::beginTransaction();
         try {
+            if(!empty($id)) {
+                $expense = $this->expenseRepo->getExpense($id);
+                $expenseTransaction = $transactionRepo->getTransaction($expense->transaction_id);
+            }
             //confirming expense account exist-ency.
             $expenseAccount = $accountRepo->getAccount($expenseAccountId);
 
@@ -127,7 +134,7 @@ class ExpenseController extends Controller
                 'transaction_date'  => $transactionDate,
                 'particulars'       => $request->get('description')."[Purchase & Expense]",
                 'branch_id'         => $branchId,
-            ]);
+            ], $expenseTransaction);
 
             if(!$transactionResponse['flag']) {
                 throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
@@ -140,7 +147,7 @@ class ExpenseController extends Controller
                 'service_id'     => $request->get('service_id'),
                 'bill_amount'    => $totalBill,
                 'branch_id'      => $branchId,
-            ]);
+            ], $expense);
 
             if(!$expenseResponse['flag']) {
                 throw new AppCustomException("CustomError", $expenseResponse['errorCode']);
@@ -160,9 +167,22 @@ class ExpenseController extends Controller
         }
 
         if($saveFlag) {
+            if(!empty($id)) {
+                return [
+                    'flag'  => true,
+                    'id'    => $expenseResponse['id']
+                ];
+            }
+
             return redirect()->back()->with("message","Expense details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
+        if(!empty($id)) {
+            return [
+                'flag'          => false,
+                'errorCode'    => $errorCode
+            ];
+        }
         return redirect()->back()->with("message","Failed to save the expense details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
@@ -202,8 +222,7 @@ class ExpenseController extends Controller
      */
     public function edit($id)
     {
-        return redirect()->back()->with("message", "Editing temporarily unavailable.")->with("alert-class", "warning");
-        /*$errorCode  = 0;
+        $errorCode  = 0;
         $expense    = [];
 
         try {
@@ -218,9 +237,9 @@ class ExpenseController extends Controller
             throw new ModelNotFoundException("Expense", $errorCode);
         }
 
-        return view('expense.edit', [
+        return view('expenses.edit', [
             'expense' => $expense,
-        ]);*/
+        ]);
     }
 
     /**
@@ -230,9 +249,20 @@ class ExpenseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(
+        ExpenseRegistrationRequest $request,
+        TransactionRepository $transactionRepo,
+        AccountRepository $accountRepo,
+        $id
+    ) {
+        $updateResponse = $this->store($request, $transactionRepo, $accountRepo, $id);
+
+        if($updateResponse['flag']) {
+            return redirect(route('expense.index'))->with("message","Expense details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to update the expense details. Error Code : ". $this->errorHead. "/". $updateResponse['errorCode'])->with("alert-class", "error");
+
     }
 
     /**
@@ -243,6 +273,35 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        return redirect()->back()->with("message", "Deletion temporarily restricted.")->with("alert-class", "warning");
+        $deleteFlag = false;
+        $errorCode  = 0;
+
+        //wrapping db transactions
+        DB::beginTransaction();
+        try {
+            $deleteResponse = $this->expenseRepo->deleteExpense($id);
+            
+            if(!$deleteResponse['flag']) {
+                throw new AppCustomException("CustomError", $deleteResponse['errorCode']);
+            }
+            
+            DB::commit();
+            $deleteFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 5;
+            }
+        }
+
+        if($deleteFlag) {
+            return redirect(route('expense.index'))->with("message","Expense details deleted successfully.")->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to delete the expense details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 }

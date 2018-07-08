@@ -5,7 +5,10 @@
             @if(!$cashAccountFlag && $account->id == 1)
                 @continue
             @endif
-            <option value="{{ $account->id }}" {{ (old($selectName) == $account->id || $selectedAccountId == $account->id) ? 'selected' : '' }}>{{ $account->account_name }}</option>
+            @if($activeFlag && $account->status != 1)
+                @continue
+            @endif
+            <option value="{{ $account->id }}" {{ (old($selectName) == $account->id || $selectedAccountId == $account->id) ? 'selected' : '' }}>{{ $account->account_name. ((($account->status != 1 || config('settings.display_phone_flag')) && $account->type == 3) ? ' - '. $account->phone : '')  }}</option>
         @endforeach
     @endif
 </select>
