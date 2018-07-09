@@ -27,8 +27,8 @@ Route::group(['middleware' => 'auth.check'], function () {
     
     //common routes
     Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
-    Route::get('/user/profile', 'UserController@profileView')->name('user.profile');
-    Route::post('/user/profile', 'UserController@profileUpdate')->name('user.profile.action');
+    Route::get('/user/profile', 'HomeController@profileView')->name('user.profile');
+    Route::post('/user/profile', 'HomeController@profileUpdate')->name('user.profile.action');
 
     //user routes
     Route::group(['middleware' => ['user.role:0,1,2']], function () {

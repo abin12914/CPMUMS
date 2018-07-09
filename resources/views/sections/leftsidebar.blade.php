@@ -9,7 +9,7 @@
             </div>
             <div class="pull-left info">
                 <p>{{ $loggedUser->name }}</p>
-                <a href="#"><i class="fa  fa-hand-o-right"></i> View Profile</a>
+                <a href="{{ route('user.profile') }}"><i class="fa  fa-hand-o-right"></i> View Profile</a>
             </div>
         </div>
         <!-- sidebar menu: : style can be found in sidebar.less -->
