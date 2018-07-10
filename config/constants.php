@@ -155,7 +155,7 @@ return [
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
             'name'              => 'Transportation charge account',
-            'phone'             => '0000000009',
+            'phone'             => '0000000008',
             'status'            => 1,
         ],
 
