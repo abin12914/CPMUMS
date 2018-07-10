@@ -9,9 +9,16 @@ use App\Repositories\SaleRepository;
 use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use App\Http\Requests\ProfileUpdateRequest;
+use Auth;
+use Hash;
+use DB;
+use Exception;
+use App\Exceptions\AppCustomException;
 
 class HomeController extends Controller
 {
+    public $errorHead = null;
+
     /**
      * Create a new controller instance.
      *
@@ -19,11 +26,12 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('index');
+        $this->errorHead = config('settings.controller_code.HomeController');
     }
 
     /**
-     * Show the application dashboard.
+     * Show the application welcome page.
      *
      * @return \Illuminate\Http\Response
      */
@@ -67,10 +75,31 @@ class HomeController extends Controller
         $inputArray['username']         = $request->get('username');
         $inputArray['name']             = $request->get('name');
         $inputArray['email']            = $request->get('email');
-        $inputArray['password']         = $request->get('password');
+        $inputArray['password']         = Hash::make($request->get('password'));
         $inputArray['currentPassword']  = $request->get('currentPassword');
 
-        $flag = $userRepo->updateProfile($request);
+        if(!Hash::check($inputArray['currentPassword'], Auth::User()->password)) {
+            return redirect()->back()->with("Message", "Authentication Failed! Invalid password.")->with("alert-class", "error");
+        }
+
+        //wrappin db transactions
+        DB::beginTransaction();
+        try {
+            $user = Auth::User();
+            $flag = $userRepo->updateProfile($inputArray, $user);
+
+            DB::commit();
+            $saveFlag = true;
+        } catch (Exception $e) {
+            //roll back in case of exceptions
+            DB::rollback();
+
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 1;
+            }
+        }
 
         if($flag['flag']) {
             return redirect(route('dashboard'))->with("message", "Profile Successfully Updated!")->with("alert-class", "success");

@@ -1,25 +1,30 @@
 <?php
 
 return [
+    'userRoles' => [
+        'superadmin' => 0,
+        'admin'      => 1,
+        'user'       => 2,
+    ],
 
     'accountRelationTypes' => [
-        1   => 'Employees',
-        2   => 'Supplier',
-        3   => 'Customer',
-        4   => 'Contractor',
-        5   => 'General',
+        1 => 'Employees',
+        2 => 'Supplier',
+        3 => 'Customer',
+        4 => 'Contractor',
+        5 => 'General',
     ],
 
     'accountTypes' => [
-        1   => 'Real',
-        2   => 'Nominal',
-        3   => 'Personal',
+        1 => 'Real',
+        2 => 'Nominal',
+        3 => 'Personal',
     ],
 
     'employeeWageTypes' => [
-        1   => 'Per Month',
-        2   => 'Per Day',
-        3   => 'Per Piece',
+        1 => 'Per Month',
+        2 => 'Per Day',
+        3 => 'Per Piece',
     ],
 
     'transactionRelations' => [

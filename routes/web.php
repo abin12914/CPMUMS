@@ -16,15 +16,11 @@ Route::get('/', function () {
 });
 
 //under construction
-Route::get('/under/construction', 'LoginController@underConstruction')->name('under.construction');
 Route::get('/home', 'HomeController@index')->name('home');
 
 Auth::routes();
 
 Route::group(['middleware' => 'auth.check'], function () {
-    //user validity expired
-    Route::get('/user/expired', 'LoginController@userExpired')->name('user.expired');
-    
     //common routes
     Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
     Route::get('/user/profile', 'HomeController@profileView')->name('user.profile');

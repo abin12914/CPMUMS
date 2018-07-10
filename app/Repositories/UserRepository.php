@@ -3,8 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\User;
-use Auth;
-use Hash;
+use Exception;
+use App\Exceptions\AppCustomException;
 
 class UserRepository
 {
@@ -13,32 +13,26 @@ class UserRepository
      */
     public function updateProfile($inputArray=[])
     {
-
-        if(Hash::check($inputArray['currentPassword'], Auth::User()->password)) {
-            $user = Auth::User();
-
-            $user->username     = $inputArray['username'];
-            $user->name         = $inputArray['name'];
-            $user->email        = $inputArray['email'];
+        try {
+            $saveFlag       = false;
+            $user->username = $inputArray['username'];
+            $user->name     = $inputArray['name'];
+            $user->email    = $inputArray['email'];
             
             if(!empty($inputArray['password'])) {
-                $user->password     = Hash::make($inputArray['password']);
+                $user->password = $inputArray['password'];
             }
 
-            if($user->save()) {
-                return [
-                    'flag'  => true,
-                ];
+            $user->save();
+            $saveFlag = true;
+        } catch(Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $this->errorCode = $e->getCode();
             } else {
-                return [
-                    'flag'  => false,
-                    'error' => "Invalid input!"
-                ];
+                $this->errorCode = $this->repositoryCode + 1;
             }
+            
+            throw new AppCustomException("CustomError", $this->errorCode);
         }
-        return [
-            'flag'  => false,
-            'error' => "Invalid password!"
-        ];
     }
 }
