@@ -130,7 +130,7 @@ class VoucherController extends Controller
             $cashAccount = $accountRepo->getAccount($cashAccountId);
 
             //accessing account existency.
-            $account = $accountRepo->getAccount($accountId);
+            $account = $accountRepo->getAccount($accountId, false);
 
             if($voucherType == 1) {
                 //Receipt : Debit cash account - Credit giver account

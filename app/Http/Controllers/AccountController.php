@@ -79,6 +79,10 @@ class AccountController extends Controller
 
         $openingBalanceAccountId = config('constants.accountConstants.AccountOpeningBalance.id');
 
+        $financialStatus    = $request->get('financial_status');
+        $openingBalance     = $request->get('opening_balance');
+        $name               = $request->get('name');
+
         $destination    = '/images/accounts/'; // image file upload path
         $fileName       = "";
 
@@ -90,10 +94,6 @@ class AccountController extends Controller
             $file->move(public_path().$destination, $fileName); // uploading file to given path
             $fileName   = $destination.$fileName;//file name for saving to db
         }
-
-        $financialStatus    = $request->get('financial_status');
-        $openingBalance     = $request->get('opening_balance');
-        $name               = $request->get('name');
 
         //wrappin db transactions
         DB::beginTransaction();

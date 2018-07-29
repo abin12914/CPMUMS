@@ -31,11 +31,10 @@ class ProductRegistrationRequest extends FormRequest
                                     Rule::unique('products', 'name')->ignore($this->product),
                                 ],
             'hsn_code'      =>  [
-                                    'required',
+                                    'nullable',
                                     'min:4',
                                     'max:10',
                                     'alpha_num',
-                                    Rule::unique('products', 'name')->ignore($this->product),
                                 ],
             'uom_code'      =>  [
                                     'required',
