@@ -60,10 +60,13 @@ class BranchRepository
             if(empty($branch)) {
                 $branch = new Branch;
             }
-            $branch->name       = $inputArray['name'];
-            $branch->place      = $inputArray['place'];
-            $branch->address    = $inputArray['address'];
-            $branch->status     = 1;
+            $branch->name               = $inputArray['name'];
+            $branch->place              = $inputArray['place'];
+            $branch->address            = $inputArray['address'];
+            $branch->gstin              = $inputArray['gstin'];
+            $branch->primary_phone      = $inputArray['primary_phone'];
+            $branch->secondary_phone    = $inputArray['secondary_phone'];
+            $branch->status             = 1;
             //branch save
             $branch->save();
 

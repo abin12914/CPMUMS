@@ -27,9 +27,11 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 30%;">Branch Name</th>
-                                            <th style="width: 20%;">Place</th>
-                                            <th style="width: 35%;">Address</th>
+                                            <th style="width: 15%;">Branch Name</th>
+                                            <th style="width: 10%;">Place</th>
+                                            <th style="width: 25%;">Address</th>
+                                            <th style="width: 20%;">Phone/s</th>
+                                            <th style="width: 15%;">GSTIN</th>
                                             <th style="width: 10%;" class="no-print">Details</th>
                                         </tr>
                                     </thead>
@@ -41,6 +43,8 @@
                                                     <td>{{ $branch->name }}</td>
                                                     <td>{{ $branch->place }}</td>
                                                     <td>{{ $branch->address }}</td>
+                                                    <td>{{ $branch->primary_phone. ($branch->secondary_phone ? ', '.$branch->secondary_phone : '') }}</td>
+                                                    <td>{{ $branch->gstin }}</td>
                                                     <td class="no-print">
                                                         <a href="{{ route('branch.edit', $branch->id) }}">
                                                             <button type="button" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</button>

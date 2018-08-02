@@ -59,9 +59,12 @@ class BranchController extends Controller
         DB::beginTransaction();
         try {
             $response   = $this->branchRepo->saveBranch([
-                'name'      => $request->get('branch_name'),
-                'place'     => $request->get('place'),
-                'address'   => $request->get('address'),
+                'name'              => $request->get('branch_name'),
+                'place'             => $request->get('place'),
+                'address'           => $request->get('address'),
+                'gstin'             => $request->get('gstin'),
+                'primary_phone'     => $request->get('primary_phone'),
+                'secondary_phone'   => $request->get('secondary_phone'),
             ]);
 
             if(!$response['flag']) {
@@ -133,9 +136,12 @@ class BranchController extends Controller
             $branch = $this->branchRepo->getBranch($id);
 
             $response   = $this->branchRepo->saveBranch([
-                'name'      => $request->get('branch_name'),
-                'place'     => $request->get('place'),
-                'address'   => $request->get('address'),
+                'name'              => $request->get('branch_name'),
+                'place'             => $request->get('place'),
+                'address'           => $request->get('address'),
+                'gstin'             => $request->get('gstin'),
+                'primary_phone'     => $request->get('primary_phone'),
+                'secondary_phone'   => $request->get('secondary_phone'),
             ], $branch);
 
             if(!$response['flag']) {

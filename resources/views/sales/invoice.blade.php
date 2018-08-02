@@ -18,17 +18,22 @@
         <div class="row">
             <div class="col-xs-12 col-md-12 col-lg-12">
                 <h3>
-                    <i class="fa fa-globe"></i> {{ config('settings.company_name') }}
+                    <i class="fa fa-globe"></i> {{ $sale->branch->name }}
+                    <div class="pull-right">
+                        <div style="float: left; width: 5px; height: 5px; border: 12px; border-color: black; border-style: solid;">sdf </div>Original
+                        <div style="float: left; width: 2px; height: 2px; border: 2px; border-color: black;"> </div>Duplicate
+                        <div style="float: left; width: 2px; height: 2px; border: 2px; border-color: black;"> </div>Triplicate
+                    </div>
                 </h3>
                 <h4>
-                    {{ config('settings.company_address') }}
+                    {{ $sale->branch->address }}
                     <small class="pull-right">
-                        GSTIN : {{ config('settings.company_GSTIN') }}
+                        GSTIN : {{ $sale->branch->gstin }}
                     </small>
                 </h4>
                 <h4>
                     <small>
-                        Phone : {{ config('settings.company_phones') }}
+                        Phone : {{ $sale->branch->primary_phone }} {{ $sale->branch->secondary_phone ? ', '. $sale->branch->secondary_phone : '' }}
                     </small>
                     <small class="pull-right">
                         Coposite Tax Dealer
@@ -52,7 +57,7 @@
                             </tr>
                             <tr>
                                 <td>Date of Issue</td>
-                                <td>:&emsp;<strong>{{ \Carbon\Carbon::now()->format('d-m-Y') }}</strong></td>
+                                <td>:&emsp;<strong>{{ $sale->date->format('d-m-Y') }}</strong></td>
                             </tr>
                         </thead>
                     </table>
@@ -213,7 +218,7 @@
 @section('scripts')
     <script type="text/javascript">
         $(function () {
-            window.print();
+            //window.print();
         });
     </script>
 @endsection

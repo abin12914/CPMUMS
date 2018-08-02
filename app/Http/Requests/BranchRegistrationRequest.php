@@ -38,6 +38,25 @@ class BranchRegistrationRequest extends FormRequest
                                     'required',
                                     'max:200',
                                 ],
+            'gstin'         =>  [
+                                    'required',
+                                    'size:15',
+                                    Rule::unique('branches')->ignore($this->branch),
+                                ],
+            'primary_phone' =>  [
+                                    'required',
+                                    'min:10',
+                                    'max:13',
+                                    Rule::unique('branches')->ignore($this->branch),
+                                    Rule::unique('branches', 'secondary_phone'),
+                                ],
+            'secondary_phone'=>  [
+                                    'nullable',
+                                    'min:10',
+                                    'max:13',
+                                    Rule::unique('branches', 'primary_phone'),
+                                    Rule::unique('branches')->ignore($this->branch),
+                                ],
         ];
     }
 }

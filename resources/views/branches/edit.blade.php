@@ -68,6 +68,33 @@
                                                     @endcomponent
                                                 </div>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="gstin" class="col-md-3 control-label"><b style="color: red;">* </b> Branch GSTIN : </label>
+                                                <div class="col-md-9">
+                                                    <input type="text" name="gstin" class="form-control" id="gstin" placeholder="Branch GSTIN" value="{{ old('gstin', $branch->gstin) }}" tabindex="1" maxlength="100">
+                                                    {{-- adding error_message p tag component --}}
+                                                    @component('components.paragraph.error_message', ['fieldName' => 'gstin'])
+                                                    @endcomponent
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="primary_phone" class="col-md-3 control-label"><b style="color: red;">* </b> Primary Phone : </label>
+                                                <div class="col-md-9">
+                                                    <input type="text" name="primary_phone" class="form-control" id="primary_phone" placeholder="Primary Phone Number" value="{{ old('primary_phone', $branch->primary_phone) }}" tabindex="1" maxlength="13">
+                                                    {{-- adding error_message p tag component --}}
+                                                    @component('components.paragraph.error_message', ['fieldName' => 'primary_phone'])
+                                                    @endcomponent
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="secondary_phone" class="col-md-3 control-label">Secondary Phone : </label>
+                                                <div class="col-md-9">
+                                                    <input type="text" name="secondary_phone" class="form-control" id="secondary_phone" placeholder="Secondary Phone Number" value="{{ old('secondary_phone', $branch->secondary_phone) }}" tabindex="1" maxlength="13">
+                                                    {{-- adding error_message p tag component --}}
+                                                    @component('components.paragraph.error_message', ['fieldName' => 'secondary_phone'])
+                                                    @endcomponent
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="clearfix"> </div><br>
