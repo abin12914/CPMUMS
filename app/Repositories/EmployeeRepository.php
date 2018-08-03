@@ -51,13 +51,16 @@ class EmployeeRepository
     /**
      * Action for saving accounts.
      */
-    public function saveEmployee($inputArray)
+    public function saveEmployee($inputArray, $employee=null)
     {
         $saveFlag = false;
 
         try {
+            if(empty($employee)) {
+                $employee = new Employee;
+            }
+
             //employee saving
-            $employee = new Employee;
             $employee->account_id   = $inputArray['account_id'];
             $employee->wage_type    = $inputArray['wage_type'];
             $employee->wage_rate    = $inputArray['wage_rate'];

@@ -66,10 +66,17 @@ class EmployeeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(EmployeeRegistrationRequest $request, AccountRepository $accountRepo, TransactionRepository $transactionRepo)
-    {
-        $saveFlag       = false;
-        $errorCode      = 0;
+    public function store(
+        EmployeeRegistrationRequest $request,
+        AccountRepository $accountRepo,
+        TransactionRepository $transactionRepo,
+        $id=null
+    ) {
+        $saveFlag            = false;
+        $errorCode           = 0;
+        $employee            = null;
+        $employeeAccount     = null;
+        $employeeTransaction = null;
 
         $openingBalanceAccountId = config('constants.accountConstants.AccountOpeningBalance.id');
 
@@ -92,6 +99,26 @@ class EmployeeController extends Controller
         //wrappin db transactions
         DB::beginTransaction();
         try {
+
+            if(!empty($id)) {
+                $employee = $this->employeeRepo->getEmployee($id);
+                $employeeAccount = $accountRepo->getAccount($employee->account_id);
+
+                if($employeeAccount->financial_status == 2){
+                    $searchTransaction = [
+                        ['paramName' => 'debit_account_id', 'paramOperator' => '=', 'paramValue' => $employeeAccount->id],
+                        ['paramName' => 'credit_account_id', 'paramOperator' => '=', 'paramValue' => $openingBalanceAccountId],
+                    ];
+                } else {
+                    $searchTransaction = [
+                        ['paramName' => 'debit_account_id', 'paramOperator' => '=', 'paramValue' => $openingBalanceAccountId],
+                        ['paramName' => 'credit_account_id', 'paramOperator' => '=', 'paramValue' => $employeeAccount->id],
+                    ];
+                }
+
+                $employeeTransaction = $transactionRepo->getTransactions($searchTransaction)->first();
+            }
+
             //confirming opening balance existency.
             $openingBalanceAccount = $accountRepo->getAccount($openingBalanceAccountId);
 
@@ -107,7 +134,7 @@ class EmployeeController extends Controller
                 'address'           => $request->get('address'),
                 'image'             => $fileName,
                 'status'            => 1,
-            ]);
+            ], $employeeAccount);
 
             if(!$accountResponse['flag']) {
                 throw new AppCustomException("CustomError", $accountResponse['errorCode']);
@@ -137,7 +164,7 @@ class EmployeeController extends Controller
                 'transaction_date'  => Carbon::now()->format('Y-m-d'),
                 'particulars'       => $particulars,
                 'branch_id'         => 0,
-            ]);
+            ], $employeeTransaction);
 
             if(!$transactionResponse['flag']) {
                 throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
@@ -147,7 +174,7 @@ class EmployeeController extends Controller
                 'account_id'    => $accountResponse['id'], //newly created account id
                 'wage_type'     => $request->get('wage_type'),
                 'wage_rate'     => $request->get('wage'),
-            ]);
+            ], $employee);
 
             if(!$employeeResponse['flag']) {
                 throw new AppCustomException("CustomError", $employeeResponse['errorCode']);
@@ -164,10 +191,25 @@ class EmployeeController extends Controller
             } else {
                 $errorCode = 1;
             }
+            dd($e);
         }
 
         if($saveFlag) {
+            if(!empty($id)) {
+                return [
+                    'flag'  => true,
+                    'id'    => $employeeResponse['id']
+                ];
+            }
+
             return redirect()->back()->with("message","Employee details saved successfully. Reference Number : ". $employeeResponse['id'])->with("alert-class", "success");
+        }
+
+        if(!empty($id)) {
+            return [
+                'flag'          => false,
+                'errorCode'    => $errorCode
+            ];
         }
         
         return redirect()->back()->with("message","Failed to save the employee details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
@@ -224,7 +266,7 @@ class EmployeeController extends Controller
             throw new ModelNotFoundException("Employee", $errorCode);
         }
 
-        return view('accounts.edit', [
+        return view('employees.edit', [
             'employee'  => $employee,
             'wageTypes' => config('constants.employeeWageTypes'),
         ]);
@@ -237,9 +279,19 @@ class EmployeeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(
+        EmployeeRegistrationRequest $request,
+        AccountRepository $accountRepo,
+        TransactionRepository $transactionRepo,
+        $id
+    ) {
+        $updateResponse = $this->store($request, $accountRepo, $transactionRepo, $id);
+
+        if($updateResponse['flag']) {
+            return redirect(route('employee.index'))->with("message","Employee details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to update the employee details. Error Code : ". $this->errorHead. "/". $updateResponse['errorCode'])->with("alert-class", "error");
     }
 
     /**

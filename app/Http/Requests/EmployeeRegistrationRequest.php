@@ -4,9 +4,12 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\Employee;
 
 class EmployeeRegistrationRequest extends FormRequest
 {
+    public $accountId = '';
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,6 +28,13 @@ class EmployeeRegistrationRequest extends FormRequest
     public function rules()
     {
         $wageTypes  = config('constants.employeeWageTypes');
+        if(!empty($this->employee)) {
+            $employee = Employee::find($this->employee);
+
+            if(!empty($employee) && !empty($employee->id)) {
+                $this->accountId = $employee->account_id;
+            }
+        }
 
         return [
             'name'              =>  [
@@ -36,7 +46,7 @@ class EmployeeRegistrationRequest extends FormRequest
                                         'required',
                                         'numeric',
                                         'digits_between:10,13',
-                                        Rule::unique('accounts')->ignore($this->id),
+                                        Rule::unique('accounts')->ignore($this->accountId),
                                     ],
             'address'           =>  [
                                         'nullable',
@@ -60,7 +70,7 @@ class EmployeeRegistrationRequest extends FormRequest
             'account_name'      =>  [
                                         'required',
                                         'max:200',
-                                        Rule::unique('accounts')->ignore($this->id),
+                                        Rule::unique('accounts')->ignore($this->accountId),
                                     ],
             'financial_status'  =>  [
                                         'required',

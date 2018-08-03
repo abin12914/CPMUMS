@@ -29,7 +29,7 @@ $(function () {
     //Date picker for registrations
     $('.datepicker_reg').datepicker({
         todayHighlight: true,
-        endDate: '+1d',
+        endDate: '+0d',
         format: 'dd-mm-yyyy',
         autoclose: true,
     });

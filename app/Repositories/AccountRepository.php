@@ -60,13 +60,15 @@ class AccountRepository
     /**
      * Action for saving accounts.
      */
-    public function saveAccount($inputArray)
+    public function saveAccount($inputArray, $account=null)
     {
         $saveFlag   = false;
 
         try {
             //account saving
-            $account = new Account;
+            if(empty($account)) {
+                $account = new Account;
+            }
             $account->account_name      = $inputArray['account_name'];
             $account->description       = $inputArray['description'];
             $account->type              = 3; //type = personal account
@@ -88,7 +90,7 @@ class AccountRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 2;
             }
-            
+dd($e);            
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
