@@ -18,8 +18,8 @@
         <!-- Main row -->
         <div class="row no-print">
             <div class="col-md-12">
-                <div class="col-md-2"></div>
-                <div class="col-md-8">
+                {{-- <div class="col-md-2"></div> --}}
+                <div class="col-md-12">
                     <div class="box box-primary">
                         <div class="box-header with-border">
                             <h3 class="box-title" style="float: left;">Sale Details</h3>
@@ -35,7 +35,7 @@
                                     <div class="col-md-10">
                                         <div class="form-group">
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <label for="branch_id" class="control-label"><b style="color: red;">* </b> Branch : </label>
                                                     {{-- adding branch select component --}}
                                                     @component('components.selects.branches', ['selectedBranchId' => old('branch_id'), 'selectName' => 'branch_id', 'tabindex' => 1])
@@ -44,86 +44,133 @@
                                                     @component('components.paragraph.error_message', ['fieldName' => 'branch_id'])
                                                     @endcomponent
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <label for="sale_date" class="control-label"><b style="color: red;">* </b> Sale Date : </label>
                                                     <input type="text" class="form-control decimal_number_only datepicker_reg" name="sale_date" id="sale_date" placeholder="Sale date" value="{{ old('sale_date') }}" tabindex="2">
                                                     {{-- adding error_message p tag component --}}
                                                     @component('components.paragraph.error_message', ['fieldName' => 'sale_date'])
                                                     @endcomponent
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <label for="transportation_location" class="control-label"><b style="color: red;">* </b> Transportation Location : </label>
-                                                    <input type="text" class="form-control" name="transportation_location" id="transportation_location" placeholder="Transportation Location" value="{{ old('transportation_location') }}" tabindex="3">
-                                                    {{-- adding error_message p tag component --}}
-                                                    @component('components.paragraph.error_message', ['fieldName' => 'transportation_location'])
-                                                    @endcomponent
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="transportation_charge" class="control-label"><b style="color: red;">* </b> Transportation Charge : </label>
-                                                    <input type="text" class="form-control decimal_number_only" name="transportation_charge" id="transportation_charge" placeholder="Transportation Charge" value="{{ old('transportation_charge') }}" tabindex="4" maxlength="5">
-                                                    {{-- adding error_message p tag component --}}
-                                                    @component('components.paragraph.error_message', ['fieldName' => 'transportation_charge'])
-                                                    @endcomponent
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <label for="sale_type" class="control-label"><b style="color: red;">* </b> Sale Type : </label>
-                                                    <div class="input-group">
-                                                        <span class="input-group-addon">
-                                                            <input type="radio" name="sale_type" value="1" id="account_credit_radio" class="sale_type" {{ old('sale_type') != 2 ? "checked" : "" }}>
-                                                        </span>
-                                                        <label for="account_credit_radio" class="form-control">Cash/Account Credit</label>
-                                                    </div>
-                                                    {{-- adding error_message p tag component --}}
-                                                    @component('components.paragraph.error_message', ['fieldName' => 'sale_type'])
-                                                    @endcomponent
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="sale_type" class="control-label"><b style="color: red;">* </b> Sale Type : </label>
-                                                    <div class="input-group">
-                                                        <span class="input-group-addon">
-                                                            <input type="radio" name="sale_type" value="2" id="with_out_account_credit_radio" class="sale_type" {{ old('sale_type') == 2 ? "checked" : "" }}>
-                                                        </span>
-                                                        <label for="with_out_account_credit_radio" class="form-control">Short Term Credit [With Out Account]</label>
-                                                    </div>
-                                                    {{-- adding error_message p tag component --}}
-                                                    @component('components.paragraph.error_message', ['fieldName' => 'sale_type'])
-                                                    @endcomponent
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="row">
-                                                <div class="col-md-6" id="customer_with_account_div" style="display :{{ old('sale_type') != 2 ? "block" : "none" }};">
-                                                    <label for="customer_account_id" class="control-label"><b style="color: red;">* </b> Customer : </label>
+                                                <div class="col-md-4">
+                                                    <label for="customer_account_id" class="control-label"><b style="color: red;">* </b> Sale To : </label>
                                                     {{-- adding account select component --}}
-                                                    @component('components.selects.accounts', ['selectedAccountId' => old('customer_account_id'), 'cashAccountFlag' => true, 'selectName' => 'customer_account_id', 'activeFlag' => false, 'tabindex' => 5])
+                                                    @component('components.selects.accounts', ['selectedAccountId' => old('customer_account_id'), 'cashAccountFlag' => true, 'selectName' => 'customer_account_id', 'activeFlag' => false, 'nonAccountFlag' => true, 'tabindex' => 5])
                                                     @endcomponent
                                                     {{-- adding error_message p tag component --}}
                                                     @component('components.paragraph.error_message', ['fieldName' => 'customer_account_id'])
                                                     @endcomponent
                                                 </div>
-                                                <div id="customer_with_out_account_div" style="display :{{ old('sale_type') == 2 ? "block" : "none" }};">
-                                                    <div class="col-md-6">
-                                                        <label for="name" class="control-label"><b style="color: red;">* </b> Customer Name : </label>
-                                                        <input type="text" name="name" class="form-control alpha_only" id="name" placeholder="Customer name" value="{{ old('name') }}" tabindex="6" maxlength="100">
-                                                        {{-- adding error_message p tag component --}}
-                                                        @component('components.paragraph.error_message', ['fieldName' => 'name'])
-                                                        @endcomponent
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="customer_name" class="control-label"><b style="color: red;">* </b> Billing Name : </label>
+                                                            <input type="text" class="form-control" name="customer_name" id="customer_name" placeholder="Billing name" value="{{ old('customer_name') }}" tabindex="3">
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'customer_name'])
+                                                            @endcomponent
+                                                        </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <label for="phone" class="control-label"><b style="color: red;">* </b> Phone : </label>
-                                                        <input type="text" class="form-control decimal_number_only" name="phone" id="phone" placeholder="Phone" value="{{ old('phone') }}" tabindex="7">
-                                                        {{-- adding error_message p tag component --}}
-                                                        @component('components.paragraph.error_message', ['fieldName' => 'phone'])
-                                                        @endcomponent
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="customer_phone" class="control-label"><b style="color: red;">* </b> Billing Phone : </label>
+                                                            <input type="text" class="form-control" name="customer_phone" id="customer_phone" placeholder="Billing phone" value="{{ old('customer_phone') }}" tabindex="3">
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'customer_phone'])
+                                                            @endcomponent
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="customer_address" class="control-label"><b style="color: red;">* </b> Billing Address : </label>
+                                                    @if(!empty(old('customer_address')))
+                                                        <textarea  class="form-control" name="customer_address" id="customer_address" placeholder="Billing Address" tabindex="3" rows="4" style="resize: none;">{{ old('customer_address') }}</textarea>
+                                                    @else
+                                                        <textarea  class="form-control" name="customer_address" id="customer_address" placeholder="Billing Address" tabindex="3" rows="4" style="resize: none;"></textarea>
+                                                    @endif
+                                                    {{-- adding error_message p tag component --}}
+                                                    @component('components.paragraph.error_message', ['fieldName' => 'customer_address'])
+                                                    @endcomponent
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="customer_gstin" class="control-label"><b style="color: red;">* </b> Billing GSTIN : </label>
+                                                            <input type="text" class="form-control" name="customer_gstin" id="customer_gstin" placeholder="Billing GSTIN" value="{{ old('customer_gstin') }}" tabindex="4" maxlength="15" minlength="15">
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'customer_gstin'])
+                                                            @endcomponent
+                                                        </div>
+                                                    </div>
+                                                    {{-- <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label class="control-label">Same Billing & Consignee Address : </label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon">
+                                                                    <input type="checkbox" name="status_flag" id="status_flag" value="true" tabindex="3">
+                                                                </span>
+                                                                <label for="status_flag" class="form-control">Copy To Consignee Details</label>
+                                                            </div>
+                                                        </div>
+                                                    </div> --}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="consignee_name" class="control-label"><b style="color: red;">* </b> Consignee Name : </label>
+                                                            <input type="text" class="form-control" name="consignee_name" id="consignee_name" placeholder="Consignee name" value="{{ old('consignee_name') }}" tabindex="3">
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'consignee_name'])
+                                                            @endcomponent
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="consignee_gstin" class="control-label"><b style="color: red;">* </b> Consignee GSTIN : </label>
+                                                            <input type="text" class="form-control" name="consignee_gstin" id="consignee_gstin" placeholder="Consignee GSTIN" value="{{ old('consignee_gstin') }}" tabindex="4" maxlength="15" minlength="15">
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'consignee_gstin'])
+                                                            @endcomponent
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="consignee_address" class="control-label"><b style="color: red;">* </b> Consignment Address : </label>
+                                                    @if(!empty(old('consignee_address')))
+                                                        <textarea  class="form-control" name="consignee_address" id="consignee_address" placeholder="Consignment Location" tabindex="3" rows="4" style="resize: none;">{{ old('consignee_address') }}</textarea>
+                                                    @else
+                                                        <textarea  class="form-control" name="consignee_address" id="consignee_address" placeholder="Consignment Location" tabindex="3" rows="4" style="resize: none;"></textarea>
+                                                    @endif
+                                                    {{-- adding error_message p tag component --}}
+                                                    @component('components.paragraph.error_message', ['fieldName' => 'consignee_address'])
+                                                    @endcomponent
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="consignment_charge" class="control-label"><b style="color: red;">* </b> Consignment Charge : </label>
+                                                            <input type="text" class="form-control decimal_number_only" name="consignment_charge" id="consignment_charge" placeholder="Consignment Charge" value="{{ old('consignment_charge') }}" tabindex="4" maxlength="5">
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'consignment_charge'])
+                                                            @endcomponent
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="loading_employee_id" class="control-label"><b style="color: red;">* </b> Loading Employee : </label>
+                                                            {{-- adding employee select component --}}
+                                                            @component('components.selects.employees', ['selectedEmployeeId' => old('loading_employee_id'),  'selectName' => 'loading_employee_id', 'tabindex' => 4])
+                                                            @endcomponent
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'loading_employee_id'])
+                                                            @endcomponent
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -131,7 +178,7 @@
                                         <br><div class="box-header with-border"></div><br>
                                         <div class="form-group">
                                             <div class="row">
-                                                <table>
+                                                <table class="table table-bordered table-hover dataTable">
                                                     <thead>
                                                         <th style="width: 5%;">#</th>
                                                         <th style="width: 35%;">Product</th>

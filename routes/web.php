@@ -58,10 +58,11 @@ Route::group(['middleware' => 'auth.check'], function () {
 
         //reports
         Route::get('reports/account-statement', 'ReportController@accountStatement')->name('report.account-statement');
+        Route::get('reports/credit-list', 'ReportController@creditList')->name('report.credit.list');
 
         //ajax urls
         Route::group(['middleware' => 'is.ajax'], function () {
-            
+            Route::get('/ajax/account/details/{id}', 'AccountController@getDetails')->name('ajax.account.details');
         });
     });
 });

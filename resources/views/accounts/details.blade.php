@@ -121,6 +121,17 @@
                                             <hr>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>
+                                                <i class="fa fa-university margin-r-5"></i> GSTIN
+                                            </strong>
+                                            <p class="text-muted multi-line">
+                                                {{ strtoupper($account->gstin) }}
+                                            </p>
+                                            <hr>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- /.box-body -->
                                 <div class="box-footer">

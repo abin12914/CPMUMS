@@ -99,6 +99,8 @@ class EmployeeController extends Controller
         //wrappin db transactions
         DB::beginTransaction();
         try {
+            //confirming opening balance existency.
+            $openingBalanceAccount = $accountRepo->getAccount($openingBalanceAccountId);
 
             if(!empty($id)) {
                 $employee = $this->employeeRepo->getEmployee($id);
@@ -118,9 +120,6 @@ class EmployeeController extends Controller
 
                 $employeeTransaction = $transactionRepo->getTransactions($searchTransaction)->first();
             }
-
-            //confirming opening balance existency.
-            $openingBalanceAccount = $accountRepo->getAccount($openingBalanceAccountId);
 
             //save to account table
             $accountResponse = $accountRepo->saveAccount([
@@ -191,7 +190,6 @@ class EmployeeController extends Controller
             } else {
                 $errorCode = 1;
             }
-            dd($e);
         }
 
         if($saveFlag) {

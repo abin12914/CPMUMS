@@ -72,10 +72,15 @@ class AccountController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(AccountRegistrationRequest $request, TransactionRepository $transactionRepo)
-    {
-        $saveFlag       = false;
-        $errorCode      = 0;
+    public function store(
+        AccountRegistrationRequest $request,
+        TransactionRepository $transactionRepo,
+        $id=null
+    ) {
+        $saveFlag           = false;
+        $errorCode          = 0;
+        $account            = null;
+        $accountTransaction = null;
 
         $openingBalanceAccountId = config('constants.accountConstants.AccountOpeningBalance.id');
 
@@ -101,6 +106,24 @@ class AccountController extends Controller
             //confirming opening balance existency.
             $openingBalanceAccount = $this->accountRepo->getAccount($openingBalanceAccountId);
 
+            if(!empty($id)) {
+                $account = $this->accountRepo->getAccount($id);
+
+                if($account->financial_status == 2){
+                    $searchTransaction = [
+                        ['paramName' => 'debit_account_id', 'paramOperator' => '=', 'paramValue' => $account->id],
+                        ['paramName' => 'credit_account_id', 'paramOperator' => '=', 'paramValue' => $openingBalanceAccountId],
+                    ];
+                } else {
+                    $searchTransaction = [
+                        ['paramName' => 'debit_account_id', 'paramOperator' => '=', 'paramValue' => $openingBalanceAccountId],
+                        ['paramName' => 'credit_account_id', 'paramOperator' => '=', 'paramValue' => $account->id],
+                    ];
+                }
+
+                $accountTransaction = $transactionRepo->getTransactions($searchTransaction)->first();
+            }
+
             //save to account table
             $accountResponse   = $this->accountRepo->saveAccount([
                 'account_name'      => $request->get('account_name'),
@@ -112,8 +135,9 @@ class AccountController extends Controller
                 'phone'             => $request->get('phone'),
                 'address'           => $request->get('address'),
                 'image'             => $fileName,
+                'gstin'             => strtoupper($request->get('gstin')),
                 'status'            => 1,
-            ]);
+            ], $account);
 
             if($accountResponse['flag']) {
                 //opening balance transaction details
@@ -143,7 +167,7 @@ class AccountController extends Controller
                 'transaction_date'  => Carbon::now()->format('Y-m-d'),
                 'particulars'       => $particulars,
                 'branch_id'         => 0,
-            ]);
+            ], $accountTransaction);
 
             if(!$transactionResponse['flag']) {
                 throw new AppCustomException("CustomError", $transactionResponse['errorCode']);
@@ -163,7 +187,20 @@ class AccountController extends Controller
         }
 
         if($saveFlag) {
+            if(!empty($id)) {
+                return [
+                    'flag'  => true,
+                    'id'    => $accountResponse['id']
+                ];
+            }
             return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "success");
+        }
+
+        if(!empty($id)) {
+            return [
+                'flag'          => false,
+                'errorCode'    => $errorCode
+            ];
         }
         
         return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
@@ -239,9 +276,18 @@ class AccountController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(AccountRegistrationRequest $request, $id)
+    public function update(
+        AccountRegistrationRequest $request,
+        TransactionRepository $transactionRepo,
+        $id)
     {
-        //
+        $updateResponse = $this->store($request, $transactionRepo, $id);
+
+        if($updateResponse['flag']) {
+            return redirect(route('account.index'))->with("message","Account details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
+        }
+        
+        return redirect()->back()->with("message","Failed to update the account details. Error Code : ". $this->errorHead. "/". $updateResponse['errorCode'])->with("alert-class", "error");
     }
 
     /**
@@ -253,5 +299,48 @@ class AccountController extends Controller
     public function destroy($id)
     {
         return redirect()->back()->with("message", "Deletion restricted.")->with("alert-class", "error");
+    }
+
+    /**
+     * return the specified resource.
+     *
+     * @param  int  $id
+     * @return json
+     */
+    public function getDetails($id=null)
+    {
+        if(empty($id)) {
+            return [
+                'flag'      => false,
+                'message'   => "Invalid param",
+            ];
+        }
+        $errorCode  = 0;
+        $account    = [];
+
+        try {
+            $account = $this->accountRepo->getAccount($id,false);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 2;
+            }
+            return [
+                'flag'      => false,
+                'message'   => "Record not found".$errorCode,
+            ];
+        }
+
+        return [
+            'flag'      => true,
+            'account'   => [
+                'name'      => $account->name,
+                'phone'     => $account->phone,
+                'address'   => $account->address,
+                'gstin'     => $account->gstin,
+                'type'      => $account->type,
+            ],
+        ];
     }
 }

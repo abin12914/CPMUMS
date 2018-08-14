@@ -19,11 +19,6 @@
             <div class="col-xs-12 col-md-12 col-lg-12">
                 <h3>
                     <i class="fa fa-globe"></i> {{ $sale->branch->name }}
-                    <div class="pull-right">
-                        <div style="float: left; width: 5px; height: 5px; border: 12px; border-color: black; border-style: solid;">sdf </div>Original
-                        <div style="float: left; width: 2px; height: 2px; border: 2px; border-color: black;"> </div>Duplicate
-                        <div style="float: left; width: 2px; height: 2px; border: 2px; border-color: black;"> </div>Triplicate
-                    </div>
                 </h3>
                 <h4>
                     {{ $sale->branch->address }}
@@ -90,19 +85,19 @@
                             </tr>
                             <tr>
                                 <td>Name</td>
-                                <td>:&emsp;<strong>{{ $sale->transaction->debitAccount->type == 3 ? $sale->transaction->debitAccount->name : '' }}</strong></td>
+                                <td>:&emsp;<strong>{{ $sale->customer_name }}</strong></td>
                             </tr>
                             <tr>
                                 <td>Address</td>
-                                <td>:&emsp;<strong>{{ $sale->transportation->transportation_location }}</strong></td>
+                                <td>:&emsp;<strong>{{ $sale->customer_address }}</strong></td>
                             </tr>
                             <tr>
                                 <td>GSTIN/UIN</td>
-                                <td>:&emsp;<strong></strong></td>
+                                <td>:&emsp;<strong>{{ $sale->customer_gstin }}</strong></td>
                             </tr>
                             <tr>
                                 <td>State & Code</td>
-                                <td>:&emsp;<strong></strong></td>
+                                <td>:&emsp;<strong>Kerala - 32</strong></td>
                             </tr>
                         </thead>
                     </table>
@@ -117,15 +112,15 @@
                             </tr>
                             <tr>
                                 <td>Name</td>
-                                <td>:&emsp;<strong>{{ $sale->transaction->debitAccount->type == 3 ? $sale->transaction->debitAccount->name : '' }}</strong></td>
+                                <td>:&emsp;<strong>{{ $sale->transportation->consignee_name }}</strong></td>
                             </tr>
                             <tr>
                                 <td>Address</td>
-                                <td>:&emsp;<strong>{{ $sale->transportation->transportation_location }}</strong></td>
+                                <td>:&emsp;<strong>{{ !empty($sale->transportation->consignee_name) ? $sale->transportation->consignee_address : '' }}</strong></td>
                             </tr>
                             <tr>
                                 <td>GSTIN/UIN</td>
-                                <td>:&emsp;<strong></strong></td>
+                                <td>:&emsp;<strong>{{ $sale->transportation->consignee_gstin }}</strong></td>
                             </tr>
                             <tr>
                                 <td>State & Code</td>
@@ -202,12 +197,21 @@
                 </div>
             </div>
             <!-- /.col -->
-            <div class="col-xs-6 col-md-6 col-lg-6 pull-right text-center">
-                <p class="text-muted well well-sm no-shadow">
-                    <i>Certify that the particulars given above are true and correct.</i>
-                    <br><br><br>
-                    <p class="text-center">(Authorized Signatory)</p>
-                </p>
+            <div class="row">
+                <div class="col-xs-6 col-md-6 col-lg-6 text-center no-print">
+                    <a>
+                        <button type="button" class="btn btn-lg btn-default" onclick="event.preventDefault(); print();">
+                            <i class="fa fa-print"></i> Print Invoice
+                        </button>
+                    </a>
+                </div>
+                <div class="col-xs-6 col-md-6 col-lg-6 pull-right text-center">
+                    <p class="text-muted well well-sm no-shadow">
+                        <i>Certify that the particulars given above are true and correct.</i>
+                        <br><br><br>
+                        <p class="text-center">(Authorized Signatory)</p>
+                    </p>
+                </div>
             </div>
         </div>
         <!-- /.row -->

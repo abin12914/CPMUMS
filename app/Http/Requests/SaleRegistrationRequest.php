@@ -7,6 +7,7 @@ use Illuminate\Validation\Rule;
 use App\Models\Account;
 use App\Models\Branch;
 use App\Models\Product;
+use App\Models\Employee;
 
 class SaleRegistrationRequest extends FormRequest
 {
@@ -36,36 +37,59 @@ class SaleRegistrationRequest extends FormRequest
                                                 'required',
                                                 'date_format:d-m-Y',
                                             ],
-            'transportation_location'   =>  [
+            'customer_account_id'       =>  [
                                                 'required',
-                                                'min:4',
+                                                Rule::in(array_merge(['-1'], Account::pluck('id')->toArray())),
+                                            ],
+            'customer_name'             =>  [
+                                                'required',
+                                                'string',
+                                                'min:3',
                                                 'max:100',
                                             ],
-            'transportation_charge'     =>  [
+            'customer_phone'            =>  [
+                                                'required_if:customer_account_id,-1',
+                                                'nullable',
+                                                'string',
+                                                'min:10',
+                                                'max:13',
+                                            ],
+            'customer_address'          =>  [
+                                                'required',
+                                                'string',
+                                                'min:5',
+                                                'max:200',
+                                            ],
+            'customer_gstin'            =>  [
+                                                'nullable',
+                                                'string',
+                                                'size:15',
+                                            ],
+            'consignee_name'            =>  [
+                                                'nullable',
+                                                'string',
+                                                'min:3',
+                                                'max:100',
+                                            ],
+            'consignee_address'         =>  [
+                                                'required',
+                                                'string',
+                                                'min:5',
+                                                'max:200',
+                                            ],
+            'consignee_gstin'           =>  [
+                                                'nullable',
+                                                'string',
+                                                'size:15',
+                                            ],
+            'consignment_charge'        =>  [
                                                 'required',
                                                 'min:0',
                                                 'max:9999',
                                             ],
-            'sale_type'                 =>  [
+            'loading_employee_id'       =>  [
                                                 'required',
-                                                Rule::in([1,2])
-                                            ],
-            'customer_account_id'       =>  [
-                                                'required_if:sale_type,1',
-                                                'nullable',
-                                                Rule::in(Account::pluck('id')->toArray()),
-                                            ],
-            'name'                      =>  [
-                                                'required_if:sale_type,2',
-                                                'nullable',
-                                                'min:4',
-                                                'max:100'
-                                            ],
-            'phone'                     =>  [
-                                                'required_if:sale_type,2',
-                                                'nullable',
-                                                'integer',
-                                                'digits_between:10,12'
+                                                Rule::in(Employee::pluck('id')->toArray()),
                                             ],
             'product_id'                =>  [
                                                 'required',

@@ -120,10 +120,19 @@
                                                 <p>&nbsp&nbsp&nbsp</p>
                                         </div>
                                         <div class="form-group">
+                                            <label for="gstin" class="col-md-3 control-label">GSTIN : </label>
+                                            <div class="col-md-9">
+                                                <input type="text" name="gstin" class="form-control" id="gstin" placeholder="GSTIN [Not mandatory but prefered]" value="{{ old('gstin') }}" tabindex="8" minlength="15" maxlength="15">
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'gstin'])
+                                                @endcomponent
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="financial_status" class="col-md-3 control-label"><b style="color: red;">* </b> Financial Status : </label>
                                             <div class="col-md-9">
                                                 {{-- adding financial_status select component --}}
-                                                @component('components.selects.financial_status', ['tabindex' => 8])
+                                                @component('components.selects.financial_status', ['tabindex' => 9])
                                                 @endcomponent
                                                 {{-- adding error_message p tag component --}}
                                                 @component('components.paragraph.error_message', ['fieldName' => 'financial_status'])
@@ -134,7 +143,7 @@
                                             <label for="opening_balance" class="col-md-3 control-label"><b style="color: red;">* </b> Opening Balance : </label>
                                             <div class="col-md-9">
                                                 {{-- adding opening_balance text component --}}
-                                                @component('components.texts.opening_balance', ['tabindex' => 9])
+                                                @component('components.texts.opening_balance', ['tabindex' => 10])
                                                 @endcomponent
                                                 {{-- adding error_message p tag component --}}
                                                 @component('components.paragraph.error_message', ['fieldName' => 'opening_balance'])
@@ -147,7 +156,7 @@
                                 <div class="row">
                                     <div class="col-md-3"></div>
                                     <div class="col-md-3">
-                                        <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="11">Clear</button>
+                                        <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="12">Clear</button>
                                     </div>
                                     <div class="col-md-3">
                                         <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="11">Submit</button>

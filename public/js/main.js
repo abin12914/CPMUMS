@@ -183,54 +183,6 @@ $(function () {
             }
         })
     });
-
-    // right sidebar menu track certificate click event
-    $('body').on("change", "#rsb_track_certificate", function () {
-        var value = $(this).is(':checked') ? 1 : 0;
-
-        if(value == 1 || value == 0) {
-            $.ajax({
-                url: "/settings/1",
-                method: "post",
-                data:{
-                    '_method' : 'PATCH',
-                    'track_certificate' : value,
-                    'settings_flag' : 1,
-                },
-                success: function(result) {
-                    if(result && result.flag) {
-                        console.log("settings/track certificate : Success");
-                    }
-                },
-                error: function(error) {
-                    console.log("settings/track certificate : Error");
-                }
-            });
-        }
-    });
-
-    // right sidebar menu track certificate click event
-    $('body').on("change", "#rsb_default_date", function () {
-        var value = $(this).val();
-
-        $.ajax({
-            url: "/settings/1",
-            method: "post",
-            data:{
-                '_method' : 'PATCH',
-                'default_date' : value,
-                'settings_flag' : 2,
-            },
-            success: function(result) {
-                if(result && result.flag) {
-                    console.log("settings/default date : Success");
-                }
-            },
-            error: function(error) {
-                console.log("settings/default date : Error");
-            }
-        });
-    });
 });
 
 //method for initializing select2

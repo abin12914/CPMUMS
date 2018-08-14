@@ -48,6 +48,14 @@ class Transportation extends Model
     }
 
     /**
+     * Get the transaction details associated with the loading charge.
+     */
+    public function LoadingChargetransaction()
+    {
+        return $this->belongsTo('App\Models\Transaction','loading_charge_transaction_id');
+    }
+
+    /**
      * Get the branch details associated with the purchase
      */
     public function sale()

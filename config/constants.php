@@ -24,7 +24,7 @@ return [
     'employeeWageTypes' => [
         1 => 'Per Month',
         2 => 'Per Day',
-        3 => 'Per Piece',
+        3 => 'Per Mould',
     ],
 
     'transactionRelations' => [
@@ -159,17 +159,17 @@ return [
             'status'            => 1,
         ],
 
-        'Temp1' => [
+        'LoadingChargeAccount' => [
             'id'                => 9,
-            'account_name'      => 'Temp1', //account id : 9
-            'description'       => 'Temporary account 1',
+            'account_name'      => 'LoadingChargeAccount', //account id : 9
+            'description'       => 'Loading charge account',
             'type'              => 2, //nominal account
             'relation'          => 0, //nominal
             'financial_status'  => 0, //none
             'opening_balance'   => 0,
-            'name'              => 'Temporary account 1',
+            'name'              => 'Loading charge account',
             'phone'             => '0000000009',
-            'status'            => 0,
+            'status'            => 1,
         ],
 
         'Temp2' => [

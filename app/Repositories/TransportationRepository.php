@@ -68,10 +68,13 @@ class TransportationRepository
             if(empty($transportation)) {
                 $transportation = new Transportation;
             }
-            $transportation->transaction_id             = $inputArray['transaction_id'];
-            $transportation->sale_id                    = $inputArray['sale_id'];
-            $transportation->transportation_location    = $inputArray['transportation_location'];
-            $transportation->transportation_charge      = $inputArray['transportation_charge'];
+            $transportation->transaction_id                 = $inputArray['transaction_id'];
+            $transportation->sale_id                        = $inputArray['sale_id'];
+            $transportation->consignee_name                 = $inputArray['consignee_name'];
+            $transportation->consignee_gstin                = $inputArray['consignee_gstin'];
+            $transportation->consignee_address              = $inputArray['consignee_address'];
+            $transportation->consignment_charge             = $inputArray['consignment_charge'];
+            $transportation->loading_charge_transaction_id  = $inputArray['loading_charge_transaction_id'];
             $transportation->status                     = 1;
             //transportation save
             $transportation->save();
@@ -82,7 +85,7 @@ class TransportationRepository
                 $this->errorCode = $e->getCode();
             } else {
                 $this->errorCode = $this->repositoryCode + 2;
-            }
+            }dd($e);
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

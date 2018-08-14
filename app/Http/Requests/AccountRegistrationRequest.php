@@ -69,6 +69,11 @@ class AccountRegistrationRequest extends FormRequest
                                             'required',
                                             Rule::in(array_keys($relationTypes)),
                                         ],
+            'gstin'                 =>  [
+                                            'nullable',
+                                            'string',
+                                            'size:15',
+                                        ]
         ];
     }
 }

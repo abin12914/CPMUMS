@@ -70,6 +70,10 @@ class SaleRepository
             }
             $sale->transaction_id   = $inputArray['transaction_id'];
             $sale->date             = $inputArray['date'];
+            $sale->customer_name    = $inputArray['customer_name'];
+            $sale->customer_phone   = $inputArray['customer_phone'];
+            $sale->customer_address = $inputArray['customer_address'];
+            $sale->customer_gstin   = $inputArray['customer_gstin'];
             $sale->discount         = $inputArray['discount'];
             $sale->total_amount     = $inputArray['total_amount'];
             $sale->branch_id        = $inputArray['branch_id'];

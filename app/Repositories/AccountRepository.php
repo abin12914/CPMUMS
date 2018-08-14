@@ -79,6 +79,7 @@ class AccountRepository
             $account->phone             = $inputArray['phone'];
             $account->address           = $inputArray['address'];
             $account->image             = $inputArray['image'];
+            $account->gstin             = $inputArray['gstin'];
             $account->status            = $inputArray['status'];
             //account save
             $account->save();
@@ -90,7 +91,7 @@ class AccountRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 2;
             }
-dd($e);            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

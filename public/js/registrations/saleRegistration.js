@@ -1,16 +1,64 @@
 $(function () {
     siblingsHandling();
-    //purchase quantity event actions
-    $('body').on("change", ".sale_type", function (evt) {
-        if($(this).val() == 1) {
-            //account sale
-            $('#customer_with_account_div').show();
-            $('#customer_with_out_account_div').hide();
-        } else {
+    var ajaxAccountDetailUrl = '/ajax/account/details/';
 
-            //non account sale
-            $('#customer_with_out_account_div').show();
-            $('#customer_with_account_div').hide();
+    //purchase quantity event actions
+    $('body').on("change", "#customer_account_id", function (evt) {
+        var customerAccountId   = $(this).val();
+
+        if(customerAccountId && customerAccountId != -1) {
+            var selectedOption = $(this).find(':selected');
+            
+            $.ajax({
+                url: ajaxAccountDetailUrl + customerAccountId,
+                method: "get",
+                data: {},
+                success: function(result) {
+                    
+                    if(result && result.flag) {
+                        var account = result.account;
+                        if(account.type == 3) {
+                            $('#customer_name').val(account.name);
+                            $('#customer_phone').val(account.phone);
+                            $('#customer_address').val(account.address);
+                            $('#customer_gstin').val(account.gstin);
+                        }
+                    } else {
+                        $('#customer_name').val('');
+                        $('#customer_phone').val('');
+                        $('#customer_address').val('');
+                        $('#customer_gstin').val('');
+                    }
+                },
+                error: function (err) {
+                    $('#customer_name').val('');
+                    $('#customer_phone').val('');
+                    $('#customer_address').val('');
+                    $('#customer_gstin').val('');
+                }
+            });
+        } else {
+            $('#customer_name').val('');
+            $('#customer_phone').val('');
+            $('#customer_address').val('');
+            $('#customer_gstin').val('');
+        }
+    });
+
+    //
+    $('body').on("keyup", "#customer_phone", function (evt) {
+        var input       = $(this).val();
+        var accountId   = $('#customer_account_id').val();
+
+        if(input.length > 9 && accountId != -1) {
+            accountId = $('#customer_account_id').find(`[data-phone='${input}']`).val();
+            if(accountId && accountId > 0) {
+                if(confirm("Found an account related with the entered phone number. Do you want to change the 'Sale To' field?")) {
+                    $('#customer_account_id').val(accountId);
+                    $('#customer_account_id').trigger('change');
+                    $('#customer_address').focus();
+                }
+            }
         }
     });
 

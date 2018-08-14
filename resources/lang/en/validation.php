@@ -135,6 +135,8 @@ return [
         'purchase_discount'             => 'discount',
         'customer_account_id'           => 'customer',
         'voucher_account_id'            => 'account',
+        'loading_employee_id'           => 'loading employee',
+        'consignee_address'             => 'consignment address'
     ],
 
 ];

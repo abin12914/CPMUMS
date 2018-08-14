@@ -150,4 +150,77 @@ class ReportController extends Controller
             'obCredit'              => $obCredit
         ]);
     }
+
+    public function creditList()
+    {
+        $creditAmount       = [];
+        $debitAmount        = [];
+        $accounts           = [];
+        $totalCredit        = 0;
+        $totalDebit         = 0;
+
+        $accountRelation    = $request->get('relation');
+
+        if(!empty($accountRelation)) {
+            $accounts = Account::where('type', 3)->get();
+
+            if(empty($accounts)) {
+                session()->flash('fixed-message', 'No accounts available to show!');
+                return view('reposrts.credit-list');
+            }
+
+            $debitQuery = Transaction::whereHas('debitAccount', function ($qry) use($accountRelation) {
+                        $qry->where('type', 'personal')->Where('relation', $accountRelation);
+                    })->where('status', '1');
+
+            $creditQuery = Transaction::whereHas('creditAccount', function ($qry) use($accountRelation) {
+                        $qry->where('type', 'personal')->Where('relation', $accountRelation);
+                    })->where('status', '1');
+
+
+            $debitTransactions = $debitQuery->orderBy('id','desc')->get();
+
+            $creditTransactions = $creditQuery->orderBy('id','desc')->get();
+
+            foreach ($debitTransactions as $key => $transaction) {
+                if(empty($debitAmount[$transaction->debit_account_id])) {
+                    $debitAmount[$transaction->debit_account_id] = 0;
+                }
+                    
+                $debitAmount[$transaction->debit_account_id] = $debitAmount[$transaction->debit_account_id] + $transaction->amount;
+            }
+
+            foreach ($creditTransactions as $key => $transaction) {
+                if(empty($creditAmount[$transaction->credit_account_id])) {
+                    $creditAmount[$transaction->credit_account_id] = 0;
+                }
+                
+                $creditAmount[$transaction->credit_account_id] = $creditAmount[$transaction->credit_account_id] + $transaction->amount;
+            }
+
+            foreach ($accounts as $key => $account) {
+                if(empty($debitAmount[$account->id])) {
+                    $debitAmount[$account->id] = 0;
+                }
+                if(empty($creditAmount[$account->id])) {
+                    $creditAmount[$account->id] = 0;
+                }
+
+                if($debitAmount[$account->id] > $creditAmount[$account->id]) {
+                    $totalDebit = $totalDebit + ($debitAmount[$account->id] - $creditAmount[$account->id]);
+                } else {
+                    $totalCredit = $totalCredit + ($creditAmount[$account->id] - $debitAmount[$account->id]);
+                }
+            }
+        }
+
+        return view('reposrts.credit-list',[
+                'accounts'          => $accounts,
+                'creditAmount'      => $creditAmount,
+                'debitAmount'       => $debitAmount,
+                'relation'          => $accountRelation,
+                'totalCreditAmount' => $totalCredit,
+                'totalDebitAmount'  => $totalDebit
+            ]);
+    }
 }

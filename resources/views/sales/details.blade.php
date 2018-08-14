@@ -57,7 +57,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-user-o margin-r-5"></i> Customer
+                                                <i class="fa fa-user-o margin-r-5"></i> Sale Account
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 {{ $sale->transaction->debitAccount->account_name }}
@@ -77,19 +77,39 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-gear margin-r-5"></i> Transportation Location
+                                                <i class="fa fa-edit margin-r-5"></i> Billing Name
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ $sale->transportation->transportation_location or 'No transportation' }}
+                                                {{ $sale->customer_name }}
                                             </p>
                                             <hr>
                                         </div>
                                         <div class="col-md-6">
                                             <strong>
-                                                <i class="fa fa-inr margin-r-5"></i> Transportation Charge
+                                                <i class="fa fa-map-marker margin-r-5"></i> Consignment Location
                                             </strong>
                                             <p class="text-muted multi-line">
-                                                {{ $sale->transportation->transportation_charge or 'No transportation charge' }}
+                                                {{ $sale->transportation->consignee_address or 'No Consignment' }}
+                                            </p>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>
+                                                <i class="fa fa-inr margin-r-5"></i> Consignment Charge
+                                            </strong>
+                                            <p class="text-muted multi-line">
+                                                {{ $sale->transportation->consignment_charge or 'No Consignment charge' }}
+                                            </p>
+                                            <hr>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>
+                                                <i class="fa fa-inr margin-r-5"></i>  Total Bill
+                                            </strong>
+                                            <p class="text-muted multi-line">
+                                                {{ $sale->total_amount or 'error' }}
                                             </p>
                                             <hr>
                                         </div>

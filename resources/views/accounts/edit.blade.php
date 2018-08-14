@@ -122,6 +122,15 @@
                                                     <p>&nbsp&nbsp&nbsp</p>
                                             </div>
                                             <div class="form-group">
+                                                <label for="gstin" class="col-md-3 control-label">GSTIN : </label>
+                                                <div class="col-md-9">
+                                                    <input type="text" name="gstin" class="form-control" id="gstin" placeholder="GSTIN [Not mandatory but prefered]" value="{{ old('gstin') }}" tabindex="8" minlength="15" maxlength="15">
+                                                    {{-- adding error_message p tag component --}}
+                                                    @component('components.paragraph.error_message', ['fieldName' => 'gstin'])
+                                                    @endcomponent
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
                                                 <label for="financial_status" class="col-md-3 control-label"><b style="color: red;">* </b> Financial Status : </label>
                                                 <div class="col-md-9">
                                                     <select class="form-control select2" name="financial_status" id="financial_status" tabindex="8" style="width: 100%;">

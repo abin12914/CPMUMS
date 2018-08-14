@@ -59,11 +59,12 @@ class ProductController extends Controller
         DB::beginTransaction();
         try {
             $response   = $this->productRepo->saveProduct([
-                'name'          => $request->get('product_name'),
-                'hsn_code'      => $request->get('hsn_code'),
-                'uom_code'      => strtoupper($request->get('uom_code')),
-                'description'   => $request->get('description'),
-                'rate'          => $request->get('rate'),
+                'name'                      => $request->get('product_name'),
+                'hsn_code'                  => $request->get('hsn_code'),
+                'uom_code'                  => strtoupper($request->get('uom_code')),
+                'description'               => $request->get('description'),
+                'rate'                      => $request->get('rate'),
+                'loading_charge_per_piece'  => $request->get('loading_charge_per_piece'),
             ]);
 
             if(!$response['flag']) {
@@ -135,11 +136,12 @@ class ProductController extends Controller
             $product = $this->productRepo->getProduct($id);
 
             $response = $this->productRepo->saveProduct([
-                'name'          => $request->get('product_name'),
-                'hsn_code'      => $request->get('hsn_code'),
-                'uom_code'      => strtoupper($request->get('uom_code')),
-                'description'   => $request->get('description'),
-                'rate'          => $request->get('rate'),
+                'name'                      => $request->get('product_name'),
+                'hsn_code'                  => $request->get('hsn_code'),
+                'uom_code'                  => strtoupper($request->get('uom_code')),
+                'description'               => $request->get('description'),
+                'rate'                      => $request->get('rate'),
+                'loading_charge_per_piece'  => $request->get('loading_charge_per_piece'),
             ], $product);
 
             if(!$response['flag']) {

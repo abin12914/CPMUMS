@@ -62,5 +62,7 @@ class Kernel extends HttpKernel
         'auth.check' => \App\Http\Middleware\AuthCheck::class,
         //User role check
         'user.role' => \App\Http\Middleware\CheckUserRole::class,
+        //check whether the request is from ajax or not
+        'is.ajax' => \App\Http\Middleware\IsAjax::class,
     ];
 }

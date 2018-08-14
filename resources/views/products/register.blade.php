@@ -81,16 +81,25 @@
                                                 @endcomponent
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="loading_charge_per_piece" class="col-md-3 control-label"><b style="color: red;">* </b> Loading Charge/Piece : </label>
+                                            <div class="col-md-9">
+                                                <input type="text" name="loading_charge_per_piece" class="form-control" id="loading_charge_per_piece" placeholder="Loading Charge Per Piece" value="{{ old('loading_charge_per_piece') }}" tabindex="6" maxlength="4">
+                                                {{-- adding error_message p tag component --}}
+                                                @component('components.paragraph.error_message', ['fieldName' => 'loading_charge_per_piece'])
+                                                @endcomponent
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="clearfix"> </div><br>
                                 <div class="row">
                                     <div class="col-md-3"></div>
                                     <div class="col-md-3">
-                                        <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="7">Clear</button>
+                                        <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="8">Clear</button>
                                     </div>
                                     <div class="col-md-3">
-                                        <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="6">Submit</button>
+                                        <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="7">Submit</button>
                                     </div>
                                     <!-- /.col -->
                                 </div><br>

@@ -18,7 +18,7 @@ class ProductRepository
     /**
      * Return products.
      */
-    public function getProducts($params=[], $noOfRecords=null)
+    public function getProducts($params=[], $noOfRecords=null, $inParams=[])
     {
         $products = [];
 
@@ -29,6 +29,10 @@ class ProductRepository
                 if(!empty($param) && !empty($param['paramValue'])) {
                     $products = $products->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
                 }
+            }
+
+            if(!empty($inParams)) {
+                $products = $products->whereIn($inParams['paramName'], $inParams['paramValue']);
             }
 
             if(!empty($noOfRecords) && $noOfRecords > 0) {
@@ -60,11 +64,12 @@ class ProductRepository
             if(empty($product)) {
                 $product = new Product;
             }
-            $product->name          = $inputArray['name'];
-            $product->hsn_code      = $inputArray['hsn_code'];
-            $product->uom_code      = $inputArray['uom_code'];
-            $product->description   = $inputArray['description'];
-            $product->rate          = $inputArray['rate'];
+            $product->name                      = $inputArray['name'];
+            $product->hsn_code                  = $inputArray['hsn_code'];
+            $product->uom_code                  = $inputArray['uom_code'];
+            $product->description               = $inputArray['description'];
+            $product->rate                      = $inputArray['rate'];
+            $product->loading_charge_per_piece  = $inputArray['loading_charge_per_piece'];
             $product->status        = 1;
             //product save
             $product->save();
