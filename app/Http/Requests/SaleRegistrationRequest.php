@@ -148,6 +148,10 @@ class SaleRegistrationRequest extends FormRequest
                                                 'max:99999',
                                                 'min:1'
                                             ],
+            'tax_invoice__flag'         =>  [
+                                                'nullable',
+                                                'boolean'
+                                            ],
         ];
     }
 

@@ -105,17 +105,17 @@
                                                             @endcomponent
                                                         </div>
                                                     </div>
-                                                    {{-- <div class="row">
+                                                    <div class="row">
                                                         <div class="col-md-12">
-                                                            <label class="control-label">Same Billing & Consignee Address : </label>
+                                                            <label class="control-label">Add to Tax Invoice : </label>
                                                             <div class="input-group">
                                                                 <span class="input-group-addon">
-                                                                    <input type="checkbox" name="status_flag" id="status_flag" value="true" tabindex="3">
+                                                                    <input type="checkbox" name="tax_invoice_flag" id="tax_invoice_flag" value="1" tabindex="3" {{ !empty(old('tax_invoice_flag')) ? 'checked' : '' }}>
                                                                 </span>
-                                                                <label for="status_flag" class="form-control">Copy To Consignee Details</label>
+                                                                <label for="tax_invoice_flag" class="form-control">Tax Invoice</label>
                                                             </div>
                                                         </div>
-                                                    </div> --}}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -264,7 +264,7 @@
                                         <button type="reset" class="btn btn-default btn-block btn-flat" tabindex="15">Clear</button>
                                     </div>
                                     <div class="col-md-3">
-                                        <button type="submit" class="btn btn-primary btn-block btn-flat submit-button" tabindex="14">Submit</button>
+                                        <button type="button" id="sale_submit_button" class="btn btn-primary btn-block btn-flat" tabindex="14">Submit</button>
                                     </div>
                                     <!-- /.col -->
                                 </div><br>

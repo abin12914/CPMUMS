@@ -63,6 +63,7 @@ Route::group(['middleware' => 'auth.check'], function () {
         //ajax urls
         Route::group(['middleware' => 'is.ajax'], function () {
             Route::get('/ajax/account/details/{id}', 'AccountController@getDetails')->name('ajax.account.details');
+            Route::get('/ajax/last/sale', 'SaleController@getLastSale')->name('ajax.lastsale.bybranch');
         });
     });
 });

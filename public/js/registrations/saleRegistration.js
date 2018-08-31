@@ -1,8 +1,74 @@
 $(function () {
     siblingsHandling();
-    var ajaxAccountDetailUrl = '/ajax/account/details/';
+    var ajaxAccountDetailUrl    = '/ajax/account/details/';
+    var ajaxOldSaleByBranchUrl  = '/ajax/last/sale'
 
-    //purchase quantity event actions
+    //customer details
+    $('body').on("change", "#branch_id", function (evt) {
+        var branchId = $(this).val();
+
+        if(branchId) {
+            $.ajax({
+                url: ajaxOldSaleByBranchUrl,
+                method: "get",
+                data: {
+                    paramName : 'branch_id',
+                    paramValue : branchId,
+                },
+                success: function(result) {
+                    
+                    if(result && result.flag) {
+                        var employeeId = result.sale.loadingEmployeeId;
+                        console.log(employeeId);
+                        $('#loading_employee_id').val(employeeId);
+                        $('#loading_employee_id').trigger("change");
+                    } else {
+                        $('#loading_employee_id').val('');
+                        $('#loading_employee_id').trigger("change");
+                    }
+                },
+                error: function (err) {
+                    $('#loading_employee_id').val('');
+                    $('#loading_employee_id').trigger("change");
+                }
+            });
+        } else {
+            $('#loading_employee_id').val('');
+            $('#loading_employee_id').trigger("change");
+        }
+    });
+
+    $('body').on("click", "#sale_submit_button", function (evt) {
+        evt.preventDefault();
+        var taxFlag         = false;
+        var cutomTitle      = 'Are you sure about the tax option?';
+        var customButton    = 'Yes, Save it!';
+
+
+        taxFlag = $('#tax_invoice_flag').is(':checked');
+
+        if(taxFlag) {
+            cutomTitle      = 'Are you sure to save this sale as Tax Invoice ?';
+        } else {
+            customButton    = 'Yes, Save without Tax Invoice';
+        }
+        swal({
+          title: cutomTitle,
+          type: 'warning',
+          showCancelButton: true,
+          focusCancel : true,
+          confirmButtonColor: '#d33',
+          confirmButtonText: customButton
+        }).then((result) => {
+          if (result.value) {
+            $(this).attr('disabled', true);
+            //submit delete form on confirmation
+            $(this).parents('form:first').submit();
+          }
+        })
+    });
+
+    //customer details
     $('body').on("change", "#customer_account_id", function (evt) {
         var customerAccountId   = $(this).val();
 

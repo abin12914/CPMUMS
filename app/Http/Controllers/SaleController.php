@@ -218,6 +218,7 @@ class SaleController extends Controller
             $saleResponse = $this->saleRepo->saveSale([
                 'transaction_id'    => $transactionResponse['id'],
                 'date'              => $transactionDate,
+                'tax_invoice_flag'  => $request->get('tax_invoice_flag'),
                 'customer_name'     => $customerName,
                 'customer_phone'    => $customerPhone,
                 'customer_address'  => $customerAddress,
@@ -589,5 +590,56 @@ class SaleController extends Controller
         return view('sales.invoice', [
             'sale' => $sale,
         ]);
+    }
+
+    /**
+     * return the specified resource.
+     *
+     * @return json
+     */
+    public function getLastSale(Request $request, EmployeeRepository $employeeRepo)
+    {
+        $paramName  = $request->get('paramName');
+        $paramValue = $request->get('paramValue');
+
+        $errorCode  = 0;
+        $sale       = null;
+        $employee   = null;
+
+        $params = [
+            $paramName =>  [
+                'paramName'     => $paramName,
+                'paramOperator' => '=',
+                'paramValue'    => $paramValue,
+            ],
+        ];
+
+        try {
+            $sales = $this->saleRepo->getSales($params, [], null);
+
+            $lastSale = $sales->sortByDesc('id')->first();
+
+            $employeeParams = [
+                'account_id' => $lastSale->transportation->LoadingChargetransaction->credit_account_id,
+            ];
+            $employee = $employeeRepo->getEmployees($employeeParams, null);
+        } catch (\Exception $e) {
+            if($e->getMessage() == "CustomError") {
+                $errorCode = $e->getCode();
+            } else {
+                $errorCode = 7;
+            }
+            return [
+                'flag'      => false,
+                'message'   => "Record not found".$errorCode,
+            ];
+        }
+
+        return [
+            'flag'  => true,
+            'sale'  => [
+                'loadingEmployeeId' => $employee->first()->id,
+            ],
+        ];
     }
 }

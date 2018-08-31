@@ -122,7 +122,7 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 15%;">Date</th>
+                                            <th style="width: 15%;">Date & Invoice No.</th>
                                             <th style="width: 20%;">Branch</th>
                                             <th style="width: 25%;">Customer</th>
                                             <th style="width: 10%;">No Of Products</th>
@@ -136,7 +136,7 @@
                                             @foreach($saleRecords as $index => $saleRecord)
                                                 <tr>
                                                     <td>{{ $index + $saleRecords->firstItem() }}</td>
-                                                    <td>{{ $saleRecord->date->format('d-m-Y') }}</td>
+                                                    <td>{{ $saleRecord->date->format('d-m-Y') }} {{ !empty($saleRecord->tax_invoice_number) ? ('/'. $saleRecord->tax_invoice_number) : '' }}</td>
                                                     <td>{{ $saleRecord->branch->name }}</td>
                                                     <td>
                                                         {{ $saleRecord->transaction->debitAccount->account_name }}
@@ -152,9 +152,15 @@
                                                         </a>
                                                     </td>
                                                     <td class="no-print">
-                                                        <a href="{{ route('sale.invoice', ['id' => $saleRecord->id]) }}">
-                                                            <button type="button" class="btn btn-default"><i class="fa fa-print"></i> Invoice</button>
-                                                        </a>
+                                                        @if(!empty($saleRecord->tax_invoice_number) && $saleRecord->tax_invoice_number > 0)
+                                                            <a href="{{ route('sale.invoice', ['id' => $saleRecord->id]) }}">
+                                                                <button type="button" class="btn btn-default"><i class="fa fa-print"></i> Invoice</button>
+                                                            </a>
+                                                        @else
+                                                            <a>
+                                                                <button type="button" class="btn btn-default btn-block btn-flat" disabled>Non Tax Sale</button>
+                                                            </a>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach

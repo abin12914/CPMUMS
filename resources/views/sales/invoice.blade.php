@@ -48,7 +48,15 @@
                         <thead>
                             <tr>
                                 <td style="width: 40%;">Serial Number</td>
-                                <td style="width: 60%;">:&emsp;<strong>{{ $sale->id }}</strong></td>
+                                <td style="width: 60%;">:&emsp;
+                                    <strong>
+                                        @if(!empty($sale->tax_invoice_number) && $sale->tax_invoice_number != 0)
+                                            {{ $sale->tax_invoice_number }}
+                                        @else
+                                            Canceled !!
+                                        @endif
+                                    </strong>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Date of Issue</td>

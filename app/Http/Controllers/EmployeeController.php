@@ -131,6 +131,7 @@ class EmployeeController extends Controller
                 'name'              => $name,
                 'phone'             => $request->get('phone'),
                 'address'           => $request->get('address'),
+                'gstin'             => null,
                 'image'             => $fileName,
                 'status'            => 1,
             ], $employeeAccount);

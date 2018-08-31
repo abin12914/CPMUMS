@@ -173,9 +173,15 @@
                                         <div class="col-md-3"></div>
                                         <div class="col-md-6">
                                             <div class="col-md-4">
-                                                <a href="{{ route('sale.invoice', ['id' => $sale->id]) }}" target="_blank">
-                                                    <button type="button" class="btn btn-default btn-block btn-flat"><i class="fa fa-print"></i> Invoice</button>
-                                                </a>
+                                                @if(!empty($saleRecord->tax_invoice_number) && $saleRecord->tax_invoice_number > 0)
+                                                    <a href="{{ route('sale.invoice', ['id' => $sale->id]) }}" target="_blank">
+                                                        <button type="button" class="btn btn-default btn-block btn-flat"><i class="fa fa-print"></i> Invoice</button>
+                                                    </a>
+                                                @else
+                                                    <a>
+                                                        <button type="button" class="btn btn-default btn-block btn-flat" disabled>Non Tax Sale</button>
+                                                    </a>
+                                                @endif
                                             </div>
                                             <div class="col-md-4">
                                                 <form action="{{ route('sale.edit', $sale->id) }}" method="get" class="form-horizontal">
