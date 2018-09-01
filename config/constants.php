@@ -161,7 +161,7 @@ return [
 
         'LoadingChargeAccount' => [
             'id'                => 9,
-            'account_name'      => 'LoadingChargeAccount', //account id : 9
+            'account_name'      => 'Loading Charge Account', //account id : 9
             'description'       => 'Loading charge account',
             'type'              => 2, //nominal account
             'relation'          => 0, //nominal
