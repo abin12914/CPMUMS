@@ -142,15 +142,28 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label for="consignee_address" class="control-label"><b style="color: red;">* </b> Consignment Address : </label>
-                                                    @if(!empty(old('consignee_address')))
-                                                        <textarea  class="form-control" name="consignee_address" id="consignee_address" placeholder="Consignment Location" tabindex="3" rows="4" style="resize: none;">{{ old('consignee_address') }}</textarea>
-                                                    @else
-                                                        <textarea  class="form-control" name="consignee_address" id="consignee_address" placeholder="Consignment Location" tabindex="3" rows="4" style="resize: none;"></textarea>
-                                                    @endif
-                                                    {{-- adding error_message p tag component --}}
-                                                    @component('components.paragraph.error_message', ['fieldName' => 'consignee_address'])
-                                                    @endcomponent
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="consignee_address" class="control-label"><b style="color: red;">* </b> Consignment Address : </label>
+                                                            @if(!empty(old('consignee_address')))
+                                                                <textarea  class="form-control" name="consignee_address" id="consignee_address" placeholder="Consignment Location" tabindex="3" rows="1" style="resize: none;">{{ old('consignee_address') }}</textarea>
+                                                            @else
+                                                                <textarea  class="form-control" name="consignee_address" id="consignee_address" placeholder="Consignment Location" tabindex="3" rows="1" style="resize: none;"></textarea>
+                                                            @endif
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'consignee_address'])
+                                                            @endcomponent
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <label for="consignment_vehicle_number" class="control-label"><b style="color: red;">* </b> Consignment Vehicle Number : </label>
+                                                            <input type="text" class="form-control" name="consignment_vehicle_number" id="consignment_vehicle_number" placeholder="eg: KL-63 AA-1234" value="{{ old('consignment_vehicle_number') }}" tabindex="4" maxlength="15" minlength="5">
+                                                            {{-- adding error_message p tag component --}}
+                                                            @component('components.paragraph.error_message', ['fieldName' => 'consignment_vehicle_number'])
+                                                            @endcomponent
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="row">

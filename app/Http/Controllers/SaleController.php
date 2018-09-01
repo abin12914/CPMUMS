@@ -268,6 +268,7 @@ class SaleController extends Controller
                 'consignee_name'                => $request->get('consignee_name'),
                 'consignee_gstin'               => $request->get('consignee_gstin'),
                 'consignee_address'             => $consignmentLocation,
+                'consignment_vehicle_number'    => $request->get('consignment_vehicle_number'),
                 'consignment_charge'            => $consignmentCharge,
                 'loading_charge_transaction_id' => $loadingChargeTransactionResponse['id'],
             ]);
@@ -577,11 +578,15 @@ class SaleController extends Controller
 
         try {
             $sale = $this->saleRepo->getSale($id);
+            if(empty($sale->tax_invoice_number)) {
+                throw new AppCustomException("CustomError", 6);
+                
+            }
         } catch (\Exception $e) {
             if($e->getMessage() == "CustomError") {
                 $errorCode = $e->getCode();
             } else {
-                $errorCode = 6;
+                $errorCode = 7;
             }
             //throwing methodnotfound exception when no model is fetched
             throw new ModelNotFoundException("Sale", $errorCode);
@@ -627,7 +632,7 @@ class SaleController extends Controller
             if($e->getMessage() == "CustomError") {
                 $errorCode = $e->getCode();
             } else {
-                $errorCode = 7;
+                $errorCode = 8;
             }
             return [
                 'flag'      => false,

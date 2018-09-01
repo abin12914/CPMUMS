@@ -73,6 +73,7 @@ class TransportationRepository
             $transportation->consignee_name                 = $inputArray['consignee_name'];
             $transportation->consignee_gstin                = $inputArray['consignee_gstin'];
             $transportation->consignee_address              = $inputArray['consignee_address'];
+            $transportation->consignment_vehicle_number     = $inputArray['consignment_vehicle_number'];
             $transportation->consignment_charge             = $inputArray['consignment_charge'];
             $transportation->loading_charge_transaction_id  = $inputArray['loading_charge_transaction_id'];
             $transportation->status                     = 1;

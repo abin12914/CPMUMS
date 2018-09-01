@@ -124,7 +124,7 @@
                             </tr>
                             <tr>
                                 <td>Address</td>
-                                <td>:&emsp;<strong>{{ !empty($sale->transportation->consignee_name) ? $sale->transportation->consignee_address : '' }}</strong></td>
+                                <td>:&emsp;<strong>{{ $sale->transportation->consignee_address }}</strong></td>
                             </tr>
                             <tr>
                                 <td>GSTIN/UIN</td>
