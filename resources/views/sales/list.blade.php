@@ -136,7 +136,11 @@
                                             @foreach($saleRecords as $index => $saleRecord)
                                                 <tr>
                                                     <td>{{ $index + $saleRecords->firstItem() }}</td>
-                                                    <td>{{ $saleRecord->date->format('d-m-Y') }} {{ !empty($saleRecord->tax_invoice_number) ? ('/'. $saleRecord->tax_invoice_number) : '' }}</td>
+                                                    <td>{{ $saleRecord->date->format('d-m-Y') }}
+                                                        @if(!empty($saleRecord->tax_invoice_number))
+                                                            /{{ config('constants.branchInvoiceCode')[$saleRecord->branch_id]. $saleRecord->tax_invoice_number }}
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $saleRecord->branch->name }}</td>
                                                     <td>
                                                         {{ $saleRecord->transaction->debitAccount->account_name }}

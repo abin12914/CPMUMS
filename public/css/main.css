@@ -24,3 +24,12 @@ border-left: none ! important;
 .swal2-popup {
   font-size: 1.6rem !important;
 }
+
+ @media print {
+    /**/
+    .border-top-only-table > tbody > tr > td {
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: none !important;
+    }
+}

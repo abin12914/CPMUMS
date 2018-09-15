@@ -49,7 +49,7 @@ class ProductRegistrationRequest extends FormRequest
                                                 'required',
                                                 'numeric',
                                                 'min:0.1',
-                                                'max:999'
+                                                'max:9999'
                                             ],
             'loading_charge_per_piece'  =>  [
                                                 'required',

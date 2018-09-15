@@ -62,11 +62,11 @@ class SaleRepository
     public function saveSale($inputArray, $sale=null)
     {
         $saveFlag   = false;
-        $count      = 0;
+        $count      = null;
 
         try {
             if(!empty($inputArray['tax_invoice_flag']) && $inputArray['tax_invoice_flag'] == 1) {
-                $count = Sale::whereNotNull('tax_invoice_number')->count();
+                $count = (Sale::whereNotNull('tax_invoice_number')->where('branch_id', $inputArray['branch_id'])->count())+1;
             }
             //sale saving
             if(empty($sale)) {
@@ -74,7 +74,7 @@ class SaleRepository
             }
             $sale->transaction_id       = $inputArray['transaction_id'];
             $sale->date                 = $inputArray['date'];
-            $sale->tax_invoice_number   = $count + 1;
+            $sale->tax_invoice_number   = $count;
             $sale->customer_name        = $inputArray['customer_name'];
             $sale->customer_phone       = $inputArray['customer_phone'];
             $sale->customer_address     = $inputArray['customer_address'];

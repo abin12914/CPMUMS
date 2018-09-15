@@ -41,6 +41,9 @@
                                             </strong>
                                             <p class="text-muted multi-line">
                                                 #{{ $sale->id }}/{{ $sale->transaction->id }}
+                                                @if(!empty($sale->tax_invoice_number))
+                                                    /{{ config('constants.branchInvoiceCode')[$sale->branch_id]. $sale->tax_invoice_number }}
+                                                @endif
                                             </p>
                                             <hr>
                                         </div>
@@ -173,7 +176,7 @@
                                         <div class="col-md-3"></div>
                                         <div class="col-md-6">
                                             <div class="col-md-4">
-                                                @if(!empty($saleRecord->tax_invoice_number) && $saleRecord->tax_invoice_number > 0)
+                                                @if(!empty($sale->tax_invoice_number) && $sale->tax_invoice_number > 0)
                                                     <a href="{{ route('sale.invoice', ['id' => $sale->id]) }}" target="_blank">
                                                         <button type="button" class="btn btn-default btn-block btn-flat"><i class="fa fa-print"></i> Invoice</button>
                                                     </a>

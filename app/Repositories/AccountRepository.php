@@ -79,7 +79,7 @@ class AccountRepository
             $account->phone             = $inputArray['phone'];
             $account->address           = $inputArray['address'];
             $account->image             = $inputArray['image'];
-            $account->gstin             = $inputArray['gstin'];
+            $account->gstin             = !empty($inputArray['gstin']) ?: null;
             $account->status            = $inputArray['status'];
             //account save
             $account->save();
