@@ -2,7 +2,7 @@
     <option value="">Select branch</option>
     @if(!empty($branchesCombo) && (count($branchesCombo) > 0))
         @foreach($branchesCombo as $branch)
-            <option value="{{ $branch->id }}" {{ (old($selectName) == $branch->id || $selectedBranchId == $branch->id) ? 'selected' : '' }}>{{ $branch->name }}</option>
+            <option value="{{ $branch->id }}" {{ (old($selectName) == $branch->id || $selectedBranchId == $branch->id) ? 'selected' : '' }}>{{ $branch->name. " - ". $branch->place }}</option>
         @endforeach
     @endif
 </select>
