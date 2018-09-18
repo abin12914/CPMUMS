@@ -111,10 +111,11 @@ class SaleController extends Controller
         EmployeeRepository $employeeRepo,
         ProductRepository $productRepo
     ) {
-        $saveFlag       = false;
-        $errorCode      = 0;
-        $wageAmount     = 0;
-        $loadingCharge  = 0;
+        $saveFlag           = false;
+        $errorCode          = 0;
+        $wageAmount         = 0;
+        $loadingCharge      = 0;
+        $saleProductDetail  = '';
 
         $saleAccountId                  = config('constants.accountConstants.Sale.id');
         $transportationChargeAccountId  = config('constants.accountConstants.TransportationChargeAccount.id');
@@ -179,16 +180,16 @@ class SaleController extends Controller
                         throw new AppCustomException("CustomError", $accountResponse['errorCode']);
                     }
                     $customerAccountId  = $accountResponse['id'];
-                    $particulars        = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerName. "-". $customerPhone);
+                    $particulars        = ("Sale to ". $customerName. "-". $customerPhone);
                 } else {
                     $customerAccount = $accounts->first();
                     $customerAccountId = $customerAccount->id;
-                    $particulars = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerAccount->account_name. "-". $customerAccount->phone);
+                    $particulars = ("Sale to ". $customerAccount->account_name. "-". $customerAccount->phone);
                 }
             } else {
                 //accessing debit account
                 $customerAccount = $accountRepo->getAccount($customerAccountId, false);
-                $particulars = ("Sale invoice of Rs.". $totalBill. "/- generated for ". $customerAccount->account_name);
+                $particulars = ("Sale to ". $customerAccount->account_name);
             }
 
             $productRecords = $productRepo->getProducts([], null, [
@@ -198,6 +199,8 @@ class SaleController extends Controller
 
             foreach ($productRecords as $key => $productRecord) {
                 $loadingCharge = $loadingCharge + ($productArray[$productRecord->id]['quantity'] * $productRecord->loading_charge_per_piece);
+
+                $saleProductDetail = $saleProductDetail. ($productRecord->name. " => ". $productArray[$productRecord->id]['quantity']. " X ". $productArray[$productRecord->id]['rate']. " = ". ($productArray[$productRecord->id]['quantity'] * $productArray[$productRecord->id]['rate']). ", ");
             }
 
             //save sale transaction to table
@@ -206,7 +209,7 @@ class SaleController extends Controller
                 'credit_account_id' => $saleAccountId, // credit the sale account
                 'amount'            => $totalBill ,
                 'transaction_date'  => $transactionDate,
-                'particulars'       => $particulars,
+                'particulars'       => ($particulars. " [". $saleProductDetail. "]"),
                 'branch_id'         => $branchId,
             ]);
 
@@ -239,7 +242,7 @@ class SaleController extends Controller
                 'credit_account_id' => $transportationChargeAccountId, // credit the transportation charge account
                 'amount'            => $consignmentCharge ,
                 'transaction_date'  => $transactionDate,
-                'particulars'       => ("Transportation charge to ". $consignmentLocation. ". Sale Invoice No:". $saleResponse['id']),
+                'particulars'       => ("Transportation charge to ". $consignmentLocation. ". Sale Date :". $request->get('sale_date')),
                 'branch_id'         => $branchId,
             ]);
 
@@ -282,7 +285,7 @@ class SaleController extends Controller
         } catch (Exception $e) {
             //roll back in case of exceptions
             DB::rollback();
-
+dd($e);
             if($e->getMessage() == "CustomError") {
                 $errorCode = $e->getCode();
             } else {
@@ -578,10 +581,6 @@ class SaleController extends Controller
 
         try {
             $sale = $this->saleRepo->getSale($id);
-            if(empty($sale->tax_invoice_number)) {
-                throw new AppCustomException("CustomError", 6);
-                
-            }
         } catch (\Exception $e) {
             if($e->getMessage() == "CustomError") {
                 $errorCode = $e->getCode();
@@ -590,6 +589,13 @@ class SaleController extends Controller
             }
             //throwing methodnotfound exception when no model is fetched
             throw new ModelNotFoundException("Sale", $errorCode);
+        }
+
+        if(empty($sale->tax_invoice_number)) {
+            return view('sales.estimate', [
+                'sale' => $sale,
+            ]);
+            
         }
 
         return view('sales.invoice', [

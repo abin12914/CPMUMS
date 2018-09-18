@@ -26,7 +26,13 @@ border-left: none ! important;
 }
 
  @media print {
-    /**/
+    .borderless-table > tbody > tr > td {
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: none !important;
+        border-top: none !important;
+    }
+
     .border-top-only-table > tbody > tr > td {
         border-left: none !important;
         border-right: none !important;

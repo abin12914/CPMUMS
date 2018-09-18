@@ -181,8 +181,8 @@
                                                         <button type="button" class="btn btn-default btn-block btn-flat"><i class="fa fa-print"></i> Invoice</button>
                                                     </a>
                                                 @else
-                                                    <a>
-                                                        <button type="button" class="btn btn-default btn-block btn-flat" disabled>Non Tax Sale</button>
+                                                    <a href="{{ route('sale.invoice', ['id' => $sale->id]) }}" target="_blank">
+                                                        <button type="button" class="btn btn-default btn-block btn-flat"><i class="fa fa-print"></i> Estimate</button>
                                                     </a>
                                                 @endif
                                             </div>
