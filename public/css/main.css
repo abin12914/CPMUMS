@@ -38,4 +38,8 @@ border-left: none ! important;
         border-right: none !important;
         border-bottom: none !important;
     }
+
+    .table-bordered td,.table-bordered th{
+        border:2px solid #ddd!important
+    }
 }
