@@ -226,7 +226,7 @@ class SaleController extends Controller
                 'customer_phone'    => $customerPhone,
                 'customer_address'  => $customerAddress,
                 'customer_gstin'    => $customerGSTIN,
-                'discount'          => $request->get('sale_discount'),
+                'discount'          => $request->get('discount'),
                 'total_amount'      => $totalBill,
                 'branch_id'         => $branchId,
                 'productsArray'     => $productArray,
@@ -285,7 +285,7 @@ class SaleController extends Controller
         } catch (Exception $e) {
             //roll back in case of exceptions
             DB::rollback();
-dd($e);
+
             if($e->getMessage() == "CustomError") {
                 $errorCode = $e->getCode();
             } else {
@@ -294,7 +294,7 @@ dd($e);
         }
 
         if($saveFlag) {
-            return redirect(route('sale.index'))->with("message","Sale details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
+            return redirect(route('sale.show', $saleResponse['id']))->with("message","Sale details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to save the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
@@ -474,7 +474,7 @@ dd($e);
                 'transaction_id' => $transactionResponse['id'],
                 'date'           => $transactionDate,
                 'productsArray'  => $productArray,
-                'discount'       => $request->get('sale_discount'),
+                'discount'       => $request->get('discount'),
                 'total_amount'   => $totalBill,
                 'branch_id'      => $branchId,
             ], $sale);

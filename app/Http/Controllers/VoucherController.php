@@ -190,7 +190,7 @@ class VoucherController extends Controller
                     'id'    => $voucherResponse['id']
                 ];
             }
-            return redirect()->back()->with("message", $voucherTitle. " details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
+            return redirect(route('voucher.show', $voucherResponse['id']))->with("message", $voucherTitle. " details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
         if(!empty($id)) {
@@ -274,7 +274,7 @@ class VoucherController extends Controller
         $updateResponse = $this->store($request, $transactionRepo, $accountRepo, $id);
 
         if($updateResponse['flag']) {
-            return redirect(route('voucher.index'))->with("message","Voucher details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
+            return redirect(route('voucher.show', $updateResponse['id']))->with("message","Voucher details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to update the voucher details. Error Code : ". $this->errorHead. "/". $updateResponse['errorCode'])->with("alert-class", "error");

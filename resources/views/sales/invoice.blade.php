@@ -16,6 +16,7 @@
     <section class="invoice">
         <div class="row">
             <div class="col-md-12">
+                <h5 class="text-center">Bill of supply</h5>
                 <table class="table table-bordered" style="margin-bottom: 0px;">
                     <tbody>
                         <tr>
@@ -23,16 +24,13 @@
                                 <table class="table border-top-only-table" style="margin-bottom: 0px;">
                                     <tbody>
                                         <tr>
-                                            <h3  class="text-center">Bill of supply</h3>
-                                        </tr>
-                                        <tr>
-                                            <td style="width: 70%;">
+                                            <td style="width: 60%;">
                                                 <table class="table border-top-only-table" style="width: 100%; margin-bottom: 0px;">
                                                     <tbody>
                                                         <tr>
                                                             <td style="border-top: none !important;">
                                                                 <b>{{ $sale->branch->name }}</b><br>
-                                                                Br : <b>{{ $sale->branch->place }}<br>
+                                                                <b>{{ $sale->branch->place }}<br>
                                                                 {{ $sale->branch->address }}</b><br><br>
                                                                 <b>GSTIN/UIN</b> : {{ $sale->branch->gstin }} &emsp;<b>State</b> : Kerala &emsp;<b>Code</b> : 32
                                                             </td>
@@ -49,7 +47,7 @@
                                                     </tbody>
                                                 </table>
                                             </td>
-                                            <td style="width: 30%;">
+                                            <td style="width: 40%;">
                                                 <table class="table table-bordered" style="width: 100%; margin-bottom: 0px;">
                                                     <tbody>
                                                         <tr>

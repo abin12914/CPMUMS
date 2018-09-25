@@ -85,7 +85,7 @@ class BranchController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Branch details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "success");
+            return redirect(route('branch.index'))->with("message","Branch details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to save the branch details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");

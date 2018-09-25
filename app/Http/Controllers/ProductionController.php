@@ -181,10 +181,10 @@ class ProductionController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "success");
+            return redirect(route('production.index'))->with("message","Production details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
+        return redirect()->back()->with("message","Failed to save the production details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**
@@ -345,10 +345,10 @@ class ProductionController extends Controller
         }
 
         if($saveFlag) {
-            return redirect(route('production.index'))->with("message","Account details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "success");
+            return redirect(route('production.index'))->with("message","Production details saved successfully. Reference Number : ". $productionResponse['id'])->with("alert-class", "success");
         }
         
-        return redirect()->back()->with("message","Failed to save the account details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
+        return redirect()->back()->with("message","Failed to save the production details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
     /**

@@ -85,7 +85,7 @@ class ProductController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Product details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "success");
+            return redirect(route('product.index'))->with("message","Product details saved successfully. Reference Number : ". $response['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to save the product details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");

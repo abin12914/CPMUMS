@@ -201,7 +201,7 @@ class EmployeeController extends Controller
                 ];
             }
 
-            return redirect()->back()->with("message","Employee details saved successfully. Reference Number : ". $employeeResponse['id'])->with("alert-class", "success");
+            return redirect(route('employee.show', $employeeResponse['id']))->with("message","Employee details saved successfully. Reference Number : ". $employeeResponse['id'])->with("alert-class", "success");
         }
 
         if(!empty($id)) {
@@ -287,7 +287,7 @@ class EmployeeController extends Controller
         $updateResponse = $this->store($request, $accountRepo, $transactionRepo, $id);
 
         if($updateResponse['flag']) {
-            return redirect(route('employee.index'))->with("message","Employee details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
+            return redirect(route('employee.show', $updateResponse['id']))->with("message","Employee details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to update the employee details. Error Code : ". $this->errorHead. "/". $updateResponse['errorCode'])->with("alert-class", "error");

@@ -177,7 +177,7 @@ class PurchaseController extends Controller
         }
 
         if($saveFlag) {
-            return redirect()->back()->with("message","Purchase details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
+            return redirect(route('purchase.index'))->with("message","Purchase details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to save the purchase details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");

@@ -174,7 +174,7 @@ class ExpenseController extends Controller
                 ];
             }
 
-            return redirect()->back()->with("message","Expense details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
+            return redirect(route('expense.index'))->with("message","Expense details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
         
         if(!empty($id)) {

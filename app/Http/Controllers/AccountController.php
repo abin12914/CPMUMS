@@ -193,7 +193,7 @@ class AccountController extends Controller
                     'id'    => $accountResponse['id']
                 ];
             }
-            return redirect()->back()->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "success");
+            return redirect(route('account.show', $accountResponse['id']))->with("message","Account details saved successfully. Reference Number : ". $accountResponse['id'])->with("alert-class", "success");
         }
 
         if(!empty($id)) {
@@ -284,7 +284,7 @@ class AccountController extends Controller
         $updateResponse = $this->store($request, $transactionRepo, $id);
 
         if($updateResponse['flag']) {
-            return redirect(route('account.index'))->with("message","Account details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
+            return redirect(route('account.show', $updateResponse['id']))->with("message","Account details updated successfully. Updated Record Number : ". $updateResponse['id'])->with("alert-class", "success");
         }
         
         return redirect()->back()->with("message","Failed to update the account details. Error Code : ". $this->errorHead. "/". $updateResponse['errorCode'])->with("alert-class", "error");
