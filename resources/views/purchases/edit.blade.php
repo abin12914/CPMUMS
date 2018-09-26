@@ -59,7 +59,7 @@
                                                 <div class="col-md-6">
                                                     <label for="supplier_account_id" class="control-label"><b style="color: red;">* </b> Supplier : </label>
                                                     {{-- adding account select component --}}
-                                                    @component('components.selects.accounts', ['selectedAccountId' => (!empty(old('supplier_account_id')) ? old('supplier_account_id') : $purchase->transaction->credit_account_id ), 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'activeFlag' => true, 'tabindex' => 3])
+                                                    @component('components.selects.accounts', ['selectedAccountId' => (!empty(old('supplier_account_id')) ? old('supplier_account_id') : $purchase->transaction->credit_account_id ), 'cashAccountFlag' => true, 'selectName' => 'supplier_account_id', 'activeFlag' => false, 'tabindex' => 3])
                                                     @endcomponent
                                                     {{-- adding error_message p tag component --}}
                                                     @component('components.paragraph.error_message', ['fieldName' => 'supplier_account_id'])

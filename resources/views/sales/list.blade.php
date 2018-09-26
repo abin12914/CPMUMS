@@ -123,8 +123,9 @@
                                         <tr>
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 15%;">Date & Invoice No.</th>
-                                            <th style="width: 20%;">Branch</th>
-                                            <th style="width: 25%;">Customer</th>
+                                            <th style="width: 15%;">Branch</th>
+                                            <th style="width: 15%;">Account</th>
+                                            <th style="width: 15%;">Customer Name</th>
                                             <th style="width: 10%;">No Of Products</th>
                                             <th style="width: 15%;">Bill Amount</th>
                                             <th style="width: 5%;" class="no-print">Details</th>
@@ -147,6 +148,9 @@
                                                         @if($saleRecord->transaction->debitAccount->status != 1)
                                                             &emsp;<i class="fa fa-clock-o text-orange no-print" title="Short term credit customer"></i>
                                                         @endif
+                                                    </td>
+                                                    <td>
+                                                        {{ $saleRecord->customer_name }}
                                                     </td>
                                                     <td>{{ count($saleRecord->products) }}</td>
                                                     <td>{{ $saleRecord->total_amount }}</td>

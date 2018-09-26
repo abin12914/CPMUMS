@@ -30,7 +30,7 @@
                                                         <tr>
                                                             <td style="border-top: none !important;">
                                                                 <b>{{ $sale->branch->name }}</b><br>
-                                                                <b>{{ $sale->branch->place }}<br>
+                                                                {{ $sale->branch->level > 0 ? 'Branch : ' : '' }}<b>{{ $sale->branch->place }}<br>
                                                                 {{ $sale->branch->address }}</b><br><br>
                                                                 <b>GSTIN/UIN</b> : {{ $sale->branch->gstin }} &emsp;<b>State</b> : Kerala &emsp;<b>Code</b> : 32
                                                             </td>
@@ -138,7 +138,7 @@
                                             <th></th>
                                             <th>Amount</th>
                                             <th></th>
-                                            <td>{{ ($sale->total_amount - $sale->discount) }}</td>
+                                            <td>{{ ($sale->total_amount + $sale->discount) }}</td>
                                         </tr>
                                         <tr>
                                             <th></th>

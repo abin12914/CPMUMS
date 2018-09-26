@@ -111,7 +111,7 @@
                                             <th></th>
                                             <th>Amount</th>
                                             <th></th>
-                                            <td>{{ ($sale->total_amount - $sale->discount) }}</td>
+                                            <td>{{ ($sale->total_amount + $sale->discount) }}</td>
                                         </tr>
                                         <tr>
                                             <th></th>

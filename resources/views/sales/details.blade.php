@@ -148,7 +148,7 @@
                                                         <td></td>
                                                         <td><strong>Total</strong></td>
                                                         <td></td>
-                                                        <td><strong>{{ $sale->total_amount - $sale->discount }}</strong></td>
+                                                        <td><strong>{{ $sale->total_amount + $sale->discount }}</strong></td>
                                                     </tr>
                                                     <tr>
                                                         <td></td>

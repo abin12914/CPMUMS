@@ -29,8 +29,9 @@
                                             <th style="width: 5%;">#</th>
                                             <th style="width: 15%;">Branch Name</th>
                                             <th style="width: 10%;">Place</th>
+                                            <th style="width: 10%;">Level</th>
                                             <th style="width: 25%;">Address</th>
-                                            <th style="width: 20%;">Phone/s</th>
+                                            <th style="width: 10%;">Phone/s</th>
                                             <th style="width: 15%;">GSTIN</th>
                                             <th style="width: 10%;" class="no-print">Details</th>
                                         </tr>
@@ -42,6 +43,7 @@
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $branch->name }}</td>
                                                     <td>{{ $branch->place }}</td>
+                                                    <td>{{ $branch->level == 0 ? 'H.O.' : 'Branch' }}</td>
                                                     <td>{{ $branch->address }}</td>
                                                     <td>{{ $branch->primary_phone. ($branch->secondary_phone ? ', '.$branch->secondary_phone : '') }}</td>
                                                     <td>{{ $branch->gstin }}</td>
