@@ -27,7 +27,7 @@
                             </div>
                             <!-- /.box-header -->
                             <!-- form start -->
-                            <form action="{{route('branch.update', ['id' => $branch->id])}}" method="post" class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
+                            <form action="{{route('branch.update', ['branch' => $branch->id])}}" method="post" class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
                                 <input type="hidden" name="_token" value="{{csrf_token()}}">
                                 {{ method_field('PUT') }}
                                 <div class="box-body">
@@ -92,6 +92,17 @@
                                                     <input type="text" name="secondary_phone" class="form-control" id="secondary_phone" placeholder="Secondary Phone Number" value="{{ old('secondary_phone', $branch->secondary_phone) }}" tabindex="1" maxlength="13">
                                                     {{-- adding error_message p tag component --}}
                                                     @component('components.paragraph.error_message', ['fieldName' => 'secondary_phone'])
+                                                    @endcomponent
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="branch_level" class="col-md-3 control-label">Branch Level : </label>
+                                                <div class="col-md-9">
+                                                    <select class="form-control select2" name="branch_level" id="branch_level" style="width: 100%" tabindex="">
+                                                        <option value="0" {{ old('branch_level', $branch->level) == 0 ? 'selected' : '' }}>Main Branch/Head Office</option>
+                                                        <option value="1" {{ old('branch_level', $branch->level) > 0 ? 'selected' : '' }}>Sub Branch</option>
+                                                    </select>
+                                                    @component('components.paragraph.error_message', ['fieldName' => 'branch_level'])
                                                     @endcomponent
                                                 </div>
                                             </div>

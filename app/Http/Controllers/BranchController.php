@@ -65,6 +65,7 @@ class BranchController extends Controller
                 'gstin'             => $request->get('gstin'),
                 'primary_phone'     => $request->get('primary_phone'),
                 'secondary_phone'   => $request->get('secondary_phone'),
+                'level'             => $request->get('branch_level'),
             ]);
 
             if(!$response['flag']) {
@@ -142,6 +143,7 @@ class BranchController extends Controller
                 'gstin'             => $request->get('gstin'),
                 'primary_phone'     => $request->get('primary_phone'),
                 'secondary_phone'   => $request->get('secondary_phone'),
+                'level'             => $request->get('branch_level'),
             ], $branch);
 
             if(!$response['flag']) {

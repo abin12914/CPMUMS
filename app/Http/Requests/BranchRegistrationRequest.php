@@ -28,7 +28,7 @@ class BranchRegistrationRequest extends FormRequest
             'branch_name'   =>  [
                                     'required',
                                     'max:100',
-                                    Rule::unique('branches', 'name')->ignore($this->branch),
+                                    //Rule::unique('branches', 'name')->ignore($this->branch),
                                 ],
             'place'         =>  [
                                     'required',
@@ -41,21 +41,21 @@ class BranchRegistrationRequest extends FormRequest
             'gstin'         =>  [
                                     'required',
                                     'size:15',
-                                    Rule::unique('branches')->ignore($this->branch),
+                                    //Rule::unique('branches')->ignore($this->branch),
                                 ],
             'primary_phone' =>  [
                                     'required',
                                     'min:10',
                                     'max:13',
-                                    Rule::unique('branches')->ignore($this->branch),
-                                    Rule::unique('branches', 'secondary_phone'),
+                                    //Rule::unique('branches')->ignore($this->branch),
+                                    //Rule::unique('branches', 'secondary_phone'),
                                 ],
             'secondary_phone'=>  [
                                     'nullable',
                                     'min:10',
                                     'max:13',
-                                    Rule::unique('branches', 'primary_phone'),
-                                    Rule::unique('branches')->ignore($this->branch),
+                                    //Rule::unique('branches', 'primary_phone'),
+                                    //Rule::unique('branches')->ignore($this->branch),
                                 ],
         ];
     }

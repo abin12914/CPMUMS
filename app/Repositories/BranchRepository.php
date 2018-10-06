@@ -66,6 +66,7 @@ class BranchRepository
             $branch->gstin              = $inputArray['gstin'];
             $branch->primary_phone      = $inputArray['primary_phone'];
             $branch->secondary_phone    = $inputArray['secondary_phone'];
+            $branch->level              = $inputArray['level'];
             $branch->status             = 1;
             //branch save
             $branch->save();

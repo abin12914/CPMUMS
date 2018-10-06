@@ -93,6 +93,17 @@
                                                 @endcomponent
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="branch_level" class="col-md-3 control-label">Branch Level : </label>
+                                            <div class="col-md-9">
+                                                <select class="form-control select2" name="branch_level" id="branch_level" style="width: 100%" tabindex="">
+                                                    <option value="0">Main Branch/Head Office</option>
+                                                    <option value="1">Sub Branch</option>
+                                                </select>
+                                                @component('components.paragraph.error_message', ['fieldName' => 'branch_level'])
+                                                @endcomponent
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="clearfix"> </div><br>
