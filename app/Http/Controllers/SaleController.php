@@ -296,7 +296,7 @@ class SaleController extends Controller
         if($saveFlag) {
             return redirect(route('sale.show', $saleResponse['id']))->with("message","Sale details saved successfully. Reference Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
-        
+
         return redirect()->back()->with("message","Failed to save the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
@@ -336,7 +336,7 @@ class SaleController extends Controller
      */
     public function edit($id)
     {
-        return redirect()->back()->with('message', 'Editing is temporarily restricted!')->with('alert-class', 'warning');
+        // return redirect()->back()->with('message', 'Editing is temporarily restricted!')->with('alert-class', 'warning');
         $errorCode  = 0;
         $sale       = [];
 
@@ -525,7 +525,7 @@ class SaleController extends Controller
         if($saveFlag) {
             return redirect(route('sale.show', $sale->id))->with("message","Sale details updated successfully. Updated Record Number : ". $transactionResponse['id'])->with("alert-class", "success");
         }
-        
+
         return redirect()->back()->with("message","Failed to update the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
@@ -544,11 +544,11 @@ class SaleController extends Controller
         DB::beginTransaction();
         try {
             $deleteResponse = $this->saleRepo->deleteSale($id);
-            
+
             if(!$deleteResponse['flag']) {
                 throw new AppCustomException("CustomError", $deleteResponse['errorCode']);
             }
-            
+
             DB::commit();
             $deleteFlag = true;
         } catch (Exception $e) {
@@ -565,7 +565,7 @@ class SaleController extends Controller
         if($deleteFlag) {
             return redirect(route('sale.index'))->with("message","Sale details deleted successfully.")->with("alert-class", "success");
         }
-        
+
         return redirect()->back()->with("message","Failed to delete the sale details. Error Code : ". $this->errorHead. "/". $errorCode)->with("alert-class", "error");
     }
 
@@ -595,7 +595,7 @@ class SaleController extends Controller
             return view('sales.estimate', [
                 'sale' => $sale,
             ]);
-            
+
         }
 
         return view('sales.invoice', [
