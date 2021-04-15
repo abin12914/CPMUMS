@@ -73,7 +73,7 @@ class ServiceRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 2;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -104,7 +104,7 @@ class ServiceRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 4;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -126,7 +126,7 @@ class ServiceRepository
             } else {
                 $service->delete();
             }
-            
+
             $deleteFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -134,7 +134,7 @@ class ServiceRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 5;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

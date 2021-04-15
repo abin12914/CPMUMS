@@ -30,7 +30,7 @@ class ProductionRepository
                     $productions = $productions->where($param['paramName'], $param['paramOperator'], $param['paramValue']);
                 }
             }
-
+            $productions = $productions->orderBy('date');
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $productions = $productions->paginate($noOfRecords);
             } else {
@@ -109,7 +109,7 @@ class ProductionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 4;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -131,7 +131,7 @@ class ProductionRepository
             } else {
                 $production->delete();
             }
-            
+
             $deleteFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -139,7 +139,7 @@ class ProductionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 5;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

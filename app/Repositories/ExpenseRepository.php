@@ -39,6 +39,7 @@ class ExpenseRepository
                 }
             }
 
+            $expenses = $expenses->orderBy('date');
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $expenses = $expenses->paginate($noOfRecords);
             } else {
@@ -114,7 +115,7 @@ class ExpenseRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 4;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -136,7 +137,7 @@ class ExpenseRepository
             } else {
                 $expense->delete();
             }
-            
+
             $deleteFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -144,7 +145,7 @@ class ExpenseRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 5;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

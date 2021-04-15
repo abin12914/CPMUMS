@@ -39,7 +39,7 @@ class SaleRepository
                     });
                 }
             }
-
+            $sales = $sales->orderBy('date');
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $sales = $sales->paginate($noOfRecords);
             } else {

@@ -38,7 +38,7 @@ class PurchaseRepository
                     });
                 }
             }
-
+            $purchases = $purchases->orderBy('date');
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $purchases = $purchases->paginate($noOfRecords);
             } else {
@@ -117,7 +117,7 @@ class PurchaseRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 4;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -139,7 +139,7 @@ class PurchaseRepository
             } else {
                 $purchase->delete();
             }
-            
+
             $deleteFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -147,7 +147,7 @@ class PurchaseRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 5;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

@@ -45,7 +45,7 @@ class TransactionRepository
             if(!empty($relation)) {
                 $transactions = $transactions->has($this->transactionRelations[$relation]['relationName']);
             }
-
+            $transactions = $transactions->orderBy('transaction_date');
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $transactions = $transactions->paginate($noOfRecords);
             } else {
@@ -57,7 +57,7 @@ class TransactionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 1;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -86,7 +86,7 @@ class TransactionRepository
             $transaction->created_user_id   = Auth::user()->id;
             //transaction save
             $transaction->save();
-            
+
             $saveFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -104,7 +104,7 @@ class TransactionRepository
                 'id'    => $transaction->id,
             ];
         }
-        
+
         return [
             'flag'      => false,
             'errorCode' => $repositoryCode + 3,
@@ -126,7 +126,7 @@ class TransactionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 4;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -154,7 +154,7 @@ class TransactionRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 5;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 

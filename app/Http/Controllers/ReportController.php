@@ -34,7 +34,7 @@ class ReportController extends Controller
     {
         $obDebit            = 0;
         $obCredit           = 0;
-        
+
         $accountId          = $request->get('account_id');
         $fromDate           = !empty($request->get('from_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('from_date'))->format('Y-m-d') : "";
         $toDate             = !empty($request->get('to_date')) ? Carbon::createFromFormat('d-m-Y', $request->get('to_date'))->format('Y-m-d') : "";
@@ -125,7 +125,7 @@ class ReportController extends Controller
             }
 
             throw new AppCustomException("CustomError", $errorCode);
-            
+
         }
 
         //params passing for auto selection
@@ -186,7 +186,7 @@ class ReportController extends Controller
                 if(empty($debitAmount[$transaction->debit_account_id])) {
                     $debitAmount[$transaction->debit_account_id] = 0;
                 }
-                    
+
                 $debitAmount[$transaction->debit_account_id] = $debitAmount[$transaction->debit_account_id] + $transaction->amount;
             }
 
@@ -194,7 +194,7 @@ class ReportController extends Controller
                 if(empty($creditAmount[$transaction->credit_account_id])) {
                     $creditAmount[$transaction->credit_account_id] = 0;
                 }
-                
+
                 $creditAmount[$transaction->credit_account_id] = $creditAmount[$transaction->credit_account_id] + $transaction->amount;
             }
 

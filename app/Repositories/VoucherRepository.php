@@ -43,7 +43,7 @@ class VoucherRepository
                     });
                 }
             }
-
+            $vouchers = $vouchers->orderBy('date');
             if(!empty($noOfRecords) && $noOfRecords > 0) {
                 $vouchers = $vouchers->paginate($noOfRecords);
             } else {
@@ -81,7 +81,7 @@ class VoucherRepository
             $voucher->status            = 1;
             //voucher save
             $voucher->save();
-            
+
             $saveFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -99,7 +99,7 @@ class VoucherRepository
                 'id'    => $voucher->id,
             ];
         }
-        
+
         return [
             'flag'      => false,
             'errorCode' => $repositoryCode + 3,
@@ -121,7 +121,7 @@ class VoucherRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 4;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -132,7 +132,7 @@ class VoucherRepository
      * delete voucher.
      */
     public function deleteVoucher($id, $forceFlag=false)
-    {   
+    {
         $deleteFlag = false;
 
         try {
@@ -146,7 +146,7 @@ class VoucherRepository
             } else {
                 $voucher->delete();
             }
-            
+
             $deleteFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -154,7 +154,7 @@ class VoucherRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 5;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
