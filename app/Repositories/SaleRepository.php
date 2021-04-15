@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Sale;
 use Exception;
+use Carbon\Carbon;
 use App\Exceptions\AppCustomException;
 
 class SaleRepository
@@ -66,7 +67,21 @@ class SaleRepository
 
         try {
             if(!empty($inputArray['tax_invoice_flag']) && $inputArray['tax_invoice_flag'] == 1) {
-                $count = (Sale::whereNotNull('tax_invoice_number')->where('branch_id', $inputArray['branch_id'])->count())+1;
+                $transactionDate = Carbon::parse($inputArray['date']);
+                $currentYear = Carbon::parse($inputArray['date'])->year;
+                //april 1 => financial year start date (current year)
+                $finStartDate = Carbon::createFromFormat('d-m-Y', '01-04-'.$currentYear);
+
+                if($transactionDate < $finStartDate) {
+                  //april 1 => financial year start date (previous year)
+                  $finStartDate = Carbon::createFromFormat('d-m-Y', '01-04-'.($currentYear - 1));
+                }
+                $count = (
+                  Sale::whereNotNull('tax_invoice_number')
+                    ->where('branch_id', $inputArray['branch_id'])
+                    ->where('date', '>=', ($finStartDate->format('Y-m-d')))
+                    ->count()
+                )+1;
             }
             //sale saving
             if(empty($sale)) {
@@ -125,7 +140,7 @@ class SaleRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 4;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
@@ -147,7 +162,7 @@ class SaleRepository
             } else {
                 $sale->delete();
             }
-            
+
             $deleteFlag = true;
         } catch (Exception $e) {
             if($e->getMessage() == "CustomError") {
@@ -155,7 +170,7 @@ class SaleRepository
             } else {
                 $this->errorCode = $this->repositoryCode + 5;
             }
-            
+
             throw new AppCustomException("CustomError", $this->errorCode);
         }
 
