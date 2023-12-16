@@ -186,7 +186,17 @@
                                                         <i class="no-print bg-info"> / {{ $transaction->id }}</i>
                                                     </td>
                                                     <td>{{ $transaction->transaction_date->format('d-m-Y') }}</td>
-                                                    <td>{{ $transaction->particulars }}</td>
+                                                    <td>
+                                                        {{ $transaction->particulars }} 
+                                                        @if (!empty($transaction->sale) && !empty($transaction->sale->tax_invoice_number))
+                                                            [Ref.No: 
+                                                            @if(!empty(config('constants.branchInvoiceCode')[$transaction->sale->branch_id]))
+                                                                {{ config('constants.branchInvoiceCode')[$transaction->sale->branch_id]. $transaction->sale->tax_invoice_number }}
+                                                            @else
+                                                                {{ $transaction->sale->branch_id. "/". $transaction->sale->tax_invoice_number }}
+                                                            @endif
+                                                            ]
+                                                        @endif
                                                     @if($transaction->debit_account_id == $account->id)
                                                         <td>{{ $transaction->amount }}</td>
                                                         <td></td>

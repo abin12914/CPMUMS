@@ -100,6 +100,7 @@ class ReportController extends Controller
 
             //display data
             $transactions   = $this->transactionRepo->getTransactions($params, $orParams, $relation, $noOfRecords);
+            $transactions->load('sale:id,transaction_id,branch_id,tax_invoice_number');
 
             //subtotal values
             $subTotaltransactions = $this->transactionRepo->getTransactions($params, $orParams, $relation, null);
